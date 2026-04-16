@@ -41,6 +41,12 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    constraints {
+        implementation("tools.jackson.core:jackson-core:3.1.1")
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.21")
+    }
+
 }
 
 kotlin {
