@@ -6,17 +6,12 @@ import es.uib.tfg.sportsapi.dto.UserDetails
 // 1. De Entidad (BD) a DTO (Frontend)
 fun User.toDetailsDTO(): UserDetails {
     return UserDetails(
-        id = this.id,
+        userId = this.id,
         email = this.email,
-        firstName = this.firstName,
-        lastName = this.lastName
-    )
-}
-
-// 2. Si un DTO tiene campos distintos o anidados, es súper explícito
-fun User.toCustomProfileDTO(): CustomProfile {
-    return CustomProfile(
-        fullName = "${this.firstName} ${this.lastName}", // Lógica de presentación aquí, no en el controller
-        email = this.email
+        fullName = this.firstName + this.lastName,
+        category = TODO(),
+        profileImageUrl = TODO(),
+        licenses = TODO(),
+        signature = TODO(),
     )
 }
