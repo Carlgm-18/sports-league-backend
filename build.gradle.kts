@@ -4,6 +4,7 @@ plugins {
 	id("org.springframework.boot") version "4.0.5"
 	id("io.spring.dependency-management") version "1.1.7"
 	kotlin("plugin.jpa") version "2.2.21"
+    id("org.openapi.generator") version "7.21.0"
 }
 
 group = "es.uib.tfg"
@@ -53,4 +54,47 @@ allOpen {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+openApiGenerate {
+    generatorName.set("kotlin-spring")
+    inputSpec.set("$rootDir/src/main/resources/api.yaml")
+
+    // 1. Forma moderna en Gradle 8+ para referenciar la carpeta build
+    outputDir.set(layout.buildDirectory.dir("generated/openapi").get().asFile.path)
+
+    // 2. LA MAGIA REAL: En el plugin de Gradle, esto es lo que le dice que NO genere controladores
+    globalProperties.set(mapOf(
+        "models" to "" // Un string vacío significa "Genera TODOS los modelos y omite las APIs"
+    ))
+
+    // 3. Desactivamos la basura extra (tests y documentación autogenerada que no usaremos)
+    generateModelTests.set(false)
+    generateModelDocumentation.set(false)
+    generateApiTests.set(false)
+    generateApiDocumentation.set(false)
+
+    // Paquetes
+    modelPackage.set("es.uib.tfg.sportsapi.dto")
+    apiPackage.set("es.uib.tfg.sportsapi.api")
+
+    configOptions.set(mapOf(
+        "dateLibrary" to "java8",
+        "useSpringBoot3" to "true",
+        "useBeanValidation" to "true",
+        "enumPropertyNaming" to "UPPERCASE"
+    ))
+}
+
+// 4. Actualizar también la forma de decirle a Kotlin dónde están los archivos generados
+sourceSets {
+    main {
+        kotlin {
+            srcDir(layout.buildDirectory.dir("generated/openapi/src/main/kotlin"))
+        }
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    dependsOn("openApiGenerate")
 }
