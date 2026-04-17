@@ -199,7 +199,9 @@ components:
           format: email
         category:
           $ref: '#/components/schemas/UserCategory'
+        createdAt:
           type: string
+          format: date-time
         profileImageUrl:
           type: string
           format: uri
