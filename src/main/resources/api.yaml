@@ -71,11 +71,11 @@ components:
       type: string
       enum: ['MALE', 'FEMALE']
 
-    ImageUrl:
+    SignImageUrl:
       type: object
       required: [imageUrl]
       properties:
-        imageUrl:
+        signImageUrl:
           type: string
           format: uri
 
@@ -920,13 +920,13 @@ components:
         ]
       properties:
         firstRefereeSignature:
-          $ref: '#/components/schemas/ImageUrl'
+          $ref: '#/components/schemas/SignImageUrl'
         secondRefereeSignature:
-          $ref: '#/components/schemas/ImageUrl'
+          $ref: '#/components/schemas/SignImageUrl'
         localCaptainSignature:
-          $ref: '#/components/schemas/ImageUrl'
+          $ref: '#/components/schemas/SignImageUrl'
         visitorCaptainSignature:
-          $ref: '#/components/schemas/ImageUrl'
+          $ref: '#/components/schemas/SignImageUrl'
 
     MatchPeriod:
       type: object
@@ -1214,7 +1214,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ImageUrl'
+              $ref: '#/components/schemas/SignImageUrl'
       responses:
         '200':
           description: 'Firma guardada'
