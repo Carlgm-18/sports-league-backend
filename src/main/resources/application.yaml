@@ -2,6 +2,12 @@ spring:
   application:
     name: sports-league-backend
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sports_league_db
+    username: tfg_admin
+    password: tfg_password_123
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: validate
