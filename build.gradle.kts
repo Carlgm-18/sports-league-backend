@@ -93,7 +93,15 @@ openApiGenerate {
             "enumPropertyNaming" to "UPPERCASE"
         )
     )
+
+    typeMappings.set(mapOf(
+        "DateTime" to "java.time.LocalDateTime",
+        "OffsetDateTime" to "java.time.LocalDateTime"
+    ))
+
     // 2. Dile qué import de Java tiene que poner en la cabecera de los archivos
+    importMappings.set(mapOf(
+        "java.time.OffsetDateTime" to "java.time.LocalDateTime"
     ))
 
     cleanupOutput.set(true)
