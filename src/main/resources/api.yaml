@@ -198,6 +198,7 @@ components:
           type: string
           format: email
         category:
+          $ref: '#/components/schemas/UserCategory'
           type: string
         profileImageUrl:
           type: string
