@@ -24,11 +24,11 @@ class UserController(
     @GetMapping("/api/v1/users/me")
     fun getCurrentUser(): UserDetails {
         // El ID del usuario se sacará del token JWT en el futuro
-        return userService.getCurrentUserDetails()
+        TODO("Not yet implemented")
     }
 
     @PatchMapping("/api/v1/users/me")
     fun updateCurrentUser(@Valid @RequestBody request: UserUpdateRequest): UserDetails {
-        return userService.updateUser(request)
+        TODO("Not yet implemented")
     }
 }
