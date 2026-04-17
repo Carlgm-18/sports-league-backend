@@ -516,13 +516,13 @@ components:
           format: uri
         startDate:
           type: string
-          format: date-time
+          format: date
         endDate:
           type: string
-          format: date-time
+          format: date
         maxInscriptionDate:
           type: string
-          format: date-time
+          format: date
         status:
           $ref: '#/components/schemas/LeagueState'
         createdAt:
