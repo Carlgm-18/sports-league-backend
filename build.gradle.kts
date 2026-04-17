@@ -85,11 +85,6 @@ openApiGenerate {
     modelPackage.set("es.uib.tfg.sportsapi.dto")
     apiPackage.set("es.uib.tfg.sportsapi.api")
 
-    configOptions.set(mapOf(
-        "dateLibrary" to "java8",
-        "useSpringBoot3" to "true",
-        "useBeanValidation" to "true",
-        "enumPropertyNaming" to "UPPERCASE"
     configOptions.set(
         mapOf(
             "dateLibrary" to "java8",
