@@ -206,7 +206,7 @@ components:
           type: string
           format: uri
         signature:
-          $ref: '#/components/schemas/ImageUrl'
+          $ref: '#/components/schemas/SignImageUrl'
         licenses:
           type: array
           items:
