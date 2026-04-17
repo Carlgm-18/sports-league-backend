@@ -95,6 +95,8 @@ openApiGenerate {
     )
     // 2. Dile qué import de Java tiene que poner en la cabecera de los archivos
     ))
+
+    cleanupOutput.set(true)
 }
 
 sourceSets {
