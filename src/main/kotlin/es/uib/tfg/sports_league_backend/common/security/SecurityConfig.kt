@@ -16,7 +16,7 @@ import org.springframework.web.filter.CorsFilter
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig(private val jwtAuthFilter: JwtAuthenticationFilter) {
+class SecurityConfig(/*private val jwtAuthFilter: JwtAuthenticationFilter*/) {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
@@ -37,7 +37,7 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthenticationFilter) {
                 auth.anyRequest().authenticated()
             }
             // NUEVO: Añadimos nuestro filtro antes del filtro por defecto de Spring
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            //.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }
