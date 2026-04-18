@@ -34,6 +34,11 @@ class User(
     @Column(name = "push_token")
     var pushToken: String? = null,
 
-    @Column(name = "created_at")
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    var profileImageUrl: String = "",
+
+    @Transient
+    var licenses: List<UserCreateRequestLicensesInner> = listOf(),
+
+    @Transient
+    var signature: SignImageUrl? = null,
 )
