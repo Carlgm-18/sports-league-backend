@@ -31,8 +31,7 @@ class User(
 
     // var pushToken: String? = null,
 
-    @Column(name = "push_token")
-    var pushToken: String? = null,
+    var createdAt: LocalDateTime? = null,
 
     var profileImageUrl: String = "",
 
