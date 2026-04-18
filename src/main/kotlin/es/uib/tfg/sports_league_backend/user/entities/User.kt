@@ -1,5 +1,8 @@
 package es.uib.tfg.sports_league_backend.user.entities
 
+import es.uib.tfg.sportsapi.dto.SignImageUrl
+import es.uib.tfg.sportsapi.dto.UserCategory
+import es.uib.tfg.sportsapi.dto.UserCreateRequestLicensesInner
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
