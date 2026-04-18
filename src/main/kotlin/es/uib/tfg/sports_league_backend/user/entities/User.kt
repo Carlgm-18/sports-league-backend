@@ -25,8 +25,11 @@ class User(
     @Column(nullable = false)
     var passwordHash: String,
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    var category: String, // 'MALE' o 'FEMALE'
+    var category: UserCategory,
+
+    // var pushToken: String? = null,
 
     @Column(name = "push_token")
     var pushToken: String? = null,
