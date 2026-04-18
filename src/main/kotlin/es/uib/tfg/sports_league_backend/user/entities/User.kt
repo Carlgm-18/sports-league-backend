@@ -22,7 +22,6 @@ class User(
     @Column(nullable = false, unique = true, length = 50)
     var email: String,
 
-    // IMPORTANTE: Aquí guardaremos el hash de la contraseña, NUNCA en texto plano
     @Column(nullable = false)
     var passwordHash: String,
 
