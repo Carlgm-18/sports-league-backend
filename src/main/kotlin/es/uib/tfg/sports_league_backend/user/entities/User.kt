@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int = 0,
+    var id: Int = 0,
 
     @Column(nullable = false, length = 50)
     var firstName: String,
