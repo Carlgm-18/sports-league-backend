@@ -31,12 +31,12 @@ class User(
 
     // var pushToken: String? = null,
 
-    var createdAt: LocalDateTime? = null,
+    var createdAt: LocalDateTime,
 
-    var profileImageUrl: String = "",
+    var profileImageUrl: String? = null,
 
     @Transient
-    var licenses: List<UserCreateRequestLicensesInner> = listOf(),
+    var licenses: List<UserCreateRequestLicensesInner>? = null,
 
     @Transient
     var signature: SignImageUrl? = null,
