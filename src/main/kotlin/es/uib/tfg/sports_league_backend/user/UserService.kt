@@ -20,28 +20,24 @@ class UserService(
     //@Value($$"${jwt.expiration}") private val jwtExpirationMs: Long
 ) {
 
-    @Transactional // Asegura que si algo falla, la base de datos hace un rollback y no guarda a medias
-    fun registerUser(request: UserCreateRequest) {
+    @Transactional
+    fun registerUser(request: UserCreateRequest): DomainResult<User, UserRegistrationError> {
 
         if (userRepository.existsByEmail(request.email)) {
-            throw UserAlreadyExistsException("El email ${request.email} ya está registrado.")
+            return DomainResult.Failure(UserRegistrationError.EmailAlreadyExists(request.email))
         }
 
-        val newUser = User(
-            firstName = request.firstName,
-            lastName = request.lastName,
-            email = request.email,
-            passwordHash = passwordEncoder.encode(request.password)!!,
-            category = request.category
-        )
+        val encodedPassword = passwordEncoder.encode(request.password)
+            ?: return DomainResult.Failure(UserRegistrationError.PasswordEncodingFailed)
 
-        // 4. Guardar en PostgreSQL
-        userRepository.save(newUser)
+        val newUser = request.toEntity(encodedPassword)
 
-        // (Opcional) Aquí podrías guardar las licencias en otra tabla si las hay en el request
+        val savedUser = userRepository.save(newUser)
+
+        return DomainResult.Success(savedUser)
     }
 
-    fun login(request: UserLoginRequest): UserAuthResponse {
+    fun login(request: UserLoginRequest): User {
 
 //        val user = userRepository.findByEmail(request.email) ?: throw RuntimeException("Credenciales inválidas")
 //
