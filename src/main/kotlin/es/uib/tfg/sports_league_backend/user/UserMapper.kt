@@ -1,7 +1,9 @@
 package es.uib.tfg.sports_league_backend.user
 
 import es.uib.tfg.sports_league_backend.user.entities.User
+import es.uib.tfg.sportsapi.dto.UserAuthResponse
 import es.uib.tfg.sportsapi.dto.UserCreateRequest
+import es.uib.tfg.sportsapi.dto.UserCreateResponse
 import es.uib.tfg.sportsapi.dto.UserDetails
 import java.net.URI
 import java.time.LocalDateTime
@@ -41,3 +43,7 @@ fun User.toCreateResponse(): UserCreateResponse {
         category = this.category,
     )
 }
+
+//fun User.toAuthResponse(): UserAuthResponse {
+//
+//}
