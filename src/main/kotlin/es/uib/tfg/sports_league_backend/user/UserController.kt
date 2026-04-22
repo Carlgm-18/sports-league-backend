@@ -1,8 +1,12 @@
 package es.uib.tfg.sports_league_backend.user
 
+import es.uib.tfg.sports_league_backend.core.DomainResult
+import es.uib.tfg.sports_league_backend.user.errors.UserLoginError
+import es.uib.tfg.sports_league_backend.user.errors.UserRegistrationError
 import es.uib.tfg.sportsapi.dto.*
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -45,13 +49,37 @@ class UserController(
 
     @PostMapping("/api/v1/auth/login")
     fun login(@Valid @RequestBody request: UserLoginRequest): UserAuthResponse {
-        return userService.login(request)
+//        return userService.login(request)
+        TODO("Not yet implemented")
     }
 
+    data class UserId(val id: Int)
     @GetMapping("/api/v1/users/me")
-    fun getCurrentUser(): UserDetails {
+    fun getCurrentUser(@RequestBody request: UserId): ResponseEntity<*> {
         // El ID del usuario se sacará del token JWT en el futuro
-        TODO("Not yet implemented")
+        return when (val user = userService.getUserById(request.id)) {
+            is DomainResult.Success -> {
+                ResponseEntity
+                        .status(HttpStatus.FOUND)
+                        .body(user.data.toDetailsDTO())
+            }
+
+            is DomainResult.Failure -> {
+                when (user.error) {
+                    is UserLoginError.UserNotFound -> {
+                        ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(user.error)
+                    }
+
+                    else -> {
+                        ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body("Error inesperado")
+                    }
+                }
+            }
+        }
     }
 
     @PatchMapping("/api/v1/users/me")
