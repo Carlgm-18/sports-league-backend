@@ -8,17 +8,16 @@ import java.time.LocalDateTime
 
 // 1. De Entidad (BD) a DTO (Frontend)
 fun User.toDetailsDTO(): UserDetails {
-//    return UserDetails(
-//        userId = this.id,
-//        email = this.email,
-//        fullName = "${this.firstName} ${this.lastName}",
-//        category = this.category,
-//        profileImageUrl = URI(this.profileImageUrl),
-//        licenses = this.licenses,
-//        signature = this.signature,
-//        createdAt = this.createdAt.
-//    )
-    TODO("Not yet implemented")
+    return UserDetails(
+        userId = this.id,
+        email = this.email,
+        fullName = "${this.firstName} ${this.lastName}",
+        category = this.category,
+        profileImageUrl = URI(this.profileImageUrl ?: ""),
+        licenses = this.licenses ?: listOf(),
+        signature = this.signature,
+        createdAt = this.createdAt
+    )
 }
 
 fun UserCreateRequest.toEntity(): User {
