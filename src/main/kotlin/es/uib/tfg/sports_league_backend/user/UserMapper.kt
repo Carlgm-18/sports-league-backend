@@ -21,12 +21,17 @@ fun User.toDetailsDTO(): UserDetails {
 }
 
 fun UserCreateRequest.toEntity(): User {
+fun UserCreateRequest.toEntity(encodedPassword: String): User {
     return User(
         email = this.email,
         firstName = this.firstName,
         lastName = this.lastName,
         passwordHash = this.password, // TODO: hashea la contraseña
+        passwordHash = encodedPassword,
         category = this.category,
         createdAt = LocalDateTime.now(),
+        licenses = this.licenses
+    )
+}
     )
 }
