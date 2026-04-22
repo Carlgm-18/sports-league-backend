@@ -14,6 +14,7 @@ class UserController(
     @ResponseStatus(HttpStatus.CREATED)
     fun register(@Valid @RequestBody request: UserCreateRequest) {
         userService.registerUser(request)
+    @PostMapping("/api/v1/users/register")
     }
 
     @PostMapping("/api/v1/auth/login")
