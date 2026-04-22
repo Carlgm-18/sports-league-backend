@@ -11,8 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import org.springframework.web.filter.CorsFilter
 
 @Configuration
 @EnableWebSecurity
@@ -28,22 +28,26 @@ class SecurityConfig(/*private val jwtAuthFilter: JwtAuthenticationFilter*/) {
         http
             .cors { }
             .csrf { it.disable() }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
-                auth.requestMatchers("/api/v1/auth/**").permitAll()
-                auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                auth.requestMatchers(HttpMethod.GET, "/api/v1/leagues/**").permitAll()
-                // ... (tus otras reglas)
-                auth.anyRequest().authenticated()
+                // DEBUG: Permitir todas las peticiones temporalmente
+                auth.anyRequest().permitAll()
             }
-            // NUEVO: Añadimos nuestro filtro antes del filtro por defecto de Spring
-            //.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            // La gestión de sesión y las reglas específicas se ignoran por ahora
+            // .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            // .authorizeHttpRequests { auth ->
+            //     auth.requestMatchers("/api/v1/auth/**").permitAll()
+            //     auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+            //     auth.requestMatchers(HttpMethod.GET, "/api/v1/leagues/**").permitAll()
+            //     auth.requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
+            //     auth.requestMatchers(HttpMethod.POST, "/api/v1/users/**").permitAll()
+            //     auth.anyRequest().authenticated()
+            // }
 
         return http.build()
     }
 
     @Bean
-    fun corsFilter(): CorsFilter {
+    fun corsConfigurationSource(): CorsConfigurationSource {
         val source = UrlBasedCorsConfigurationSource()
         val config = CorsConfiguration()
 
@@ -53,6 +57,6 @@ class SecurityConfig(/*private val jwtAuthFilter: JwtAuthenticationFilter*/) {
         config.allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
 
         source.registerCorsConfiguration("/**", config)
-        return CorsFilter(source)
+        return source
     }
 }
