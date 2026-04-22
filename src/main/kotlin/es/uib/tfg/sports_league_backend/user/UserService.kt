@@ -2,7 +2,10 @@ package es.uib.tfg.sports_league_backend.user
 
 import es.uib.tfg.sports_league_backend.common.exceptions.UserAlreadyExistsException
 import es.uib.tfg.sports_league_backend.common.security.JwtService
+import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.user.entities.User
+import es.uib.tfg.sports_league_backend.user.errors.UserLoginError
+import es.uib.tfg.sports_league_backend.user.errors.UserRegistrationError
 import es.uib.tfg.sportsapi.dto.UserAuthResponse
 import es.uib.tfg.sportsapi.dto.UserCreateRequest
 import es.uib.tfg.sportsapi.dto.UserLoginRequest
@@ -57,5 +60,15 @@ class UserService(
 //            expiresIn = (jwtExpirationMs / 1000).toInt(), tokenType = "Bearer", user = userDetails
 //        )
         TODO("Not yet implemented")
+    }
+
+    fun getUserById(id: Int): DomainResult<User, UserLoginError> {
+        val user = userRepository.findById(id)
+
+        if (user.isEmpty) {
+            return DomainResult.Failure(UserLoginError.UserNotFound(id))
+        }
+
+        return DomainResult.Success(user.get())
     }
 }
