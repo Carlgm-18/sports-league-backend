@@ -23,7 +23,7 @@ class User(
     var email: String,
 
     @Column(nullable = false)
-    var passwordHash: String,
+    var passwordHash: SecurePassword,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
