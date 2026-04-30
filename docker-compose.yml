@@ -4,10 +4,12 @@ services:
   postgres-db:
     image: postgres:15-alpine
     container_name: tfg_postgres
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: sports_league_db
-      POSTGRES_USER: tfg_admin
-      POSTGRES_PASSWORD: tfg_password_123
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
