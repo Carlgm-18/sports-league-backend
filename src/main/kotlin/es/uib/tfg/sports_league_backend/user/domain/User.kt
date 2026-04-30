@@ -33,6 +33,7 @@ class User(
 
     var createdAt: LocalDateTime,
 
+    @Column
     var profileImageUrl: String? = null,
 
     @Transient
