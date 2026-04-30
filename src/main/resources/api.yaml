@@ -29,7 +29,7 @@ components:
   schemas:
     Role:
       type: string
-      enum: ['ADMIN', 'REFEREE', 'PLAYER', 'CAPTAIN']
+      enum: [ 'ADMIN', 'REFEREE', 'PLAYER', 'CAPTAIN' ]
 
     ParticipantRoles:
       type: array
@@ -38,23 +38,23 @@ components:
 
     ProposalState:
       type: string
-      enum: ['PENDING', 'DISMISSED', 'APPROVED']
+      enum: [ 'PENDING', 'DISMISSED', 'APPROVED' ]
 
     RequestState:
       type: string
-      enum: ['PENDING', 'REJECTED', 'ACCEPTED', 'CANCELED']
+      enum: [ 'PENDING', 'REJECTED', 'ACCEPTED', 'CANCELED' ]
 
     LeagueState:
       type: string
-      enum: ['TEAM_ASSEMBLE', 'MATCH_MAKING', 'IN_PROGRESS', 'ENDED']
+      enum: [ 'TEAM_ASSEMBLE', 'MATCH_MAKING', 'IN_PROGRESS', 'ENDED' ]
 
     LeagueCategory:
       type: string
-      enum: ['MALE', 'FEMALE', 'BOTH']
+      enum: [ 'MALE', 'FEMALE', 'BOTH' ]
 
     DateTimeSlot:
       type: object
-      required: [dateTime, duration]
+      required: [ dateTime, duration ]
       properties:
         dateTime:
           type: string
@@ -65,15 +65,15 @@ components:
 
     MatchState:
       type: string
-      enum: ['NOT_SCHEDULED', 'SCHEDULED', 'IN_GAME', 'ENDED']
+      enum: [ 'NOT_SCHEDULED', 'SCHEDULED', 'IN_GAME', 'ENDED' ]
 
     UserCategory:
       type: string
-      enum: ['MALE', 'FEMALE']
+      enum: [ 'MALE', 'FEMALE' ]
 
     SignImageUrl:
       type: object
-      required: [imageUrl]
+      required: [ imageUrl ]
       properties:
         signImageUrl:
           type: string
@@ -82,10 +82,23 @@ components:
           type: string
           format: date-time
 
+    LicenceElement:
+      type: object
+      required: [sportName, license]
+      properties:
+        sportName:
+          type: string
+        license:
+          type: string
+
+    LicensesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/LicenceElement'
 
     FormErrorResponse:
       type: object
-      required: [timestamp, status, errors]
+      required: [ timestamp, status, errors ]
       properties:
         timestamp:
           type: string
@@ -101,7 +114,7 @@ components:
 
     ValidationError:
       type: object
-      required: [field, message, rejectedValue]
+      required: [ field, message, rejectedValue ]
       properties:
         field:
           type: string
@@ -115,7 +128,7 @@ components:
 
     UserCreateRequest:
       type: object
-      required: [firstName, lastName, email, password, category]
+      required: [ firstName, lastName, email, password, confirmPassword, category ]
       properties:
         firstName:
           type: string
@@ -132,21 +145,19 @@ components:
           format: password
           minLength: 10
           maxLength: 64
+        confirmPassword:
+          type: string
+          format: password
+          minLength: 10
+          maxLength: 64
         category:
           $ref: '#/components/schemas/UserCategory'
         licenses:
-          type: array
-          items:
-            type: object
-            properties:
-              sportName:
-                type: string
-              license:
-                type: string
+          $ref: '#/components/schemas/LicensesList'
 
     UserCreateResponse:
       type: object
-      required: [firstName, lastName, email, category]
+      required: [ firstName, lastName, email, category ]
       properties:
         firstName:
           type: string
@@ -161,14 +172,8 @@ components:
         category:
           $ref: '#/components/schemas/UserCategory'
         licenses:
-          type: array
-          items:
-            type: object
-            properties:
-              sportName:
-                type: string
-              license:
-                type: string
+          $ref: '#/components/schemas/LicensesList'
+
 
     UserUpdateRequest:
       type: object
@@ -182,18 +187,11 @@ components:
         category:
           $ref: '#/components/schemas/UserCategory'
         licenses:
-          type: array
-          items:
-            type: object
-            properties:
-              sportName:
-                type: string
-              license:
-                type: string
+          $ref: '#/components/schemas/LicensesList'
 
     UserLoginRequest:
       type: object
-      required: [email, password]
+      required: [ email, password ]
       properties:
         email:
           type: string
@@ -235,32 +233,25 @@ components:
         signature:
           $ref: '#/components/schemas/SignImageUrl'
         licenses:
-          type: array
-          items:
-            type: object
-            properties:
-              sportName:
-                type: string
-              license:
-                type: string
+          $ref: '#/components/schemas/LicensesList'
 
     UserSummary:
       type: object
-      required: [userId, fullName, category, profileImageUrl]
+      required: [ userId, fullName, category, profileImageUrl ]
       properties:
         userId:
           type: integer
         fullName:
           type: string
         category:
-          type: string
+          $ref: '#/components/schemas/UserCategory'
         profileImageUrl:
           type: string
           format: uri
 
     UserAuthResponse:
       type: object
-      required: [accessToken, refreshToken, expiresIn, tokenType, user]
+      required: [ accessToken, refreshToken, expiresIn, tokenType, user ]
       properties:
         accessToken:
           type: string
@@ -273,9 +264,9 @@ components:
           example: 3600
         tokenType:
           type: string
-          example: 'Bearer'
+          example: "Bearer"
         user:
-          $ref: '#/components/schemas/UserDetails'
+          $ref: '#/components/schemas/UserSummary'
 
     LeagueCreateRequest:
       type: object
@@ -363,7 +354,7 @@ components:
     ConfigurationCreateRequest:
       type: object
       required:
-        [category, minTeamMembers, maxTeamMembers, roundDuration, sportName]
+        [ category, minTeamMembers, maxTeamMembers, roundDuration, sportName ]
       properties:
         category:
           $ref: '#/components/schemas/LeagueCategory'
@@ -404,7 +395,7 @@ components:
     ConfigurationDetails:
       type: object
       required:
-        [category, minTeamMembers, maxTeamMembers, roundDuration, sportName]
+        [ category, minTeamMembers, maxTeamMembers, roundDuration, sportName ]
       properties:
         category:
           $ref: '#/components/schemas/LeagueCategory'
@@ -427,7 +418,7 @@ components:
 
     PunctuationSystemRuleDetails:
       type: object
-      required: [localScore, visitorScore, localPoints, visitorPoints]
+      required: [ localScore, visitorScore, localPoints, visitorPoints ]
       properties:
         localScore:
           type: integer
@@ -440,7 +431,7 @@ components:
 
     LeagueBasePhase:
       type: object
-      required: [name, startDate, endDate, sequenceOrder]
+      required: [ name, startDate, endDate, sequenceOrder ]
       properties:
         name:
           type: string
@@ -469,7 +460,7 @@ components:
 
     TournamentSlot:
       type: object
-      required: [indexOrder, match]
+      required: [ indexOrder, match ]
       properties:
         indexOrder:
           type: integer
@@ -499,7 +490,7 @@ components:
 
     ClassificationGroup:
       type: object
-      required: [topWinners]
+      required: [ topWinners ]
       properties:
         topWinners:
           type: integer
@@ -606,7 +597,7 @@ components:
 
     ParticipantDetails:
       type: object
-      required: [participantId, userId, leagueId, team, dorsal, roles, joinDate]
+      required: [ participantId, userId, leagueId, team, dorsal, roles, joinDate ]
       properties:
         participantId:
           type: integer
@@ -627,7 +618,7 @@ components:
 
     ParticipantSummary:
       type: object
-      required: [participantId, team, dorsal, roles, joinDate]
+      required: [ participantId, team, dorsal, roles, joinDate ]
       properties:
         participantId:
           type: integer
@@ -734,7 +725,7 @@ components:
     BaseRequest:
       type: object
       required:
-        [requestId, participantId, leagueId, createdAt, resolvedAt, message]
+        [ requestId, participantId, leagueId, createdAt, resolvedAt, message ]
       properties:
         requestId:
           type: integer
@@ -757,7 +748,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
         - type: object
-          required: [teamId]
+          required: [ teamId ]
           properties:
             teamId:
               type: integer
@@ -768,7 +759,7 @@ components:
         - $ref: '#/components/schemas/BaseRequest'
         - type: object
           required:
-            [name, initials, description, motto, primaryColor, secondaryColor]
+            [ name, initials, description, motto, primaryColor, secondaryColor ]
           properties:
             name:
               type: string
@@ -796,7 +787,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
         - type: object
-          required: [licenseReference]
+          required: [ licenseReference ]
           properties:
             licenseReference:
               type: string
@@ -804,7 +795,7 @@ components:
 
     MatchDateProposalRequest:
       type: object
-      required: [status, proposedAt, dateTimeSlot]
+      required: [ status, proposedAt, dateTimeSlot ]
       properties:
         requestId:
           type: integer
@@ -818,7 +809,7 @@ components:
 
     MatchDateProposalDetails:
       type: object
-      required: [status, proposedAt, dateTimeSlot]
+      required: [ status, proposedAt, dateTimeSlot ]
       properties:
         requestId:
           type: integer
@@ -836,17 +827,17 @@ components:
     MatchDetails:
       type: object
       required: [
-          matchId,
-          status,
-          localTeam
+        matchId,
+        status,
+        localTeam
           visitorTeam,
-          dateTime,
-          proposal,
-          roundId,
-          firstReferee,
-          resultSummary,
-          resultDetails,
-        ]
+        dateTime,
+        proposal,
+        roundId,
+        firstReferee,
+        resultSummary,
+        resultDetails,
+      ]
       properties:
         matchId:
           type: integer
@@ -874,16 +865,16 @@ components:
     MatchSummary:
       type: object
       required: [
-          matchId,
-          status,
-          localTeam
+        matchId,
+        status,
+        localTeam
           visitorTeam,
-          dateTime,
-          proposal,
-          roundId,
-          firstReferee,
-          resultSummary,
-        ]
+        dateTime,
+        proposal,
+        roundId,
+        firstReferee,
+        resultSummary,
+      ]
       properties:
         matchId:
           type: integer
@@ -910,7 +901,7 @@ components:
 
     ResultSummary:
       type: object
-      required: [localTotalScore, visitorTotalScore, recordUrl]
+      required: [ localTotalScore, visitorTotalScore, recordUrl ]
       properties:
         localTotalScore:
           type: integer
@@ -924,11 +915,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/ResultSummary'
         - type: object
-          required: [signatures, observations, periods]
+          required: [ signatures, observations, periods ]
           properties:
             signatures:
               type: object
-              required: [beforeMatchSignatures, afterMatchSignatures]
+              required: [ beforeMatchSignatures, afterMatchSignatures ]
               properties:
                 beforeMatchSignatures:
                   $ref: '#/components/schemas/MatchSignatures'
@@ -964,7 +955,7 @@ components:
 
     MatchPeriod:
       type: object
-      required: [periodNumber, localScore, visitorScore, periodType, events]
+      required: [ periodNumber, localScore, visitorScore, periodType, events ]
       properties:
         periodNumber:
           type: integer
@@ -986,7 +977,7 @@ components:
     MatchEvent:
       type: object
       required:
-        [happenedAtTime, atLocalScore, atVisitorScore, responsibleTeamId]
+        [ happenedAtTime, atLocalScore, atVisitorScore, responsibleTeamId ]
       properties:
         happenedAtTime:
           type: integer
@@ -1002,7 +993,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/MatchEvent'
         - type: object
-          required: [incomingPlayer, outgoingPlayer]
+          required: [ incomingPlayer, outgoingPlayer ]
           properties:
             incomingPlayer:
               $ref: '#/components/schemas/ParticipantDetails'
@@ -1013,7 +1004,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/MatchEvent'
         - type: object
-          required: [sactionType, reason, appliedTo]
+          required: [ sactionType, reason, appliedTo ]
           properties:
             sactionType:
               type: string
@@ -1026,7 +1017,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/MatchEvent'
         - type: object
-          required: [durationTime]
+          required: [ durationTime ]
           properties:
             durationTime:
               type: string
@@ -1036,21 +1027,21 @@ components:
 
     IncidenceCreateRequest:
       type: object
-      required: [description]
+      required: [ description ]
       properties:
         description:
           type: string
 
     IncidenceUpdateRequest:
       type: object
-      required: [reason]
+      required: [ reason ]
       properties:
         reason:
           type: string
 
     IncidenceDetails:
       type: object
-      required: [description, resolution]
+      required: [ description, resolution ]
       properties:
         incidenceId:
           type: integer
@@ -1061,7 +1052,7 @@ components:
 
     UserLeagueStatus:
       type: object
-      required: [leagueId, roles, joinDate]
+      required: [ leagueId, roles, joinDate ]
       properties:
         leagueId:
           type: integer
@@ -1080,7 +1071,7 @@ components:
 
     LeaderboardRow:
       type: object
-      required: [position, team, playedMatches]
+      required: [ position, team, playedMatches ]
       properties:
         position:
           type: integer
@@ -1107,7 +1098,7 @@ components:
 
     LeaderboardGroup:
       type: object
-      required: [groupId, groupName, standings]
+      required: [ groupId, groupName, standings ]
       description: "Esquema para agrupar clasificaciones (Ej: Grupo A, Grupo B, o 'General')"
       properties:
         groupId:
@@ -1138,7 +1129,7 @@ components:
 
     RoundDetails:
       type: object
-      required: [roundId, roundNumber, startDate]
+      required: [ roundId, roundNumber, startDate ]
       properties:
         roundId:
           type: integer
@@ -1161,18 +1152,18 @@ components:
       description: 'Es necesario iniciar sesión'
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   # ==========================================
   # MÓDULO DE USUARIOS Y AUTENTICACIÓN
   # ==========================================
-  /auth/register:
+  /users/register:
     post:
       tags:
         - Usuarios
       summary: Crear una nueva cuenta de usuario
-      security: []
+      security: [ ]
       requestBody:
         required: true
         content:
@@ -1187,12 +1178,12 @@ paths:
         '409':
           description: 'El email ya está registrado.'
 
-  /auth/login:
+  /users/login:
     post:
       tags:
         - Usuarios
       summary: Iniciar sesión
-      security: []
+      security: [ ]
       requestBody:
         required: true
         content:
@@ -1218,7 +1209,7 @@ paths:
       tags:
         - Usuarios
       summary: Verifica la autenticación de un usuario desde un servicio externo
-      security: []
+      security: [ ]
       requestBody:
         required: true
         content:
@@ -1324,7 +1315,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [status]
+              required: [ status ]
               properties:
                 status:
                   $ref: '#/components/schemas/RequestState'
@@ -1359,7 +1350,7 @@ paths:
       tags:
         - Ligas
       summary: Listar ligas
-      security: []
+      security: [ ]
       responses:
         '200':
           description: 'Lista de ligas'
@@ -1790,7 +1781,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [status]
+              required: [ status ]
               properties:
                 status:
                   $ref: '#/components/schemas/RequestState'
@@ -1937,7 +1928,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [status]
+              required: [ status ]
               properties:
                 status:
                   $ref: '#/components/schemas/RequestState'
@@ -2022,7 +2013,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [status]
+              required: [ status ]
               properties:
                 status:
                   $ref: '#/components/schemas/RequestState'
@@ -2051,7 +2042,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [participantId]
+              required: [ participantId ]
               properties:
                 participantId:
                   type: integer
@@ -2109,7 +2100,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [dorsal]
+              required: [ dorsal ]
               properties:
                 dorsal:
                   type: integer
@@ -2266,11 +2257,11 @@ paths:
           application/json:
             schema:
               type: object
-              required: [moment]
+              required: [ moment ]
               properties:
                 moment:
                   type: string
-                  enum: ['PRE_MATCH', 'POST_MATCH']
+                  enum: [ 'PRE_MATCH', 'POST_MATCH' ]
                   description: 'Indica si es la firma previa al inicio o la validación final del resultado.'
       responses:
         '200':
