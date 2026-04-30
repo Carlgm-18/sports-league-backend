@@ -27,7 +27,6 @@ class SecurityConfig(/*private val jwtAuthFilter: JwtAuthenticationFilter*/) {
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .cors { }
-            .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 // DEBUG: Permitir todas las peticiones temporalmente
                 auth.anyRequest().permitAll()
@@ -52,7 +51,7 @@ class SecurityConfig(/*private val jwtAuthFilter: JwtAuthenticationFilter*/) {
         val config = CorsConfiguration()
 
         config.allowCredentials = true
-        config.allowedOriginPatterns = listOf("*") // En prod lo cambiarás por "https://tuweb.com"
+        config.allowedOriginPatterns = listOf("http://localhost:8081") // En prod lo cambiarás por "https://tuweb.com"
         config.allowedHeaders = listOf("*")
         config.allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
 
