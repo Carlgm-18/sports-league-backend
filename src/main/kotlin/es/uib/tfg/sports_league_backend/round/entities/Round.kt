@@ -1,6 +1,6 @@
 package es.uib.tfg.sports_league_backend.round.entities
 
-import es.uib.tfg.sports_league_backend.phase.entities.Phase
+import es.uib.tfg.sports_league_backend.phase.domain.Phase
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType

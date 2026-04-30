@@ -1,7 +1,7 @@
-package es.uib.tfg.sports_league_backend.phase
+package es.uib.tfg.sports_league_backend.phase.controller
 
-import es.uib.tfg.sportsapi.dto.*
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/leagues/{leagueId}/phases")

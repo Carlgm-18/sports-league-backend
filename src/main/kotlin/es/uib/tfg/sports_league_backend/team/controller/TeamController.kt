@@ -1,9 +1,7 @@
-package es.uib.tfg.sports_league_backend.team
+package es.uib.tfg.sports_league_backend.team.controller
 
-import es.uib.tfg.sportsapi.dto.*
-import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1")

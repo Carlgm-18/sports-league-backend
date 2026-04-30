@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.league.entities
+package es.uib.tfg.sports_league_backend.league.domain
 
 import jakarta.persistence.Entity
 import jakarta.persistence.Id

@@ -1,8 +1,8 @@
 package es.uib.tfg.sports_league_backend.participant.entities
 
-import es.uib.tfg.sports_league_backend.league.entities.League
-import es.uib.tfg.sports_league_backend.team.entities.Team
-import es.uib.tfg.sports_league_backend.user.entities.User
+import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.team.domain.Team
+import es.uib.tfg.sports_league_backend.user.domain.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 

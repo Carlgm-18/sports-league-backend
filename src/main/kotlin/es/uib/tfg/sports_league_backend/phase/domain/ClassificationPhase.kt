@@ -1,6 +1,6 @@
-package es.uib.tfg.sports_league_backend.phase.entities
+package es.uib.tfg.sports_league_backend.phase.domain
 
-import es.uib.tfg.sports_league_backend.league.entities.League
+import es.uib.tfg.sports_league_backend.league.domain.League
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import java.time.LocalDate

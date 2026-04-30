@@ -1,9 +1,20 @@
-package es.uib.tfg.sports_league_backend.league
+package es.uib.tfg.sports_league_backend.league.controller
 
-import es.uib.tfg.sportsapi.dto.*
+import es.uib.tfg.sports_league_backend.league.service.LeagueService
+import es.uib.tfg.sportsapi.dto.ConfigurationDetails
+import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
+import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
+import es.uib.tfg.sportsapi.dto.LeagueDetails
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/leagues")

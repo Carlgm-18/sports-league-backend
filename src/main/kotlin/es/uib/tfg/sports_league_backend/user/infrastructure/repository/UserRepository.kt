@@ -1,6 +1,6 @@
-package es.uib.tfg.sports_league_backend.user
+package es.uib.tfg.sports_league_backend.user.infrastructure.repository
 
-import es.uib.tfg.sports_league_backend.user.entities.User
+import es.uib.tfg.sports_league_backend.user.domain.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

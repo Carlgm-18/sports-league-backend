@@ -1,8 +1,8 @@
-package es.uib.tfg.sports_league_backend.match.entities
+package es.uib.tfg.sports_league_backend.match.domain
 
 import es.uib.tfg.sports_league_backend.participant.entities.Participant
 import es.uib.tfg.sports_league_backend.round.entities.Round
-import es.uib.tfg.sports_league_backend.team.entities.Team
+import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.MatchState
 import jakarta.persistence.*
 

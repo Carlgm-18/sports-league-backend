@@ -1,6 +1,7 @@
-package es.uib.tfg.sports_league_backend.league
+package es.uib.tfg.sports_league_backend.league.service
 
-import es.uib.tfg.sports_league_backend.league.entities.League
+import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.league.mapper.toDetailsDTO
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
