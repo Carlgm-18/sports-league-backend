@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.user.entities
+package es.uib.tfg.sports_league_backend.user.domain
 
 import es.uib.tfg.sportsapi.dto.SignImageUrl
 import es.uib.tfg.sportsapi.dto.UserCategory
