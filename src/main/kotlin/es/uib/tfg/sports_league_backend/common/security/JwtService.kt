@@ -1,5 +1,6 @@
 package es.uib.tfg.sports_league_backend.common.security
 
+import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
@@ -37,24 +38,24 @@ class JwtService(
             .compact()
 
     }
-//
-//    fun extractEmail(token: String): String {
-//        return extractAllClaims(token).subject
-//    }
-//
-//    private fun extractAllClaims(token: String): Claims {
-//        return Jwts.parser()
-//            .verifyWith(getSignInKey())
-//            .build()
-//            .parseSignedClaims(token)
-//            .payload
-//    }
-//
-//    fun isTokenValid(token: String): Boolean {
-//        return try {
-//            extractAllClaims(token).expiration.after(Date())
-//        } catch (e: Exception) {
-//            false
-//        }
-//    }
+
+    fun extractUserId(token: String): String {
+        return extractAllClaims(token).subject
+    }
+
+    private fun extractAllClaims(token: String): Claims {
+        return Jwts.parser()
+            .verifyWith(getSignInKey())
+            .build()
+            .parseSignedClaims(token)
+            .payload
+    }
+
+    fun isTokenValid(token: String): Boolean {
+        return try {
+            extractAllClaims(token).expiration.after(Date())
+        } catch (e: Exception) {
+            false
+        }
+    }
 }

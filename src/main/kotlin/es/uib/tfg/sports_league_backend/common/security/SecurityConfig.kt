@@ -16,7 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig(/*private val jwtAuthFilter: JwtAuthenticationFilter*/) {
+class SecurityConfig(private val jwtAuthFilter: JwtAuthenticationFilter) {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
@@ -27,20 +27,15 @@ class SecurityConfig(/*private val jwtAuthFilter: JwtAuthenticationFilter*/) {
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .cors { }
+            .csrf { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
-                // DEBUG: Permitir todas las peticiones temporalmente
-                auth.anyRequest().permitAll()
+                auth.requestMatchers("/api/v1/users/register").permitAll()
+                auth.requestMatchers("/api/v1/users/login").permitAll()
+                auth.anyRequest().authenticated() // Protege /users/me
             }
-            // La gestión de sesión y las reglas específicas se ignoran por ahora
-            // .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-            // .authorizeHttpRequests { auth ->
-            //     auth.requestMatchers("/api/v1/auth/**").permitAll()
-            //     auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
-            //     auth.requestMatchers(HttpMethod.GET, "/api/v1/leagues/**").permitAll()
-            //     auth.requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
-            //     auth.requestMatchers(HttpMethod.POST, "/api/v1/users/**").permitAll()
-            //     auth.anyRequest().authenticated()
-            // }
+            // Añade tu filtro antes del de Spring
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }

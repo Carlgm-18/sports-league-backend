@@ -3,17 +3,18 @@ package es.uib.tfg.sports_league_backend.user.application
 import es.uib.tfg.sports_league_backend.common.security.JwtService
 import es.uib.tfg.sports_league_backend.common.security.TokenType
 import es.uib.tfg.sports_league_backend.core.DomainResult
+import es.uib.tfg.sports_league_backend.user.application.login.LoginSessionInfo
+import es.uib.tfg.sports_league_backend.user.application.login.UserLoginCommand
+import es.uib.tfg.sports_league_backend.user.application.register.UserRegisterCommand
 import es.uib.tfg.sports_league_backend.user.domain.SecurePassword
 import es.uib.tfg.sports_league_backend.user.domain.User
 import es.uib.tfg.sports_league_backend.user.domain.errors.UserLoginError
 import es.uib.tfg.sports_league_backend.user.domain.errors.UserRegisterError
 import es.uib.tfg.sports_league_backend.user.domain.errors.UserRetrieveError
-import es.uib.tfg.sports_league_backend.user.infrastructure.controller.UserController.UserId
-import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toEntity
-import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toSummary
 import es.uib.tfg.sports_league_backend.user.infrastructure.repository.UserRepository
-import es.uib.tfg.sportsapi.dto.UserAuthResponse
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,7 +24,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
-    //@Value($$"${jwt.expiration}") private val jwtExpirationMs: Long
+    @Value($$"${JWT_EXPIRATION}") private val jwtExpirationMs: Long
 ) {
 
     @Transactional
@@ -50,8 +51,6 @@ class UserService(
     fun login(command: UserLoginCommand): DomainResult<LoginSessionInfo, UserLoginError> {
 
         val user = userRepository.findByEmail(command.email)
-        println(user)
-        println(String.format("Comparing %s, %s", passwordEncoder.encode(command.password), user?.passwordHash?.value))
         if (user == null || !passwordEncoder.matches(command.password, user.passwordHash.value)) {
             return DomainResult.Failure(
                 UserLoginError.NotValidCredentials(
@@ -61,28 +60,23 @@ class UserService(
             )
         }
 
-        val jwtToken = jwtService.generateToken(user.id, TokenType.ACCESS)
+        val accessToken = jwtService.generateToken(user.id, TokenType.ACCESS)
         val jwtRefreshToken = jwtService.generateToken(user.id, TokenType.REFRESH)
 
         return DomainResult.Success(
             LoginSessionInfo(
-                accessToken = jwtToken,
-                refreshToken = jwtRefreshToken,
-                expiresIn = 3600,
-                tokenType = "Bearer",
+                accessToken,
+                jwtRefreshToken,
+                jwtExpirationMs,
+                "Bearer",
                 user
             )
         )
     }
 
-    // TODO: make that it uses a JWT instead of a userId directly
-    fun getUserById(id: Int): DomainResult<User, UserRetrieveError> {
-        val user = userRepository.findById(id)
+    fun getUserById(id: Int): DomainResult<User, UserRetrieveError> =
+        userRepository.findByIdOrNull(id)
+            ?.let { DomainResult.Success(it) }
+            ?: DomainResult.Failure(UserRetrieveError.UserNotFound)
 
-        if (user.isEmpty) {
-            return DomainResult.Failure(UserRetrieveError.UserNotFound(UserId(id)))
-        }
-
-        return DomainResult.Success(user.get())
-    }
 }

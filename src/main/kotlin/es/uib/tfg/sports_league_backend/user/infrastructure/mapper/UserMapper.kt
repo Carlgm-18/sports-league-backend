@@ -1,8 +1,8 @@
 package es.uib.tfg.sports_league_backend.user.infrastructure.mapper
 
-import es.uib.tfg.sports_league_backend.user.application.LoginSessionInfo
-import es.uib.tfg.sports_league_backend.user.application.UserLoginCommand
-import es.uib.tfg.sports_league_backend.user.application.UserRegisterCommand
+import es.uib.tfg.sports_league_backend.user.application.login.LoginSessionInfo
+import es.uib.tfg.sports_league_backend.user.application.login.UserLoginCommand
+import es.uib.tfg.sports_league_backend.user.application.register.UserRegisterCommand
 import es.uib.tfg.sports_league_backend.user.domain.SecurePassword
 import es.uib.tfg.sports_league_backend.user.domain.User
 import es.uib.tfg.sportsapi.dto.UserAuthResponse
@@ -14,7 +14,7 @@ import es.uib.tfg.sportsapi.dto.UserSummary
 import java.net.URI
 import java.time.LocalDateTime
 
-// users/me endpoint
+// users/me
 fun User.toDetailsDTO() =
     UserDetails(
         userId = this.id,
@@ -27,7 +27,7 @@ fun User.toDetailsDTO() =
         createdAt = this.createdAt
     )
 
-// users/register endpoint
+// users/register
 fun UserCreateRequest.toCommand() =
     UserRegisterCommand(
         email = this.email,

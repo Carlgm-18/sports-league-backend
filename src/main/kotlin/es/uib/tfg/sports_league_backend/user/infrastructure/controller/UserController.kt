@@ -17,6 +17,7 @@ import es.uib.tfg.sportsapi.dto.UserUpdateRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -55,7 +56,7 @@ class UserController(
                         ResponseEntity
                             .status(HttpStatus.BAD_REQUEST)
                             .body(mapOf("error" to "Las contraseñas no coinciden"))
-            }
+                }
         }
 
     @PostMapping("/api/v1/users/login")
@@ -66,18 +67,15 @@ class UserController(
 
             is DomainResult.Failure ->
                 ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(mapOf("error" to "Credenciales inválidas"))
+                    .body(mapOf("error" to "Credenciales inválidas"))
         }
 
-    data class UserId(val id: Int)
-
     @GetMapping("/api/v1/users/me")
-    fun getCurrentUser(@RequestBody request: UserId): ResponseEntity<*> {
-        // El ID del usuario se sacará del token JWT en el futuro
-        return when (val user = userService.getUserById(request.id)) {
+    fun getCurrentUser(@AuthenticationPrincipal principal: String): ResponseEntity<*> =
+        when (val user = userService.getUserById(principal.toInt())) {
             is DomainResult.Success -> {
                 ResponseEntity
-                    .status(HttpStatus.FOUND)
+                    .status(HttpStatus.OK)
                     .body(user.data.toDetailsDTO())
             }
 
@@ -91,10 +89,12 @@ class UserController(
                 }
             }
         }
-    }
 
     @PatchMapping("/api/v1/users/me")
-    fun updateCurrentUser(@Valid @RequestBody request: UserUpdateRequest): UserDetails {
+    fun updateCurrentUser(
+        @AuthenticationPrincipal principal: String,
+        @Valid @RequestBody request: UserUpdateRequest
+    ): UserDetails {
         TODO("Not yet implemented")
     }
 }

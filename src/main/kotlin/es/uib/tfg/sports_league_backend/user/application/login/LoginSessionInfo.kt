@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.user.application
+package es.uib.tfg.sports_league_backend.user.application.login
 
 import es.uib.tfg.sports_league_backend.user.domain.User
 

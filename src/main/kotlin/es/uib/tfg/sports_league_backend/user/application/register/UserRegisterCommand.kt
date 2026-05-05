@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.user.application
+package es.uib.tfg.sports_league_backend.user.application.register
 
 import es.uib.tfg.sportsapi.dto.LicenceElement
 import es.uib.tfg.sportsapi.dto.SignImageUrl
