@@ -21,7 +21,7 @@ class League(
     var name: String,
 
     @Column(columnDefinition = "TEXT")
-    var description: String? = null,
+    var description: String = "",
 
     var iconImageUrl: String? = null,
     var bannerImageUrl: String? = null,
@@ -33,7 +33,8 @@ class League(
     @Column(nullable = false)
     var endDate: LocalDate,
 
-    var maxInscriptionDate: LocalDate? = null,
+    @Column(nullable = false)
+    var maxInscriptionDate: LocalDate,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
