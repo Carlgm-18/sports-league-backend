@@ -309,13 +309,13 @@ components:
           format: uri
         startDate:
           type: string
-          format: date-time
+          format: date
         endDate:
           type: string
-          format: date-time
+          format: date
         maxInscriptionDate:
           type: string
-          format: date-time
+          format: date
         configuration:
           $ref: '#/components/schemas/ConfigurationCreateRequest'
         punctuationSystem:
@@ -347,13 +347,13 @@ components:
           format: uri
         startDate:
           type: string
-          format: date-time
+          format: date
         endDate:
           type: string
-          format: date-time
+          format: date
         maxInscriptionDate:
           type: string
-          format: date-time
+          format: date
         phases:
           type: array
           items:
@@ -595,13 +595,13 @@ components:
           format: uri
         startDate:
           type: string
-          format: date-time
+          format: date
         endDate:
           type: string
-          format: date-time
+          format: date
         maxInscriptionDate:
           type: string
-          format: date-time
+          format: date
         status:
           $ref: '#/components/schemas/LeagueState'
 
