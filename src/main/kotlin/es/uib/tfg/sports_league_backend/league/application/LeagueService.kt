@@ -2,6 +2,7 @@ package es.uib.tfg.sports_league_backend.league.application
 
 import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueRepository
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
@@ -10,27 +11,20 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class LeagueService {
-    fun findAll(): List<LeagueDetails> {
-        // TODO: Implement database logic
-        val leagues: List<League> =
-            listOf(
-                League(id = 1, name = "Liga verano", startDate = LocalDate.now(), endDate = LocalDate.now()),
-                League(id = 2, name = "Liga invierno", startDate = LocalDate.now(), endDate = LocalDate.now()),
-                League(id = 3, name = "Liga primavera", startDate = LocalDate.now(), endDate = LocalDate.now())
-            )
+class LeagueService(
+    private val leagueRepository: LeagueRepository
+) {
+    fun findAll(): List<League> =
+        leagueRepository.findAll()
 
-        return leagues.map { it.toDetailsDTO() }
-    }
-
-    fun createLeague(request: LeagueCreateRequest): LeagueDetails {
+    fun createLeague(request: LeagueCreateRequest): League {
         // TODO: Implement database logic
         TODO("Not yet implemented")
     }
 
-    fun findById(leagueId: Int): LeagueDetails {
+    fun findById(leagueId: Int): League {
         // TODO: Implement database logic
-        throw NotImplementedError("Service not yet implemented")
+        TODO("Service not yet implemented")
     }
 
     fun updateConfiguration(
