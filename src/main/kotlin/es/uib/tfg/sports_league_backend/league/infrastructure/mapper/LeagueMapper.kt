@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.league.mapper
+package es.uib.tfg.sports_league_backend.league.infrastructure.mapper
 
 import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
