@@ -82,12 +82,22 @@ components:
           type: string
           format: date-time
 
-    LicenceElement:
+    SportDetails:
       type: object
-      required: [sportName, license]
+      required: [sportId, sportName]
       properties:
+        sportId:
+          type: integer
         sportName:
           type: string
+          maxLength: 50
+
+    LicenceElement:
+      type: object
+      required: [sport, license]
+      properties:
+        sport:
+          $ref: '#/components/schemas/SportDetails'
         license:
           type: string
 
