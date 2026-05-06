@@ -1,8 +1,8 @@
 package es.uib.tfg.sports_league_backend.user.domain
 
+import es.uib.tfg.sportsapi.dto.LicenceElement
 import es.uib.tfg.sportsapi.dto.SignImageUrl
 import es.uib.tfg.sportsapi.dto.UserCategory
-import es.uib.tfg.sportsapi.dto.UserCreateRequestLicensesInner
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -37,7 +37,7 @@ class User(
     var profileImageUrl: String? = null,
 
     @Transient
-    var licenses: List<UserCreateRequestLicensesInner>? = null,
+        var licenses: List<LicenceElement>? = null,
 
     @Transient
     var signature: SignImageUrl? = null,
