@@ -25,8 +25,12 @@ class Team(
     var description: String? = null,
 
     var motto: String? = null,
-    var primaryColor: Int? = null, // Almacenado como entero hexadecimal
-    var secondaryColor: Int? = null,
+
+    var primaryColor: String? = null,
+
+    var secondaryColor: String? = null,
+
     var iconImageUrl: String? = null,
+
     var deletedAt: LocalDateTime? = null
 )
