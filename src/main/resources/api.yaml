@@ -732,7 +732,7 @@ components:
 
     ParticipantDetails:
       type: object
-      required: [ participantId, userId, leagueId, team, dorsal, roles, joinDate ]
+      required: [ participantId, userId, leagueId, roles, joinDate ]
       properties:
         participantId:
           type: integer
@@ -753,7 +753,7 @@ components:
 
     ParticipantSummary:
       type: object
-      required: [ participantId, team, dorsal, roles, joinDate ]
+      required: [ participantId, fullName, roles, joinDate ]
       properties:
         participantId:
           type: integer
@@ -972,14 +972,8 @@ components:
       required: [
         matchId,
         status,
-        localTeam
-          visitorTeam,
-        dateTime,
         proposal,
         roundId,
-        firstReferee,
-        resultSummary,
-        resultDetails,
       ]
       properties:
         matchId:
@@ -1010,13 +1004,8 @@ components:
       required: [
         matchId,
         status,
-        localTeam
-        visitorTeam,
-        dateTime,
         proposal,
         roundId,
-        firstReferee,
-        resultSummary,
       ]
       properties:
         matchId:
@@ -1040,8 +1029,6 @@ components:
           $ref: '#/components/schemas/ParticipantDetails'
         resultSummary:
           $ref: '#/components/schemas/ResultSummary'
-        resultDetails:
-          $ref: '#/components/schemas/ResultDetails'
 
     ResultSummary:
       type: object
