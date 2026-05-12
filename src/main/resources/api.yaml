@@ -28,14 +28,9 @@ components:
       bearerFormat: JWT
 
   schemas:
-    Role:
+    ParticipantRole:
       type: string
       enum: [ 'ADMIN', 'REFEREE', 'PLAYER', 'CAPTAIN' ]
-
-    ParticipantRoles:
-      type: array
-      items:
-        $ref: '#/components/schemas/Role'
 
     ProposalState:
       type: string
@@ -53,6 +48,18 @@ components:
       type: string
       enum: [ 'MALE', 'FEMALE', 'BOTH' ]
 
+    MatchState:
+      type: string
+      enum: [ 'NOT_SCHEDULED', 'SCHEDULED', 'IN_GAME', 'ENDED' ]
+
+    UserCategory:
+      type: string
+      enum: [ 'MALE', 'FEMALE' ]
+
+    PhaseType:
+      type: string
+      enum: [ 'CLASSIFICATION', 'TOURNAMENT' ]
+
     DateTimeSlot:
       type: object
       required: [ dateTime, duration ]
@@ -64,13 +71,209 @@ components:
           type: integer
           description: 'Slot duration in hours'
 
-    MatchState:
-      type: string
-      enum: [ 'NOT_SCHEDULED', 'SCHEDULED', 'IN_GAME', 'ENDED' ]
+    PhaseBaseDetails:
+      type: object
+      required: [ id, name, startDate, endDate, sequenceOrder, type ]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        sequenceOrder:
+          type: integer
+        type:
+          $ref: '#/components/schemas/PhaseType'
+        rounds:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoundDetails'
 
-    UserCategory:
-      type: string
-      enum: [ 'MALE', 'FEMALE' ]
+    ClassificationPhaseDetails:
+      allOf:
+        - $ref: '#/components/schemas/PhaseBaseDetails'
+        - type: object
+          properties:
+            groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/ClassificationGroupDetails'
+
+    TournamentPhaseDetails:
+      allOf:
+        - $ref: '#/components/schemas/PhaseBaseDetails'
+        - type: object
+          required: [ matchesOrder, stagesNumber ]
+          properties:
+            matchesOrder:
+              type: array
+              items:
+                $ref: '#/components/schemas/TournamentSlotDetails'
+            stagesNumber:
+              type: integer
+
+    PhaseDetails:
+      oneOf:
+        - $ref: '#/components/schemas/ClassificationPhaseDetails'
+        - $ref: '#/components/schemas/TournamentPhaseDetails'
+      discriminator:
+        propertyName: type
+        mapping:
+          CLASSIFICATION: '#/components/schemas/ClassificationPhaseDetails'
+          TOURNAMENT: '#/components/schemas/TournamentPhaseDetails'
+
+    PhaseBaseCreateRequest:
+      type: object
+      required: [ name, startDate, endDate, sequenceOrder, type ]
+      properties:
+        name:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        sequenceOrder:
+          type: integer
+        type:
+          $ref: '#/components/schemas/PhaseType'
+
+    ClassificationPhaseCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/PhaseBaseCreateRequest'
+        - type: object
+          properties:
+            groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/ClassificationGroupCreateRequest'
+
+    TournamentPhaseCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/PhaseBaseCreateRequest'
+        - type: object
+          required: [ stagesNumber ]
+          properties:
+            matchesOrder:
+              type: array
+              items:
+                $ref: '#/components/schemas/TournamentSlotCreateRequest'
+            stagesNumber:
+              type: integer
+
+    PhaseCreateRequest:
+      oneOf:
+        - $ref: '#/components/schemas/ClassificationPhaseCreateRequest'
+        - $ref: '#/components/schemas/TournamentPhaseCreateRequest'
+      discriminator:
+        propertyName: type
+        mapping:
+          CLASSIFICATION: '#/components/schemas/ClassificationPhaseCreateRequest'
+          TOURNAMENT: '#/components/schemas/TournamentPhaseCreateRequest'
+
+    PhaseBaseUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        sequenceOrder:
+          type: integer
+
+    ClassificationPhaseUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/PhaseBaseUpdateRequest'
+        - type: object
+          properties:
+            groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/ClassificationGroupUpdateRequest'
+
+    TournamentPhaseUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/PhaseBaseUpdateRequest'
+        - type: object
+          properties:
+            matchesOrder:
+              type: array
+              items:
+                $ref: '#/components/schemas/TournamentSlotUpdateRequest'
+            stagesNumber:
+              type: integer
+
+    PhaseUpdateRequest:
+      oneOf:
+        - $ref: '#/components/schemas/ClassificationPhaseUpdateRequest'
+        - $ref: '#/components/schemas/TournamentPhaseUpdateRequest'
+      discriminator:
+        propertyName: type
+        mapping:
+          CLASSIFICATION: '#/components/schemas/ClassificationPhaseUpdateRequest'
+          TOURNAMENT: '#/components/schemas/TournamentPhaseUpdateRequest'
+
+    ClassificationGroupDetails:
+      type: object
+      required: [ topWinners, teams ]
+      properties:
+        topWinners:
+          type: integer
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamSummary'
+
+    ClassificationGroupCreateRequest:
+      type: object
+      required: [ topWinners ]
+      properties:
+        topWinners:
+          type: integer
+        teamIds:
+          type: array
+          items:
+            type: integer
+
+    ClassificationGroupUpdateRequest:
+      type: object
+      properties:
+        topWinners:
+          type: integer
+
+    TournamentSlotDetails:
+      type: object
+      required: [ indexOrder, match ]
+      properties:
+        indexOrder:
+          type: integer
+        match:
+          $ref: '#/components/schemas/MatchDetails'
+
+    TournamentSlotCreateRequest:
+      type: object
+      required: [ indexOrder, matchId ]
+      properties:
+        indexOrder:
+          type: integer
+        matchId:
+          type: integer
+
+    TournamentSlotUpdateRequest:
+      type: object
+      properties:
+        indexOrder:
+          type: integer
 
     SignImageUrl:
       type: object
@@ -85,7 +288,7 @@ components:
 
     SportDetails:
       type: object
-      required: [sportId, sportName]
+      required: [ sportId, sportName ]
       properties:
         sportId:
           type: integer
@@ -93,9 +296,9 @@ components:
           type: string
           maxLength: 50
 
-    LicenceElement:
+    LicenseElement:
       type: object
-      required: [sport, license]
+      required: [ sport, license ]
       properties:
         sport:
           $ref: '#/components/schemas/SportDetails'
@@ -105,7 +308,7 @@ components:
     LicensesList:
       type: array
       items:
-        $ref: '#/components/schemas/LicenceElement'
+        $ref: '#/components/schemas/LicenseElement'
 
     FormErrorResponse:
       type: object
@@ -184,7 +387,6 @@ components:
           $ref: '#/components/schemas/UserCategory'
         licenses:
           $ref: '#/components/schemas/LicensesList'
-
 
     UserUpdateRequest:
       type: object
@@ -324,9 +526,7 @@ components:
         phases:
           type: array
           items:
-            anyOf:
-              - $ref: '#/components/schemas/TournamentPhaseDetails'
-              - $ref: '#/components/schemas/ClassificationPhase'
+            $ref: '#/components/schemas/PhaseCreateRequest'
 
     LeagueUpdateRequest:
       type: object
@@ -355,12 +555,6 @@ components:
         maxInscriptionDate:
           type: string
           format: date
-        phases:
-          type: array
-          items:
-            anyOf:
-              - $ref: '#/components/schemas/TournamentPhaseDetails'
-              - $ref: '#/components/schemas/ClassificationPhase'
 
     ConfigurationCreateRequest:
       type: object
@@ -439,76 +633,6 @@ components:
           type: integer
         visitorPoints:
           type: integer
-
-    LeagueBasePhase:
-      type: object
-      required: [ name, startDate, endDate, sequenceOrder ]
-      properties:
-        name:
-          type: string
-        startDate:
-          type: string
-          format: date-time
-        endDate:
-          type: string
-          format: date-time
-        sequenceOrder:
-          type: string
-        rounds:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoundDetails'
-
-    TournamentPhaseDetails:
-      allOf:
-        - $ref: '#/components/schemas/LeagueBasePhase'
-        - type: object
-          properties:
-            matchesOrder:
-              type: array
-              items:
-                $ref: '#/components/schemas/TournamentSlot'
-
-    TournamentSlot:
-      type: object
-      required: [ indexOrder, match ]
-      properties:
-        indexOrder:
-          type: integer
-        match:
-          $ref: '#/components/schemas/MatchDetails'
-
-    ClassificationPhase:
-      allOf:
-        - $ref: '#/components/schemas/LeagueBasePhase'
-        - type: object
-          properties:
-            groups:
-              type: array
-              items:
-                $ref: '#/components/schemas/ClassificationGroup'
-
-    ClassificationPhaseDetails:
-      allOf:
-        - $ref: '#/components/schemas/LeagueBasePhase'
-        - $ref: '#/components/schemas/LeaderboardResponse'
-        - type: object
-          properties:
-            groups:
-              type: array
-              items:
-                $ref: '#/components/schemas/ClassificationGroup'
-
-    ClassificationGroup:
-      type: object
-      required: [ topWinners ]
-      properties:
-        topWinners:
-          type: integer
-        teams:
-          type: array
-          items:
-            $ref: '#/components/schemas/TeamDetails'
 
     LeagueDetails:
       type: object
@@ -622,7 +746,7 @@ components:
         roles:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/ParticipantRole'
         joinDate:
           type: string
           format: date-time
@@ -637,6 +761,10 @@ components:
           type: string
         team:
           $ref: '#/components/schemas/TeamSummary'
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParticipantRole'
         dorsal:
           type: integer
           description: 'Número del dorsal del jugador cuando está en un equipo'
@@ -687,6 +815,10 @@ components:
           format: date-time
         leagueId:
           type: integer
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParticipantDetails'
 
     TeamSummary:
       type: object
@@ -714,12 +846,12 @@ components:
         primaryColor:
           type: string
           format: regex
-          pattern: '#[0-9A-F]{8}'
+          pattern: '#[0-9A-F]{6}'
           example: '#FFAABB77'
         secondaryColor:
           type: string
           format: regex
-          pattern: '#[0-9A-F]{8}'
+          pattern: '#[0-9A-F]{6}'
           example: '#FFAABB77'
         iconImageUrl:
           type: string
@@ -783,12 +915,12 @@ components:
             primaryColor:
               type: string
               format: regex
-              pattern: '#[0-9A-F]{8}'
+              pattern: '#[0-9A-F]{6}'
               example: '#FFAABB77'
             secondaryColor:
               type: string
               format: regex
-              pattern: '#[0-9A-F]{8}'
+              pattern: '#[0-9A-F]{6}'
               example: '#FFAABB77'
             iconImageUrl:
               type: string
@@ -879,7 +1011,7 @@ components:
         matchId,
         status,
         localTeam
-          visitorTeam,
+        visitorTeam,
         dateTime,
         proposal,
         roundId,
@@ -1075,7 +1207,7 @@ components:
         roles:
           type: array
           items:
-            $ref: '#/components/schemas/Role'
+            $ref: '#/components/schemas/ParticipantRole'
         joinDate:
           type: string
           format: date-time
@@ -1125,18 +1257,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/LeaderboardGroup'
-
-    PhaseDetails:
-      type: object
-      properties:
-        phaseId:
-          type: integer
-        phases:
-          oneOf:
-            - $ref: '#/components/schemas/ClassificationPhaseDetails'
-            - $ref: '#/components/schemas/TournamentPhaseDetails'
-          discriminator:
-            propertyName: type
 
     RoundDetails:
       type: object
@@ -1476,6 +1596,102 @@ paths:
         '403':
           description: 'Prohibido: Solo Administradores.'
 
+  /leagues/{leagueId}/phases:
+    get:
+      tags:
+        - Fases
+      summary: Listar todas las fases de una liga
+      parameters:
+        - in: path
+          name: leagueId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Lista de fases de la liga'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PhaseDetails'
+    post:
+      tags:
+        - Fases
+      summary: Añadir una nueva fase a una liga existente
+      parameters:
+        - in: path
+          name: leagueId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhaseCreateRequest'
+      responses:
+        '201':
+          description: 'Fase creada con éxito'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseDetails'
+
+  /leagues/{leagueId}/phases/{phaseId}:
+    get:
+      tags:
+        - Fases
+      summary: Obtener los detalles de una fase específica
+      parameters:
+        - in: path
+          name: leagueId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: phaseId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Detalles de la fase'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseDetails'
+    patch:
+      tags:
+        - Fases
+      summary: Actualizar una fase existente
+      parameters:
+        - in: path
+          name: leagueId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: phaseId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhaseUpdateRequest'
+      responses:
+        '200':
+          description: 'Fase actualizada con éxito'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseDetails'
+
   /leagues/{leagueId}/incidences:
     post:
       tags:
@@ -1712,7 +1928,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ParticipantRoles'
+              $ref: '#/components/schemas/ParticipantRole'
       responses:
         '200':
           description: 'Roles actualizados'
@@ -2530,32 +2746,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           description: 'Prohibido: Un usuario solo puede modificar su propia disponibilidad.'
-
-  /leagues/{leagueId}/phases/{phaseId}:
-    get:
-      tags:
-        - Fases
-      summary: Obtener los detalles de una fase concreta (Grupos o Eliminatorias)
-      parameters:
-        - in: path
-          name: leagueId
-          required: true
-          schema:
-            type: integer
-        - in: path
-          name: phaseId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: 'Detalle de la fase'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PhaseDetails'
-        '404':
-          description: 'Fase o liga no encontrada.'
 
   /leagues/{leagueId}/my-status:
     get:
