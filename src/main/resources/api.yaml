@@ -1166,6 +1166,22 @@ security:
   - bearerAuth: [ ]
 
 paths:
+  /sports:
+    get:
+      tags:
+        - Deportes
+      summary: Obtener todos los deportes
+      description: Devuelve una lista de todos los deportes disponibles en el sistema.
+      security: [ ]
+      responses:
+        '200':
+          description: 'Lista de deportes'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SportDetails'
   # ==========================================
   # MÓDULO DE USUARIOS Y AUTENTICACIÓN
   # ==========================================
