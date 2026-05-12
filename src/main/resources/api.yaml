@@ -258,7 +258,7 @@ components:
         indexOrder:
           type: integer
         match:
-          $ref: '#/components/schemas/MatchDetails'
+          $ref: '#/components/schemas/MatchSummary'
 
     TournamentSlotCreateRequest:
       type: object
@@ -945,7 +945,7 @@ components:
         status:
           $ref: '#/components/schemas/ProposalState'
         dateTimeSlot:
-          $ref: '#/components/schemas/DateTimeSlot'
+          $ref: '#/components/schemas/DateTimeSlotDetails'
         proposedAt:
           type: string
           format: date-time
@@ -959,7 +959,7 @@ components:
         status:
           $ref: '#/components/schemas/ProposalState'
         dateTimeSlot:
-          $ref: '#/components/schemas/DateTimeSlot'
+          $ref: '#/components/schemas/DateTimeSlotDetails'
         proposedAt:
           type: string
           format: date-time
@@ -991,7 +991,7 @@ components:
         visitorTeam:
           $ref: '#/components/schemas/TeamSummary'
         dateTime:
-          $ref: '#/components/schemas/DateTimeSlot'
+          $ref: '#/components/schemas/DateTimeSlotDetails'
         proposal:
           $ref: '#/components/schemas/MatchDateProposalDetails'
         roundId:
