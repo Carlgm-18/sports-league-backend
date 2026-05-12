@@ -672,13 +672,13 @@ components:
         primaryColor:
           type: string
           format: regex
-          pattern: '#[0-9A-F]{8}'
-          example: '#FFAABB77'
+          pattern: '#[0-9A-F]{6}'
+          example: '#FFAABB'
         secondaryColor:
           type: string
           format: regex
-          pattern: '#[0-9A-F]{8}'
-          example: '#FFAABB77'
+          pattern: '#[0-9A-F]{6}'
+          example: '#FFAABB'
         iconImageUrl:
           type: string
           format: uri
