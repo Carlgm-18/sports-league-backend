@@ -18,6 +18,7 @@ tags:
   - name: Equipos
   - name: Participaciones
   - name: Incidencias
+  - name: Deportes
 
 components:
   securitySchemes:
