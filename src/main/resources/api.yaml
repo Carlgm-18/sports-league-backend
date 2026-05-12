@@ -60,7 +60,7 @@ components:
       type: string
       enum: [ 'CLASSIFICATION', 'TOURNAMENT' ]
 
-    DateTimeSlot:
+    DateTimeSlotDetails:
       type: object
       required: [ dateTime, duration ]
       properties:
@@ -1028,9 +1028,10 @@ components:
         visitorTeam:
           $ref: '#/components/schemas/TeamSummary'
         dateTime:
-          $ref: '#/components/schemas/DateTimeSlot'
-        proposal:
-          $ref: '#/components/schemas/MatchDateProposalDetails'
+          $ref: '#/components/schemas/DateTimeSlotDetails'
+        proposalState:
+          type: string
+          enum: [ "PENDING", "PROPOSED" ]
         roundId:
           type: integer
         firstReferee:
@@ -2442,7 +2443,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DateTimeSlot'
+              $ref: '#/components/schemas/DateTimeSlotDetails'
       responses:
         '200':
           description: 'Fecha fijada'
@@ -2614,7 +2615,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DateTimeSlot'
+                  $ref: '#/components/schemas/DateTimeSlotDetails'
         '404':
           description: 'Ronda o liga no encontrada.'
 
@@ -2648,7 +2649,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/DateTimeSlot'
+                $ref: '#/components/schemas/DateTimeSlotDetails'
       responses:
         '200':
           description: 'Disponibilidad de la ubicación guardada correctamente.'
@@ -2695,7 +2696,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DateTimeSlot'
+                  $ref: '#/components/schemas/DateTimeSlotDetails'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -2736,7 +2737,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/DateTimeSlot'
+                $ref: '#/components/schemas/DateTimeSlotDetails'
       responses:
         '200':
           description: 'Disponibilidad del participante guardada correctamente.'
