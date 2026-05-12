@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.participant.entities
+package es.uib.tfg.sports_league_backend.participant.domain
 
 import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.team.domain.Team
