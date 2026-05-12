@@ -7,14 +7,14 @@ import java.time.LocalDate
 @Entity
 @Table(name = "phase")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "phase_type")
+@DiscriminatorColumn(name = "phase_type", discriminatorType = DiscriminatorType.STRING)
 abstract class Phase(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int = 0,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "league_id")
+    @JoinColumn(name = "league_id", nullable = false)
     var league: League,
 
     @Column(nullable = false)
@@ -29,6 +29,3 @@ abstract class Phase(
     @Column(nullable = false)
     var sequenceOrder: Int
 )
-
-
-
