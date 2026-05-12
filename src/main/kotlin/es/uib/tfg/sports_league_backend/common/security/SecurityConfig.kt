@@ -30,11 +30,20 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthenticationFilter) {
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
+                auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+
                 auth.requestMatchers("/api/v1/users/register").permitAll()
                 auth.requestMatchers("/api/v1/users/login").permitAll()
-                auth.anyRequest().authenticated() // Protege /users/me
+                auth.requestMatchers(
+                    HttpMethod.GET,
+                    "/api/v1/leagues/**",
+                    "/api/v1/sports/**",
+                    "/api/v1/matches/**",
+                    "/api/v1/teams/**"
+                ).permitAll()
+
+                auth.anyRequest().authenticated()
             }
-            // Añade tu filtro antes del de Spring
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
