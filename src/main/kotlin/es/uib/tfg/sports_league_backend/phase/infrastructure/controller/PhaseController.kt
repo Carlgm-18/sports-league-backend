@@ -1,14 +1,25 @@
 package es.uib.tfg.sports_league_backend.phase.infrastructure.controller
 
+import es.uib.tfg.sports_league_backend.phase.application.PhaseService
+import es.uib.tfg.sportsapi.dto.PhaseCreateRequest
+import es.uib.tfg.sportsapi.dto.PhaseDetails
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/leagues/{leagueId}/phases")
 class PhaseController(
-//    private val phaseService: PhaseService,
+    private val phaseService: PhaseService,
 //    private val roundService: RoundService
 ) {
+
+    @PostMapping
+    fun createLeaguePhases(@PathVariable leagueId: String, @RequestBody request: PhaseCreateRequest) {
+
+    }
 //
 //    // --- FASES ---
 //    @GetMapping("/{phaseId}")
