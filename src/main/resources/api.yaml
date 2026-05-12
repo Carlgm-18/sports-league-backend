@@ -1024,9 +1024,9 @@ components:
         roundId:
           type: integer
         firstReferee:
-          $ref: '#/components/schemas/ParticipantDetails'
+          $ref: '#/components/schemas/ParticipantSummary'
         secondReferee:
-          $ref: '#/components/schemas/ParticipantDetails'
+          $ref: '#/components/schemas/ParticipantSummary'
         resultSummary:
           $ref: '#/components/schemas/ResultSummary'
 
