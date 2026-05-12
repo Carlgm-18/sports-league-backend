@@ -26,9 +26,9 @@ class LeagueController(
 ) {
 
     @GetMapping
-    fun getAllLeagues(): List<LeagueSummary> {
-        return leagueService.findAll().map{ it.toSummaryDTO() }
-    }
+    fun getAllLeagues(): List<LeagueSummary> =
+        leagueService.findAll().map{ it.toSummaryDTO() }
+
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,9 +37,9 @@ class LeagueController(
     }
 
     @GetMapping("/{leagueId}")
-    fun getLeague(@PathVariable leagueId: Int): LeagueDetails {
-        return leagueService.findById(leagueId).toDetailsDTO()
-    }
+    fun getLeague(@PathVariable leagueId: Int): LeagueDetails =
+        leagueService.findById(leagueId).toDetailsDTO()
+
 
     @PatchMapping("/{leagueId}/configuration")
     fun updateConfiguration(
