@@ -1,7 +1,7 @@
 package es.uib.tfg.sports_league_backend.phase.infrastructure.mapper
 
 import es.uib.tfg.sports_league_backend.league.domain.League
-import es.uib.tfg.sports_league_backend.match.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sports_league_backend.match.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sports_league_backend.phase.domain.ClassificationGroup
 import es.uib.tfg.sports_league_backend.phase.domain.ClassificationPhase
 import es.uib.tfg.sports_league_backend.phase.domain.TournamentPhase
@@ -67,5 +67,5 @@ fun TournamentPhase.toDetailsDTO(): TournamentPhaseDetails =
 fun TournamentSlot.toDetailsDTO(): TournamentSlotDetails =
     TournamentSlotDetails(
         indexOrder,
-        match.toDetailsDTO()
+        match.toSummaryDTO()
     )
