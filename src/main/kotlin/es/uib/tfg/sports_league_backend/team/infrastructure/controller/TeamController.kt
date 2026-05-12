@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.team.controller
+package es.uib.tfg.sports_league_backend.team.infrastructure.controller
 
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController

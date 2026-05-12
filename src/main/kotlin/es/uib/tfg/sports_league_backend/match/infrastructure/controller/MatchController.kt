@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.match.controller
+package es.uib.tfg.sports_league_backend.match.infrastructure.controller
 
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
