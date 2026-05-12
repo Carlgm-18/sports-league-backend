@@ -9,6 +9,6 @@ class Sport(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int = 0,
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true, length = 100)
     var sportName: String,
 )
