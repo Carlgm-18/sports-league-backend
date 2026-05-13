@@ -2,6 +2,7 @@ package es.uib.tfg.sports_league_backend.league.infrastructure.controller
 
 import es.uib.tfg.sports_league_backend.league.application.LeagueService
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toEntity
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
@@ -33,7 +34,7 @@ class LeagueController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createLeague(@Valid @RequestBody request: LeagueCreateRequest): LeagueDetails {
-        return leagueService.createLeague(request).toDetailsDTO()
+        return leagueService.createLeague(request.toEntity()).toDetailsDTO()
     }
 
     @GetMapping("/{leagueId}")
