@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 class Team(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    var id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id")

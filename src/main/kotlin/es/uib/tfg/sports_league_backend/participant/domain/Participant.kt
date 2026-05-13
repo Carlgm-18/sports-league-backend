@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 class Participant(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    var id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "app_user_id")

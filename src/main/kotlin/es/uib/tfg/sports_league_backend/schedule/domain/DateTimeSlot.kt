@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 class DateTimeSlot(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = 0,
+    var id: Long? = null,
 
     @Column(nullable = false)
     var dateTime: LocalDateTime,

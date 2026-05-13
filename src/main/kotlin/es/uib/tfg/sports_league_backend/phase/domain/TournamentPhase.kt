@@ -10,16 +10,15 @@ import java.time.LocalDate
 @Entity
 @DiscriminatorValue("TOURNAMENT")
 class TournamentPhase(
-    league: League,
+    league: League? = null,
     name: String,
     startDate: LocalDate,
     endDate: LocalDate,
-    sequenceOrder: Int
+    sequenceOrder: Int,
+    var stagesNumber: Int,
 ) : Phase(league = league, name = name, startDate = startDate, endDate = endDate, sequenceOrder = sequenceOrder) {
 
     @OneToMany(mappedBy = "phase", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var matchesOrder: MutableSet<TournamentSlot> = HashSet()
-
-    var stagesNumber: Int = 1
+    var matchesOrder: MutableList<TournamentSlot> = mutableListOf()
 
 }

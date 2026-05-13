@@ -1,6 +1,7 @@
 package es.uib.tfg.sports_league_backend.league.domain
 
 import es.uib.tfg.sports_league_backend.phase.domain.Phase
+import es.uib.tfg.sports_league_backend.punctuation.domain.PunctuationSystem
 import es.uib.tfg.sportsapi.dto.LeagueState
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -11,11 +12,15 @@ import java.time.LocalDateTime
 class League(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    var id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "configuration_id")
-    var configuration: LeagueConfiguration? = null,
+    @JoinColumn(name = "configuration_id", nullable = false)
+    var configuration: LeagueConfiguration,
+
+    @ManyToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "punctuation_system_id", nullable = false)
+    var punctuationSystem: PunctuationSystem,
 
     @Column(nullable = false, length = 100)
     var name: String,
@@ -24,7 +29,9 @@ class League(
     var description: String = "",
 
     var iconImageUrl: String? = null,
+
     var bannerImageUrl: String? = null,
+
     var locationUrl: String? = null,
 
     @Column(nullable = false)
@@ -45,6 +52,6 @@ class League(
 
     var deletedAt: LocalDateTime? = null,
 
-    @OneToMany(mappedBy = "league", cascade = [CascadeType.ALL])
-    var phases: MutableList<Phase> = mutableListOf()
+    @OneToMany(mappedBy = "league", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var phases: MutableList<Phase> = mutableListOf(),
 )

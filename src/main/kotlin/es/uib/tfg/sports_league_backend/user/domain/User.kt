@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    var id: Long? = null,
 
     @Column(nullable = false, length = 50)
     var firstName: String,
@@ -37,7 +37,7 @@ class User(
     var profileImageUrl: String? = null,
 
     @Transient
-        var licenses: List<LicenseElement>? = null,
+    var licenses: List<LicenseElement>? = null,
 
     @Transient
     var signature: SignImageUrl? = null,

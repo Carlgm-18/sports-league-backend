@@ -8,7 +8,7 @@ import jakarta.persistence.*
 class TournamentSlot(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    var id: Long? = null,
 
     @Column(nullable = false)
     var indexOrder: Int,

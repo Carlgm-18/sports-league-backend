@@ -9,7 +9,10 @@ import jakarta.persistence.*
 class LeagueConfiguration (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    var id: Long? = null,
+
+    @Column(nullable = false)
+    var name: String = "",
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -28,5 +31,5 @@ class LeagueConfiguration (
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sport_id", nullable = false)
-    var sportName: Sport
-    )
+    var sport: Sport
+)

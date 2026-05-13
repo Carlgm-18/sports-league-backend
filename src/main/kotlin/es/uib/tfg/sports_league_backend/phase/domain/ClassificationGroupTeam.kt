@@ -15,7 +15,7 @@ import jakarta.persistence.Table
 class ClassificationGroupTeam(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    var id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classification_group_id", nullable = false)

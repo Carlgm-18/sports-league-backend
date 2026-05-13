@@ -11,11 +11,11 @@ import java.time.LocalDate
 abstract class Phase(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    var id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id", nullable = false)
-    var league: League,
+    var league: League? = null,
 
     @Column(nullable = false)
     var name: String,
