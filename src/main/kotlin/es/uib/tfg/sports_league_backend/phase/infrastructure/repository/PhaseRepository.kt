@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface PhaseRepository: JpaRepository<Phase, Int> {
-    fun findAllByLeagueId(leagueId: Int): List<Phase>
+interface PhaseRepository: JpaRepository<Phase, Long> {
+    fun findAllByLeagueId(leagueId: Long): List<Phase>
 }
