@@ -48,31 +48,39 @@ CREATE TABLE IF NOT EXISTS league_configuration
 -- 2. CORE: LIGAS, EQUIPOS Y PARTICIPACIONES
 -- ==========================================
 
-CREATE TABLE IF NOT EXISTS league
-(
-    id                   SERIAL PRIMARY KEY,
-    configuration_id     INT          NOT NULL REFERENCES league_configuration (id),
-    name                 VARCHAR(100) NOT NULL,
-    description          TEXT,
-    icon_image_url       VARCHAR(255),
-    banner_image_url     VARCHAR(255),
-    location_url         VARCHAR(255),
-    start_date           DATE         NOT NULL,
-    end_date             DATE         NOT NULL,
-    max_inscription_date DATE,
-    status               VARCHAR(50)  NOT NULL, -- TEAM_ASSEMBLE, MATCH_MAKING, IN_PROGRESS, ENDED
-    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at           TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS punctuation_system
 (
     id             SERIAL PRIMARY KEY,
-    league_id      INT NOT NULL REFERENCES league (id) ON DELETE CASCADE,
-    local_score    INT NOT NULL,
-    visitor_score  INT NOT NULL,
-    local_points   INT NOT NULL,
-    visitor_points INT NOT NULL
+    sport_id       INT          NOT NULL REFERENCES sport (id) ON DELETE CASCADE,
+    name           VARCHAR(50)  NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS punctuation_rule
+(
+    id                      SERIAL PRIMARY KEY,
+    punctuation_system_id   INT NOT NULL REFERENCES punctuation_system (id) ON DELETE CASCADE
+    local_score             INT NOT NULL,
+    visitor_score           INT NOT NULL,
+    local_points            INT NOT NULL,
+    visitor_points          INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS league
+(
+    id                      SERIAL PRIMARY KEY,
+    configuration_id        INT          NOT NULL REFERENCES league_configuration (id),
+    punctuation_system_id   INT NOT NULL REFERENCES punctuation_system (id) ON DELETE RESTRICT,
+    name                    VARCHAR(100) NOT NULL,
+    description             TEXT,
+    icon_image_url          VARCHAR(255),
+    banner_image_url        VARCHAR(255),
+    location_url            VARCHAR(255),
+    start_date              DATE         NOT NULL,
+    end_date                DATE         NOT NULL,
+    max_inscription_date    DATE,
+    status                  VARCHAR(50)  NOT NULL, -- TEAM_ASSEMBLE, MATCH_MAKING, IN_PROGRESS, ENDED
+    created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at              TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS team
