@@ -6,7 +6,7 @@ import es.uib.tfg.sportsapi.dto.ParticipantSummary
 
 fun Participant.toSummaryDTO(): ParticipantSummary =
     ParticipantSummary(
-        id,
+        id!!,
         "${user.firstName} ${user.lastName}",
         listOf(),
         team?.toSummaryDTO(),

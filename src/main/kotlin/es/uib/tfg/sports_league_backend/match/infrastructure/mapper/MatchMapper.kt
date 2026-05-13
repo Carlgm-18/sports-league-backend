@@ -9,7 +9,7 @@ import es.uib.tfg.sportsapi.dto.MatchSummary
 
 fun Match.toSummaryDTO(): MatchSummary =
     MatchSummary(
-        id,
+        id!!,
         status,
         1,
         localTeam?.toSummaryDTO(),

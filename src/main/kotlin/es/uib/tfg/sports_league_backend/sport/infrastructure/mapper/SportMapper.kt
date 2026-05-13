@@ -5,6 +5,12 @@ import es.uib.tfg.sportsapi.dto.SportDetails
 
 fun Sport.toDetails(): SportDetails =
     SportDetails(
-        id,
+        id!!,
+        sportName
+    )
+
+fun SportDetails.toEntity(): Sport =
+    Sport(
+        sportId,
         sportName
     )

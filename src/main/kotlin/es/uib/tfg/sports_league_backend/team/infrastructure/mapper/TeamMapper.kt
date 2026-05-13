@@ -6,7 +6,7 @@ import java.net.URI
 
 fun Team.toSummaryDTO(): TeamSummary =
     TeamSummary(
-        id,
+        id!!,
         name,
         initials,
         motto ?: "",
