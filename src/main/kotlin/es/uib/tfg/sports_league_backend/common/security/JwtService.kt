@@ -18,7 +18,7 @@ class JwtService(
         return Keys.hmacShaKeyFor(secretKey.toByteArray())
     }
 
-    fun generateToken(userId: Int, type: TokenType): String {
+    fun generateToken(userId: Long, type: TokenType): String {
         val tokenExpiration = when (type) {
             TokenType.ACCESS -> jwtExpiration
             TokenType.REFRESH -> jwtRefreshExpiration
