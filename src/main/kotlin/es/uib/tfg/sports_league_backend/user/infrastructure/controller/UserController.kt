@@ -1,15 +1,14 @@
 package es.uib.tfg.sports_league_backend.user.infrastructure.controller
 
+import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.user.application.UserService
-import es.uib.tfg.sports_league_backend.user.domain.errors.UserLoginError
 import es.uib.tfg.sports_league_backend.user.domain.errors.UserRegisterError
 import es.uib.tfg.sports_league_backend.user.domain.errors.UserRetrieveError
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toCommand
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toCreateResponse
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toLoginResponse
-import es.uib.tfg.sportsapi.dto.UserAuthResponse
 import es.uib.tfg.sportsapi.dto.UserCreateRequest
 import es.uib.tfg.sportsapi.dto.UserDetails
 import es.uib.tfg.sportsapi.dto.UserLoginRequest
@@ -45,17 +44,17 @@ class UserController(
                     UserRegisterError.EmailAlreadyExists ->
                         ResponseEntity
                             .status(HttpStatus.CONFLICT)
-                            .body(mapOf("error" to "El email ${request.email} ya está registrado"))
+                            .body(mapOf("error" to ErrorCode.EMAIL_ALREADY_EXISTS))
 
                     UserRegisterError.PasswordEncodingFailed ->
                         ResponseEntity
                             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(mapOf("error" to "Error procesando la seguridad de la cuenta"))
+                            .body(mapOf("error" to ErrorCode.PASSWORD_ENCODING_FAILED))
 
                     UserRegisterError.PasswordsDontMatch ->
                         ResponseEntity
                             .status(HttpStatus.BAD_REQUEST)
-                            .body(mapOf("error" to "Las contraseñas no coinciden"))
+                            .body(mapOf("error" to ErrorCode.PASSWORDS_DONT_MATCH))
                 }
         }
 
@@ -67,16 +66,14 @@ class UserController(
 
             is DomainResult.Failure ->
                 ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(mapOf("error" to "Credenciales inválidas"))
+                    .body(mapOf("error" to ErrorCode.INVALID_CREDENTIALS))
         }
 
     @GetMapping("/api/v1/users/me")
     fun getCurrentUser(@AuthenticationPrincipal principal: String): ResponseEntity<*> =
-        when (val user = userService.getUserById(principal.toInt())) {
+        when (val user = userService.findUserById(principal.toLong())) {
             is DomainResult.Success -> {
-                ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(user.data.toDetailsDTO())
+                ResponseEntity.ok(user.data.toDetailsDTO())
             }
 
             is DomainResult.Failure -> {
@@ -84,7 +81,12 @@ class UserController(
                     is UserRetrieveError.UserNotFound -> {
                         ResponseEntity
                             .status(HttpStatus.NOT_FOUND)
-                            .body(user.error)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                                    "resource" to "user"
+                                )
+                            )
                     }
                 }
             }
