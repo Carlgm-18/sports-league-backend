@@ -2,19 +2,16 @@ package es.uib.tfg.sports_league_backend.league.infrastructure.mapper
 
 import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.league.domain.LeagueConfiguration
-import es.uib.tfg.sports_league_backend.phase.domain.Phase
 import es.uib.tfg.sports_league_backend.phase.infrastructure.mapper.toEntity
-import es.uib.tfg.sports_league_backend.punctuation.domain.PunctuationRule
-import es.uib.tfg.sports_league_backend.punctuation.infrastructure.mapper.toDetailsDTO
-import es.uib.tfg.sports_league_backend.punctuation.infrastructure.mapper.toEntity
+import es.uib.tfg.sports_league_backend.league.domain.PunctuationSystem
+import es.uib.tfg.sports_league_backend.sport.domain.Sport
 import es.uib.tfg.sports_league_backend.sport.infrastructure.mapper.toDetails
-import es.uib.tfg.sports_league_backend.sport.infrastructure.mapper.toEntity
+import es.uib.tfg.sports_league_backend.user.domain.User
 import es.uib.tfg.sportsapi.dto.ConfigurationCreateRequest
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
 import es.uib.tfg.sportsapi.dto.LeagueDetails
 import es.uib.tfg.sportsapi.dto.LeagueSummary
-import es.uib.tfg.sportsapi.dto.PhaseCreateRequest
 import java.net.URI
 
 fun League.toDetailsDTO(): LeagueDetails =
@@ -49,10 +46,14 @@ fun League.toSummaryDTO(): LeagueSummary {
     )
 }
 
-fun LeagueCreateRequest.toEntity(): League =
-    League(
-        configuration = configuration.toEntity(),
-        punctuationSystem = punctuationSystem.toEntity(),
+fun LeagueCreateRequest.toEntity(
+    configuration: LeagueConfiguration,
+    punctuationSystem: PunctuationSystem,
+    userEntity: User,
+): League {
+    val league = League(
+        configuration = configuration,
+        punctuationSystem = punctuationSystem,
         name = name,
         description = description,
         iconImageUrl = iconImageUrl.toString(),
@@ -62,9 +63,15 @@ fun LeagueCreateRequest.toEntity(): League =
         endDate = endDate,
         maxInscriptionDate = maxInscriptionDate,
         phases = phases.map { it.toEntity() }.toMutableList(),
+        owner = userEntity
     )
 
-fun ConfigurationCreateRequest.toEntity(): LeagueConfiguration =
+    league.phases.forEach { it.league = league }
+
+    return league
+}
+
+fun ConfigurationCreateRequest.toEntity(sport: Sport): LeagueConfiguration =
     LeagueConfiguration(
         name = name,
         category = category,
@@ -72,7 +79,7 @@ fun ConfigurationCreateRequest.toEntity(): LeagueConfiguration =
         minTeamMembers = minTeamMembers,
         maxTeamMembers = maxTeamMembers,
         roundDuration = roundDuration,
-        sport = sport.toEntity(),
+        sport = sport,
     )
 
 fun LeagueConfiguration.toDetailsDTO(): ConfigurationDetails =
