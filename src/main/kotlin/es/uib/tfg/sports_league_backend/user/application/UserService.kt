@@ -51,7 +51,10 @@ class UserService(
     fun login(command: UserLoginCommand): DomainResult<LoginSessionInfo, UserLoginError> {
 
         val user = userRepository.findByEmail(command.email)
-        if (user == null || !passwordEncoder.matches(command.password, user.passwordHash.value)) {
+        if (
+            user == null ||
+            !passwordEncoder.matches(command.password, user.passwordHash.value)
+        ) {
             return DomainResult.Failure(
                 UserLoginError.NotValidCredentials(
                     command.email,
