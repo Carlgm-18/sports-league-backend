@@ -1,7 +1,7 @@
 package es.uib.tfg.sports_league_backend.league.domain
 
 import es.uib.tfg.sports_league_backend.phase.domain.Phase
-import es.uib.tfg.sports_league_backend.punctuation.domain.PunctuationSystem
+import es.uib.tfg.sports_league_backend.user.domain.User
 import es.uib.tfg.sportsapi.dto.LeagueState
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -14,13 +14,18 @@ class League(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinColumn(name = "configuration_id", nullable = false)
     var configuration: LeagueConfiguration,
 
     @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "punctuation_system_id", nullable = false)
     var punctuationSystem: PunctuationSystem,
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    var owner: User,
+
 
     @Column(nullable = false, length = 100)
     var name: String,
