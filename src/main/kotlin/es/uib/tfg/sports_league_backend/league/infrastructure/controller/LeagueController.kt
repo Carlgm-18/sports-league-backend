@@ -1,6 +1,9 @@
 package es.uib.tfg.sports_league_backend.league.infrastructure.controller
 
+import es.uib.tfg.sports_league_backend.common.ErrorCode
+import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.league.application.LeagueService
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueCreateError
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toEntity
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toSummaryDTO
@@ -11,6 +14,8 @@ import es.uib.tfg.sportsapi.dto.LeagueDetails
 import es.uib.tfg.sportsapi.dto.LeagueSummary
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -28,18 +33,67 @@ class LeagueController(
 
     @GetMapping
     fun getAllLeagues(): List<LeagueSummary> =
-        leagueService.findAll().map{ it.toSummaryDTO() }
+        leagueService.findAll().map { it.toSummaryDTO() }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createLeague(@Valid @RequestBody request: LeagueCreateRequest): LeagueDetails {
-        return leagueService.createLeague(request.toEntity()).toDetailsDTO()
+    fun createLeague(
+            @Valid @RequestBody request: LeagueCreateRequest,
+            @AuthenticationPrincipal userId: String
+    ): ResponseEntity<*> {
+
+        if(!(request.isValidPunctuationSystem() and request.isValidConfiguration()))
+            return ResponseEntity
+                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.INSTANTIATE_ONLY_CUSTOM_OR_ID_FIELD,
+                            "field" to if(!request.isValidPunctuationSystem()) "punctuationSystemId"
+                                        else "configurationId"
+                        )
+                    )
+
+        return when(val result = leagueService.createLeague(request, userId.toLong())) {
+            is DomainResult.Success ->
+                ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(result.data.toDetailsDTO())
+
+            is DomainResult.Failure ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to when(result.error) {
+                                LeagueCreateError.SportNotFound -> "sport"
+                                LeagueCreateError.ConfigurationNotFound -> "configuration"
+                                LeagueCreateError.PunctuationSystemNotFound -> "punctuationSystem"
+                                LeagueCreateError.UserNotFound -> "user"
+                            }
+                        )
+                    )
+        }
     }
 
     @GetMapping("/{leagueId}")
-    fun getLeague(@PathVariable leagueId: Int): LeagueDetails =
-        leagueService.findById(leagueId).toDetailsDTO()
+    fun getLeague(@PathVariable leagueId: Long): ResponseEntity<*> =
+        when(val result = leagueService.findLeagueById(leagueId)) {
+
+            is DomainResult.Success ->
+                ResponseEntity.ok(result.data.toDetailsDTO())
+
+            is DomainResult.Failure ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "league"
+                        )
+                    )
+        }
 
 
     @PatchMapping("/{leagueId}/configuration")
