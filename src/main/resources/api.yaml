@@ -28,7 +28,7 @@ components:
       bearerFormat: JWT
 
   schemas:
-    ParticipantRole:
+    ParticipationRole:
       type: string
       enum: [ 'ADMIN', 'REFEREE', 'PLAYER', 'CAPTAIN' ]
 
@@ -46,7 +46,7 @@ components:
 
     LeagueCategory:
       type: string
-      enum: [ 'MALE', 'FEMALE', 'BOTH' ]
+      enum: [ 'MALE', 'FEMALE', 'MIXT' ]
 
     MatchState:
       type: string
@@ -489,8 +489,6 @@ components:
           startDate,
           endDate,
           maxInscriptionDate,
-          configuration,
-          punctuationSystem,
           phases,
         ]
       properties:
@@ -567,7 +565,7 @@ components:
     ConfigurationCreateRequest:
       type: object
       required:
-        [ name, category, minTeamMembers, maxTeamMembers, roundDuration, sport ]
+        [ name, category, minTeamMembers, maxTeamMembers, roundDuration, sportId ]
       properties:
         name:
           type: string
@@ -591,8 +589,9 @@ components:
           description: 'Duración de una jornada en semanas'
           minimum: 1
           maximum: 4
-        sport:
-          $ref: '#/components/schemas/SportDetails'
+        sportId:
+          type: integer
+          format: int64
 
     ConfigurationUpdateRequest:
       type: object
@@ -627,6 +626,20 @@ components:
           description: 'Duración de una jornada en semanas'
         sport:
           $ref: '#/components/schemas/SportDetails'
+
+    PunctuationSystemCreateRequest:
+      type: object
+      required: [ name, rules, sportId ]
+      properties:
+        name:
+          type: string
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/PunctuationSystemRuleDetails'
+        sportId:
+          type: integer
+          format: int64
 
     PunctuationSystemDetails:
       type: object
@@ -772,7 +785,7 @@ components:
         roles:
           type: array
           items:
-            $ref: '#/components/schemas/ParticipantRole'
+            $ref: '#/components/schemas/ParticipationRole'
         joinDate:
           type: string
           format: date-time
@@ -791,7 +804,7 @@ components:
         roles:
           type: array
           items:
-            $ref: '#/components/schemas/ParticipantRole'
+            $ref: '#/components/schemas/ParticipationRole'
         dorsal:
           type: integer
           description: 'Número del dorsal del jugador cuando está en un equipo'
@@ -1240,7 +1253,7 @@ components:
         roles:
           type: array
           items:
-            $ref: '#/components/schemas/ParticipantRole'
+            $ref: '#/components/schemas/ParticipationRole'
         joinDate:
           type: string
           format: date-time
@@ -1963,7 +1976,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ParticipantRole'
+              $ref: '#/components/schemas/ParticipationRole'
       responses:
         '200':
           description: 'Roles actualizados'
