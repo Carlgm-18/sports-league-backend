@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.punctuation.domain
+package es.uib.tfg.sports_league_backend.league.domain
 
 import es.uib.tfg.sports_league_backend.sport.domain.Sport
 import jakarta.persistence.*
@@ -16,7 +16,7 @@ class PunctuationSystem (
     @OneToMany(mappedBy = "punctuationSystem", cascade = [CascadeType.ALL], orphanRemoval = true)
     var punctuationRules: MutableList<PunctuationRule> = mutableListOf(),
 
-    @ManyToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "sport_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sport_id")
     var sport: Sport,
 )

@@ -1,6 +1,5 @@
-package es.uib.tfg.sports_league_backend.punctuation.domain
+package es.uib.tfg.sports_league_backend.league.domain
 
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -17,6 +16,10 @@ class PunctuationRule(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
+
+    @ManyToOne
+    @JoinColumn(name = "punctuation_system_id", nullable = false)
+    var punctuationSystem: PunctuationSystem? = null,
 
     @Column(nullable = false)
     var localScore: Int,
