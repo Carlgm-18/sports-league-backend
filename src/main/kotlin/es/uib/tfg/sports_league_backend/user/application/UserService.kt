@@ -60,8 +60,8 @@ class UserService(
             )
         }
 
-        val accessToken = jwtService.generateToken(user.id, TokenType.ACCESS)
-        val jwtRefreshToken = jwtService.generateToken(user.id, TokenType.REFRESH)
+        val accessToken = jwtService.generateToken(user.id!!, TokenType.ACCESS)
+        val jwtRefreshToken = jwtService.generateToken(user.id!!, TokenType.REFRESH)
 
         return DomainResult.Success(
             LoginSessionInfo(
@@ -74,7 +74,7 @@ class UserService(
         )
     }
 
-    fun getUserById(id: Int): DomainResult<User, UserRetrieveError> =
+    fun findUserById(id: Long): DomainResult<User, UserRetrieveError> =
         userRepository.findByIdOrNull(id)
             ?.let { DomainResult.Success(it) }
             ?: DomainResult.Failure(UserRetrieveError.UserNotFound)
