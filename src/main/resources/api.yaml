@@ -518,12 +518,21 @@ components:
         maxInscriptionDate:
           type: string
           format: date
-        configuration:
+        configurationId:
+          type: integer
+          format: int64
+          nullable: true
+        customConfiguration:
           $ref: '#/components/schemas/ConfigurationCreateRequest'
-        punctuationSystem:
-          $ref: '#/components/schemas/PunctuationSystemDetails'
+        punctuationSystemId:
+          type: integer
+          format: int64
+          nullable: true
+        customPunctuationSystem:
+          $ref: '#/components/schemas/PunctuationSystemCreateRequest'
         phases:
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/PhaseCreateRequest'
 
