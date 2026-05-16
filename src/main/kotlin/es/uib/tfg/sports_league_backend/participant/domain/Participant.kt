@@ -17,6 +17,9 @@ class Participant(
     @JoinColumn(name = "app_user_id")
     var user: User,
 
+    @OneToMany(mappedBy = "participant", fetch = FetchType.LAZY)
+    var roles: MutableSet<ParticipantRole>,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id")
     var league: League,
