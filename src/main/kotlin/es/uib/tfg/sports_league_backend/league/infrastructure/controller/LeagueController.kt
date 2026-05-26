@@ -40,7 +40,7 @@ class LeagueController(
     @ResponseStatus(HttpStatus.CREATED)
     fun createLeague(
             @Valid @RequestBody request: LeagueCreateRequest,
-            @AuthenticationPrincipal userId: String
+            @AuthenticationPrincipal userId: Long
     ): ResponseEntity<*> {
 
         if(!(request.isValidPunctuationSystem() and request.isValidConfiguration()))
@@ -54,7 +54,7 @@ class LeagueController(
                         )
                     )
 
-        return when(val result = leagueService.createLeague(request, userId.toLong())) {
+        return when(val result = leagueService.createLeague(request, userId)) {
             is DomainResult.Success ->
                 ResponseEntity
                     .status(HttpStatus.CREATED)
