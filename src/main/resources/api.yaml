@@ -815,8 +815,7 @@ components:
           motto,
           primaryColor,
           secondaryColor,
-          iconImageUrl,
-          leagueId,
+          members
         ]
       properties:
         teamId:
