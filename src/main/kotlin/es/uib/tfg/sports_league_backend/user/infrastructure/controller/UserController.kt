@@ -70,8 +70,8 @@ class UserController(
         }
 
     @GetMapping("/api/v1/users/me")
-    fun getCurrentUser(@AuthenticationPrincipal principal: String): ResponseEntity<*> =
-        when (val user = userService.findUserById(principal.toLong())) {
+    fun getCurrentUser(@AuthenticationPrincipal principal: Long): ResponseEntity<*> =
+        when (val user = userService.findUserById(principal)) {
             is DomainResult.Success -> {
                 ResponseEntity.ok(user.data.toDetailsDTO())
             }
@@ -94,9 +94,9 @@ class UserController(
 
     @PatchMapping("/api/v1/users/me")
     fun updateCurrentUser(
-        @AuthenticationPrincipal principal: String,
+        @AuthenticationPrincipal principal: Long,
         @Valid @RequestBody request: UserUpdateRequest
-    ): UserDetails {
+    ): ResponseEntity<*> {
         TODO("Not yet implemented")
     }
 }

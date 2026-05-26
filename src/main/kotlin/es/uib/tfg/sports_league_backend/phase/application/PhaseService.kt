@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 class PhaseService(
     private val phaseRepository: PhaseRepository
 ) {
-    fun findAllByLeagueId(leagueId: Int): List<Phase> {
+    fun findAllByLeagueId(leagueId: Long): List<Phase> {
         return phaseRepository.findAllByLeagueId(leagueId)
     }
 
@@ -16,7 +16,7 @@ class PhaseService(
         phaseRepository.save(phase)
     }
 
-    fun findById(phaseId: Int): Phase {
+    fun findById(phaseId: Long): Phase {
         return phaseRepository.findById(phaseId)
             .orElseThrow { NoSuchElementException("Phase with id $phaseId not found") }
     }
