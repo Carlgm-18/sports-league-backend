@@ -26,9 +26,9 @@ class Team(
 
     var motto: String? = null,
 
-    var primaryColor: String? = null,
+    var primaryColor: String = "#FFFFFF",
 
-    var secondaryColor: String? = null,
+    var secondaryColor: String = "#000000",
 
     var iconImageUrl: String? = null,
 
