@@ -9,9 +9,11 @@ import es.uib.tfg.sports_league_backend.phase.domain.TournamentSlot
 import es.uib.tfg.sports_league_backend.team.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sportsapi.dto.ClassificationGroupCreateRequest
 import es.uib.tfg.sportsapi.dto.ClassificationGroupDetails
+import es.uib.tfg.sportsapi.dto.ClassificationPhaseCreateRequest
 import es.uib.tfg.sportsapi.dto.ClassificationPhaseDetails
 import es.uib.tfg.sportsapi.dto.PhaseCreateRequest
 import es.uib.tfg.sportsapi.dto.PhaseType
+import es.uib.tfg.sportsapi.dto.TournamentPhaseCreateRequest
 import es.uib.tfg.sportsapi.dto.TournamentPhaseDetails
 import es.uib.tfg.sportsapi.dto.TournamentSlotDetails
 
@@ -39,7 +41,6 @@ fun ClassificationGroupCreateRequest.toEntity(): ClassificationGroup =
     ClassificationGroup(
         name = groupName,
         topWinners = topWinners,
-        teamsIds = teamIds
     )
 
 fun TournamentPhase.toDetailsDTO(): TournamentPhaseDetails =
@@ -63,20 +64,27 @@ fun TournamentSlot.toDetailsDTO(): TournamentSlotDetails =
 fun PhaseCreateRequest.toEntity(): Phase =
     when (type) {
         PhaseType.CLASSIFICATION ->
-            ClassificationPhase(
-                name = name,
-                startDate = startDate,
-                endDate = endDate,
-                sequenceOrder = sequenceOrder,
-                groups = groups!!.map { it.toEntity() }
-            )
+            (this as ClassificationPhaseCreateRequest).toEntity()
 
         PhaseType.TOURNAMENT ->
-            TournamentPhase(
-                name = name,
-                startDate = startDate,
-                endDate = endDate,
-                sequenceOrder = sequenceOrder,
-                stagesNumber = stagesNumber
-            )
+            (this as TournamentPhaseCreateRequest).toEntity()
     }
+
+fun ClassificationPhaseCreateRequest.toEntity(): Phase =
+    ClassificationPhase(
+        name = name,
+        startDate = startDate,
+        endDate = endDate,
+        sequenceOrder = sequenceOrder,
+        groups = groups!!.map { it.toEntity() }
+
+    )
+
+fun TournamentPhaseCreateRequest.toEntity(): Phase =
+    TournamentPhase(
+        name = name,
+        startDate = startDate,
+        endDate = endDate,
+        sequenceOrder = sequenceOrder,
+        stagesNumber = stagesNumber
+    )
