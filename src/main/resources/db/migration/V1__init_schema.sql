@@ -142,6 +142,7 @@ CREATE TABLE IF NOT EXISTS phase
 CREATE TABLE IF NOT EXISTS classification_group
 (
     id          BIGSERIAL PRIMARY KEY,
+    name        VARCHAR(50) NOT NULL,
     phase_id    BIGINT NOT NULL REFERENCES phase (id) ON DELETE CASCADE,
     top_winners INT NOT NULL
 );
