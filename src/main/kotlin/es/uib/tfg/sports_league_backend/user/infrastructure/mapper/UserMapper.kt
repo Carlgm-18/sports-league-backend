@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 // users/me
 fun User.toDetailsDTO() =
     UserDetails(
-        userId = this.id,
+        userId = this.id!!,
         email = this.email,
         fullName = "${this.firstName} ${this.lastName}",
         category = this.category,
@@ -67,7 +67,7 @@ fun User.toCreateResponse() =
 
 fun User.toSummary() =
     UserSummary(
-        id,
+        id!!,
         "$firstName $lastName",
         category,
         URI(profileImageUrl ?: ""),
