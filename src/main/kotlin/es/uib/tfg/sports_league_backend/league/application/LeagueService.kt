@@ -33,11 +33,30 @@ class LeagueService(
 
     @Transactional
     fun createLeague(request: LeagueCreateRequest, ownerId: Long): DomainResult<League, LeagueCreateError> {
+        // Check for user existence
+        val userResult = userService.findUserById(ownerId)
+        val user = (userResult as? Success)?.data
+            ?: return Failure(UserNotFound)
 
-        val userEntity = when (val user = userService.findUserById(ownerId)) {
-            is DomainResult.Success -> user.data
-            is DomainResult.Failure -> return DomainResult.Failure(LeagueCreateError.UserNotFound)
-        }
+        // Validate configuration state
+        val configResult = getOrCreateConfiguration(request)
+        val configuration = (configResult as? Success)?.data
+            ?: return Failure((configResult as Failure).error)
+
+        // Validate punctuation system state
+        val punctuationSystemResult = getOrCreatePunctuationSystem(request)
+        val punctuationSystem = (punctuationSystemResult as? Success)?.data
+            ?: return Failure((punctuationSystemResult as Failure).error)
+
+        // Save league
+        val league = request.toEntity(configuration, punctuationSystem, user)
+        val savedLeague = leagueRepository.save(league)
+
+        // Register creator as owner
+        participantService.registerOwner(user, savedLeague)
+
+        return Success(savedLeague)
+    }
 
         val configurationEntity = when {
             request.configurationId != null -> {
