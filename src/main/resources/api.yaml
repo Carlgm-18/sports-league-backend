@@ -673,12 +673,9 @@ components:
           leagueId,
           name,
           description,
-          iconImageUrl,
-          bannerImageUrl,
           locationUrl,
           startDate,
           endDate,
-          maxInscriptionDate,
           status,
           createdAt,
           configuration,
@@ -727,12 +724,9 @@ components:
           leagueId,
           name,
           description,
-          iconImageUrl,
-          bannerImageUrl,
           locationUrl,
           startDate,
           endDate,
-          maxInscriptionDate,
           status,
           category,
         ]
@@ -852,9 +846,6 @@ components:
         deletedAt:
           type: string
           format: date-time
-        leagueId:
-          type: integer
-          format: int64
         members:
           type: array
           items:
@@ -870,7 +861,6 @@ components:
           motto,
           primaryColor,
           secondaryColor,
-          iconImageUrl,
         ]
       properties:
         teamId:
