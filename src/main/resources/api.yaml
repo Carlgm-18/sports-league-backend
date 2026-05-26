@@ -487,7 +487,6 @@ components:
           locationUrl,
           startDate,
           endDate,
-          maxInscriptionDate,
           phases,
         ]
       properties:
