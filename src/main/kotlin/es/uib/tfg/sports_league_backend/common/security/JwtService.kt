@@ -39,8 +39,9 @@ class JwtService(
 
     }
 
-    fun extractUserId(token: String): String {
-        return extractAllClaims(token).subject
+    fun extractUserId(token: String): Long {
+        val claims = extractAllClaims(token)
+        return claims.get("userId", Number::class.java).toLong()
     }
 
     private fun extractAllClaims(token: String): Claims {
