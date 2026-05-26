@@ -28,7 +28,7 @@ components:
       bearerFormat: JWT
 
   schemas:
-    ParticipationRole:
+    ParticipationRoleDTO:
       type: string
       enum: [ 'ADMIN', 'REFEREE', 'PLAYER', 'CAPTAIN' ]
 
