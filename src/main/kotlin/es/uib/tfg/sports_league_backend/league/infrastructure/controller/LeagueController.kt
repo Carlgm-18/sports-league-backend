@@ -95,6 +95,72 @@ class LeagueController(
                     )
         }
 
+    @PostMapping("/{leagueId}/participants")
+    fun joinLeague(
+        @PathVariable leagueId: Long,
+        @AuthenticationPrincipal userId: Long,
+    ): ResponseEntity<*> =
+        when(val result = leagueService.joinLeague(leagueId, userId)) {
+            is DomainResult.Success ->
+                ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(result.data.toDetailsDTO())
+
+            is DomainResult.Failure ->
+                when(result.error) {
+                    AlreadyJoin ->
+                        ResponseEntity
+                            .status(HttpStatus.CONFLICT)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.PARTICIPANT_ALREADY_EXISTS
+                                )
+                            )
+                    CategoryMismatch ->
+                        ResponseEntity
+                            .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.CATEGORY_MISMATCH
+                                )
+                            )
+                    InscriptionClosed ->
+                        ResponseEntity
+                            .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.INSCRIPTIONS_CLOSED
+                                )
+                            )
+                    LeagueAlreadyEnded ->
+                        ResponseEntity
+                            .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.LEAGUE_ENDED
+                                )
+                            )
+                    LeagueNotFound ->
+                        ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                                    "resource" to "league"
+                                )
+                            )
+                    UserNotFound ->
+                        ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                                    "resource" to "user"
+                                )
+                            )
+                }
+        }
+
 
     @PatchMapping("/{leagueId}/configuration")
     fun updateConfiguration(
