@@ -773,7 +773,7 @@ components:
           type: integer
           format: int64
         team:
-          $ref: '#/components/schemas/TeamDetails'
+          $ref: '#/components/schemas/TeamSummary'
         dorsal:
           type: integer
           description: 'Número del dorsal del jugador cuando está en un equipo'
