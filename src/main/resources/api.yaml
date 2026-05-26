@@ -967,12 +967,12 @@ components:
               type: string
               format: regex
               pattern: '#[0-9A-F]{6}'
-              example: '#FFAABB77'
+              example: '#FFAABB'
             secondaryColor:
               type: string
               format: regex
               pattern: '#[0-9A-F]{6}'
-              example: '#FFAABB77'
+              example: '#FFAABB'
             iconImageUrl:
               type: string
               format: uri
