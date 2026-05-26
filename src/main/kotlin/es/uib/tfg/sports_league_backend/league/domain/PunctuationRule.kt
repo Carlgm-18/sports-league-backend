@@ -9,7 +9,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
-// TODO: add table name
 @Entity
 @Table(name = "punctuation_rule")
 class PunctuationRule(
