@@ -777,7 +777,7 @@ components:
         roles:
           type: array
           items:
-            $ref: '#/components/schemas/ParticipationRole'
+            $ref: '#/components/schemas/ParticipationRoleDTO'
         joinDate:
           type: string
           format: date-time
@@ -796,7 +796,7 @@ components:
         roles:
           type: array
           items:
-            $ref: '#/components/schemas/ParticipationRole'
+            $ref: '#/components/schemas/ParticipationRoleDTO'
         dorsal:
           type: integer
           description: 'Número del dorsal del jugador cuando está en un equipo'
@@ -1241,7 +1241,7 @@ components:
         roles:
           type: array
           items:
-            $ref: '#/components/schemas/ParticipationRole'
+            $ref: '#/components/schemas/ParticipationRoleDTO'
         joinDate:
           type: string
           format: date-time
@@ -1964,7 +1964,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ParticipationRole'
+              $ref: '#/components/schemas/ParticipationRoleDTO'
       responses:
         '200':
           description: 'Roles actualizados'
