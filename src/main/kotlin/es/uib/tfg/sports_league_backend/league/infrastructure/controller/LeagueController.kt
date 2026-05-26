@@ -174,7 +174,12 @@ class LeagueController(
     fun updateConfiguration(
         @PathVariable leagueId: Int,
         @Valid @RequestBody request: ConfigurationUpdateRequest
-    ): ConfigurationDetails {
-        return leagueService.updateConfiguration(leagueId, request)
-    }
+    ): ConfigurationDetails =
+        leagueService.updateConfiguration(leagueId, request)
+
+    @PatchMapping("/{leagueId}")
+    fun updateLeague(
+        @PathVariable leagueId: Long,
+        @Valid @RequestBody request: LeagueUpdateRequest
+    ) {}
 }
