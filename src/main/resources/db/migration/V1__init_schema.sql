@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS punctuation_system
 CREATE TABLE IF NOT EXISTS punctuation_rule
 (
     id                      BIGSERIAL PRIMARY KEY,
-    punctuation_system_id   BIGINT NOT NULL REFERENCES punctuation_system (id) ON DELETE CASCADE
+    punctuation_system_id   BIGINT NOT NULL REFERENCES punctuation_system (id) ON DELETE CASCADE,
     local_score             INT NOT NULL,
     visitor_score           INT NOT NULL,
     local_points            INT NOT NULL,
