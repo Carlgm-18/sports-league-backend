@@ -161,6 +161,14 @@ class LeagueController(
                 }
         }
 
+    @PostMapping("/{leagueId}/request")
+    fun createLeagueRequest(
+        @PathVariable leagueId: Long,
+        @AuthenticationPrincipal userId: Long,
+        @RequestBody request: BaseRequest
+    ): ResponseEntity<*> {
+        return ResponseEntity.badRequest().body("Not implemented yet")
+    }
 
     @PatchMapping("/{leagueId}/configuration")
     fun updateConfiguration(
