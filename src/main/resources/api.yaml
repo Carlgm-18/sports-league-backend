@@ -144,6 +144,11 @@ components:
           type: integer
         type:
           $ref: '#/components/schemas/PhaseType'
+      discriminator:
+        propertyName: type
+        mapping:
+          CLASSIFICATION: '#/components/schemas/ClassificationPhaseCreateRequest'
+          TOURNAMENT: '#/components/schemas/TournamentPhaseCreateRequest'
 
     ClassificationPhaseCreateRequest:
       allOf:
@@ -177,6 +182,13 @@ components:
           format: date
         sequenceOrder:
           type: integer
+        type:
+          $ref: '#/components/schemas/PhaseType'
+      discriminator:
+        propertyName: type
+        mapping:
+          CLASSIFICATION: '#/components/schemas/ClassificationPhaseUpdateRequest'
+          TOURNAMENT: '#/components/schemas/TournamentPhaseUpdateRequest'
 
     ClassificationPhaseUpdateRequest:
       allOf:
