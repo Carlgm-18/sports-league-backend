@@ -1,5 +1,14 @@
 package es.uib.tfg.sports_league_backend.team.infrastructure.controller
 
+import es.uib.tfg.sports_league_backend.common.ErrorCode
+import es.uib.tfg.sports_league_backend.core.DomainResult
+import es.uib.tfg.sports_league_backend.team.application.TeamService
+import es.uib.tfg.sports_league_backend.team.domain.error.TeamNotFound
+import es.uib.tfg.sports_league_backend.team.infrastructure.mapper.toDetailsDTO
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
