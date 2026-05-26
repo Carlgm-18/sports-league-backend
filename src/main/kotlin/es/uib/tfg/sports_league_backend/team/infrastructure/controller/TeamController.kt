@@ -6,30 +6,34 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class TeamController(
-    //private val teamService: TeamService
+    private val teamService: TeamService
 ) {
-//
-//    // Rutas que cuelgan de League
-//    @PostMapping("/leagues/{leagueId}/teams")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    fun requestTeamCreation(
-//        @PathVariable leagueId: Int,
-//        @Valid @RequestBody request: TeamCreateRequest
-//    ) {
-//        teamService.requestCreation(leagueId, request)
-//    }
-//
-//    @GetMapping("/leagues/{leagueId}/teams")
-//    fun getTeamsByLeague(@PathVariable leagueId: Int): List<TeamDetails> {
-//        return teamService.findByLeagueId(leagueId)
-//    }
-//
-//    // Rutas directas del Equipo
-//    @GetMapping("/teams/{teamId}")
-//    fun getTeamDetails(@PathVariable teamId: Int): TeamDetails { // El DTO unificado usando allOf
-//        return teamService.getTeamDetails(teamId)
-//    }
-//
+
+    @GetMapping("/leagues/{leagueId}/teams")
+    fun getTeamsByLeague(@PathVariable leagueId: Long) =
+        ResponseEntity.ok(teamService.findAllByLeagueId(leagueId))
+
+    @GetMapping("/teams/{teamId}")
+    fun getTeamDetails(@PathVariable teamId: Long): ResponseEntity<*> {
+        return when(val result = teamService.findById(teamId)) {
+            is DomainResult.Success ->
+                ResponseEntity.ok(result.data.toDetailsDTO())
+
+            is DomainResult.Failure ->
+                when(result.error) {
+                    TeamNotFound ->
+                        ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                                    "resource" to "team"
+                                )
+                            )
+                }
+        }
+    }
+
 //    @PostMapping("/teams/{teamId}/join-requests")
 //    @ResponseStatus(HttpStatus.CREATED)
 //    fun requestToJoinTeam(

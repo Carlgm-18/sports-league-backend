@@ -1,6 +1,7 @@
 package es.uib.tfg.sports_league_backend.team.domain
 
 import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
