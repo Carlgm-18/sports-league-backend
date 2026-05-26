@@ -901,11 +901,15 @@ components:
     BaseRequest:
       type: object
       required:
-        [ requestId, participantId, leagueId, createdAt, resolvedAt, message ]
+        [ requestId, requestType, participantId, leagueId, createdAt, status ]
       properties:
         requestId:
           type: integer
           format: int64
+        requestType:
+          type: string
+          description: 'Discriminador para el polimorfismo'
+          enum: [ 'TEAM_JOIN', 'TEAM_CREATE', 'REFEREE' ]
         participantId:
           type: integer
           format: int64
@@ -922,6 +926,12 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/RequestState'
+      discriminator:
+        propertyName: requestType
+        mapping:
+          TEAM_JOIN: '#/components/schemas/TeamJoinRequest'
+          TEAM_CREATE: '#/components/schemas/TeamCreateRequest'
+          REFEREE: '#/components/schemas/RefereeRequest'
 
     TeamJoinRequest:
       allOf:
