@@ -32,5 +32,9 @@ class Team(
 
     var iconImageUrl: String? = null,
 
-    var deletedAt: LocalDateTime? = null
+    var deletedAt: LocalDateTime? = null,
+
+    @OneToMany(mappedBy = "team", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var members: MutableList<Participant> = mutableListOf()
+
 )
