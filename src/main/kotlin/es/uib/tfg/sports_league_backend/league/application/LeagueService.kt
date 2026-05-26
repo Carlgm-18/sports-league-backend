@@ -1,24 +1,40 @@
 package es.uib.tfg.sports_league_backend.league.application
 
 import es.uib.tfg.sports_league_backend.core.DomainResult
+import es.uib.tfg.sports_league_backend.core.DomainResult.*
 import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.league.domain.LeagueConfiguration
 import es.uib.tfg.sports_league_backend.league.domain.PunctuationSystem
+import es.uib.tfg.sports_league_backend.league.domain.errors.AlreadyJoin
+import es.uib.tfg.sports_league_backend.league.domain.errors.CategoryMismatch
+import es.uib.tfg.sports_league_backend.league.domain.errors.ConfigurationNotFound
+import es.uib.tfg.sports_league_backend.league.domain.errors.InscriptionClosed
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueAlreadyEnded
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueCreateError
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueJoinError
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueNotFound
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueRetrieveError
+import es.uib.tfg.sports_league_backend.league.domain.errors.PunctuationSystemNotFound
+import es.uib.tfg.sports_league_backend.league.domain.errors.SportNotFound
+import es.uib.tfg.sports_league_backend.league.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toEntity
 import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueConfigurationRepository
 import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueRepository
 import es.uib.tfg.sports_league_backend.league.infrastructure.repository.PunctuationSystemRepository
+import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
+import es.uib.tfg.sports_league_backend.participant.domain.Participant
+import es.uib.tfg.sports_league_backend.participant.domain.errors.AlreadyParticipant
 import es.uib.tfg.sports_league_backend.sport.application.SportService
-import es.uib.tfg.sports_league_backend.sport.domain.errors.SportRetrieveError
 import es.uib.tfg.sports_league_backend.user.application.UserService
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
+import es.uib.tfg.sportsapi.dto.LeagueCategory
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
+import es.uib.tfg.sportsapi.dto.LeagueState
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class LeagueService(
@@ -145,7 +161,7 @@ class LeagueService(
     }
 
     fun updateConfiguration(
-        leagueId: Int,
+        leagueId: Long,
         request: ConfigurationUpdateRequest
     ): ConfigurationDetails {
         // TODO: Implement database logic
