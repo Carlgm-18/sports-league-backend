@@ -3,15 +3,24 @@ package es.uib.tfg.sports_league_backend.league.infrastructure.controller
 import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.league.application.LeagueService
-import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueCreateError
+import es.uib.tfg.sports_league_backend.league.domain.errors.AlreadyJoin
+import es.uib.tfg.sports_league_backend.league.domain.errors.CategoryMismatch
+import es.uib.tfg.sports_league_backend.league.domain.errors.ConfigurationNotFound
+import es.uib.tfg.sports_league_backend.league.domain.errors.InscriptionClosed
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueAlreadyEnded
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueNotFound
+import es.uib.tfg.sports_league_backend.league.domain.errors.PunctuationSystemNotFound
+import es.uib.tfg.sports_league_backend.league.domain.errors.SportNotFound
+import es.uib.tfg.sports_league_backend.league.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toDetailsDTO
-import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toEntity
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toSummaryDTO
+import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sportsapi.dto.BaseRequest
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
-import es.uib.tfg.sportsapi.dto.LeagueDetails
 import es.uib.tfg.sportsapi.dto.LeagueSummary
+import es.uib.tfg.sportsapi.dto.LeagueUpdateRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -172,7 +181,7 @@ class LeagueController(
 
     @PatchMapping("/{leagueId}/configuration")
     fun updateConfiguration(
-        @PathVariable leagueId: Int,
+        @PathVariable leagueId: Long,
         @Valid @RequestBody request: ConfigurationUpdateRequest
     ): ConfigurationDetails =
         leagueService.updateConfiguration(leagueId, request)
