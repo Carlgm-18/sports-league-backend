@@ -42,6 +42,8 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthenticationFilter) {
                     "/api/v1/teams/**"
                 ).permitAll()
 
+                auth.requestMatchers(HttpMethod.POST, "/api/v1/leagues").hasAuthority("ROLE_USER")
+
                 auth.anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
