@@ -58,40 +58,40 @@ class LeagueService(
         return Success(savedLeague)
     }
 
-        val configurationEntity = when {
+    private fun getOrCreateConfiguration(request: LeagueCreateRequest): DomainResult<LeagueConfiguration, LeagueCreateError> {
+        return when {
             request.configurationId != null -> {
                 leagueConfigurationRepository.findByIdOrNull(request.configurationId)
-                    ?: return DomainResult.Failure(LeagueCreateError.ConfigurationNotFound)
+                    ?.let { Success(it) }
+                    ?: Failure(ConfigurationNotFound)
             }
             request.customConfiguration != null -> {
                 val sportResult = sportService.getSportById(request.customConfiguration.sportId)
-                if (sportResult is DomainResult.Failure) return DomainResult.Failure(LeagueCreateError.SportNotFound)
-
-                val newConfig = request.customConfiguration.toEntity((sportResult as DomainResult.Success).data)
-                leagueConfigurationRepository.save(newConfig)
+                (sportResult as? Success)?.data?.let { sport ->
+                    val newConfig = request.customConfiguration.toEntity(sport)
+                    Success(leagueConfigurationRepository.save(newConfig))
+                } ?: Failure(SportNotFound)
             }
-            else -> throw IllegalStateException("Unreachable code")
+            else -> throw IllegalStateException("Request must have either configurationId or customConfiguration")
         }
+    }
 
-        val punctuationSystemEntity = when {
+    private fun getOrCreatePunctuationSystem(request: LeagueCreateRequest): DomainResult<PunctuationSystem, LeagueCreateError> {
+        return when {
             request.punctuationSystemId != null -> {
                 punctuationSystemRepository.findByIdOrNull(request.punctuationSystemId)
-                    ?: return DomainResult.Failure(LeagueCreateError.PunctuationSystemNotFound)
+                    ?.let { Success(it) }
+                    ?: Failure(PunctuationSystemNotFound)
             }
             request.customPunctuationSystem != null -> {
                 val sportResult = sportService.getSportById(request.customPunctuationSystem.sportId)
-                if (sportResult is DomainResult.Failure) return DomainResult.Failure(LeagueCreateError.SportNotFound)
-
-                val newSystem = request.customPunctuationSystem.toEntity((sportResult as DomainResult.Success).data)
-                punctuationSystemRepository.save(newSystem)
+                (sportResult as? Success)?.data?.let { sport ->
+                    val newSystem = request.customPunctuationSystem.toEntity(sport)
+                    Success(punctuationSystemRepository.save(newSystem))
+                } ?: Failure(SportNotFound)
             }
-            else -> throw IllegalStateException("Unreachable code")
+            else -> throw IllegalStateException("Request must have either punctuationSystemId or customPunctuationSystem")
         }
-
-        val league = request.toEntity(configurationEntity, punctuationSystemEntity, userEntity)
-        val savedLeague = leagueRepository.save(league)
-
-        return DomainResult.Success(savedLeague)
     }
 
     fun findLeagueById(leagueId: Long): DomainResult<League, LeagueRetrieveError> =
