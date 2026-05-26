@@ -237,17 +237,12 @@ components:
 
     ClassificationGroupCreateRequest:
       type: object
-      required: [ groupName, topWinners, teamIds ]
+      required: [ groupName, topWinners ]
       properties:
         groupName:
           type: string
         topWinners:
           type: integer
-        teamIds:
-          type: array
-          items:
-            type: integer
-            format: int64
 
     ClassificationGroupUpdateRequest:
       type: object
