@@ -16,19 +16,19 @@ import java.net.URI
 
 fun League.toDetailsDTO(): LeagueDetails =
     LeagueDetails(
-        id!!,
+        leagueId = id!!,
         name,
         description,
-        URI(iconImageUrl ?: ""),
-        URI(bannerImageUrl ?: ""),
-        URI(locationUrl ?: ""),
+        URI(locationUrl),
         startDate,
         endDate,
-        maxInscriptionDate,
         status,
         createdAt,
         configuration.toDetailsDTO(),
         punctuationSystem.toDetailsDTO(),
+        iconImageUrl?.let { URI(it) },
+        bannerImageUrl?.let { URI(it) },
+        maxInscriptionDate,
     )
 
 fun League.toSummaryDTO(): LeagueSummary {
@@ -36,13 +36,13 @@ fun League.toSummaryDTO(): LeagueSummary {
         id!!,
         name,
         description,
-        URI(iconImageUrl ?: ""),
-        URI(bannerImageUrl ?: ""),
-        URI(locationUrl ?: ""),
+        URI(locationUrl),
         startDate,
         endDate,
-        maxInscriptionDate,
         status,
+        iconImageUrl?.let { URI(it) },
+        bannerImageUrl?.let { URI(it) },
+        maxInscriptionDate,
     )
 }
 
