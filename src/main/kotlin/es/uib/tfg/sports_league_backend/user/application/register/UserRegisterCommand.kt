@@ -6,7 +6,7 @@ import es.uib.tfg.sportsapi.dto.UserCategory
 import java.time.LocalDateTime
 
 data class UserRegisterCommand (
-    var id: Int = 0,
+    var id: Long? = null,
     var firstName: String,
     var lastName: String,
     var email: String,
