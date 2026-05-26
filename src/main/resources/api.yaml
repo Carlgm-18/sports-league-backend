@@ -147,7 +147,7 @@ components:
 
     ClassificationPhaseCreateRequest:
       allOf:
-        - $ref: '#/components/schemas/PhaseBaseCreateRequest'
+        - $ref: '#/components/schemas/PhaseCreateRequest' # Ahora extiende PhaseCreateRequest
         - type: object
           properties:
             groups:
@@ -157,22 +157,12 @@ components:
 
     TournamentPhaseCreateRequest:
       allOf:
-        - $ref: '#/components/schemas/PhaseBaseCreateRequest'
+        - $ref: '#/components/schemas/PhaseCreateRequest' # Ahora extiende PhaseCreateRequest
         - type: object
           required: [ stagesNumber ]
           properties:
             stagesNumber:
               type: integer
-
-    PhaseCreateRequest:
-      oneOf:
-        - $ref: '#/components/schemas/ClassificationPhaseCreateRequest'
-        - $ref: '#/components/schemas/TournamentPhaseCreateRequest'
-      discriminator:
-        propertyName: type
-        mapping:
-          CLASSIFICATION: '#/components/schemas/ClassificationPhaseCreateRequest'
-          TOURNAMENT: '#/components/schemas/TournamentPhaseCreateRequest'
 
     PhaseBaseUpdateRequest:
       type: object
