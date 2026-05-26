@@ -67,10 +67,10 @@ class LeagueController(
                         mapOf(
                             "error" to ErrorCode.RESOURCE_NOT_FOUND,
                             "resource" to when(result.error) {
-                                LeagueCreateError.SportNotFound -> "sport"
-                                LeagueCreateError.ConfigurationNotFound -> "configuration"
-                                LeagueCreateError.PunctuationSystemNotFound -> "punctuationSystem"
-                                LeagueCreateError.UserNotFound -> "user"
+                                SportNotFound -> "sport"
+                                ConfigurationNotFound -> "configuration"
+                                PunctuationSystemNotFound -> "punctuationSystem"
+                                UserNotFound -> "user"
                             }
                         )
                     )
