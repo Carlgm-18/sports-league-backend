@@ -27,6 +27,7 @@ class LeagueService(
     private val punctuationSystemRepository: PunctuationSystemRepository,
     private val sportService: SportService,
     private val userService: UserService,
+    private val participantService: ParticipantService
 ) {
     fun findAll(): List<League> =
         leagueRepository.findAll()
@@ -96,8 +97,52 @@ class LeagueService(
 
     fun findLeagueById(leagueId: Long): DomainResult<League, LeagueRetrieveError> =
         leagueRepository.findByIdOrNull(leagueId)
-            ?.let { DomainResult.Success(it) }
-            ?: DomainResult.Failure(LeagueRetrieveError.LeagueNotFound)
+            ?.let { Success(it) }
+            ?: Failure(LeagueNotFound)
+
+    @Transactional
+    fun joinLeague(leagueId: Long, userId: Long): DomainResult<Participant, LeagueJoinError> {
+        // Validate user existence
+        val userResult = userService.findUserById(userId)
+        val user = (userResult as? Success)?.data
+            ?: return Failure(UserNotFound)
+
+        // Validate league existence
+        val league = leagueRepository.findByIdOrNull(leagueId)
+            ?: return Failure(LeagueNotFound)
+
+        // Validate league restrictions
+        // 1.Category
+        if(
+            league.configuration.category != LeagueCategory.MIXT
+            && league.configuration.category.value != user.category.value
+        ) return Failure(CategoryMismatch)
+
+        // 2. Max inscription date
+        league.maxInscriptionDate?.let {
+            if(LocalDate.now().isAfter(league.maxInscriptionDate))
+                return Failure(InscriptionClosed)
+        }
+
+        // 3. League already ended
+        if(league.status == LeagueState.ENDED)
+            return Failure(LeagueAlreadyEnded)
+
+        // Try to register player
+        return when(val savedParticipant = participantService.registerPlayer(user, league)) {
+            is Success -> {
+                Success(savedParticipant.data)
+            }
+
+            is Failure -> {
+                when(savedParticipant.error) {
+                    AlreadyParticipant ->
+                        Failure(AlreadyJoin)
+                }
+            }
+        }
+
+    }
 
     fun updateConfiguration(
         leagueId: Int,
