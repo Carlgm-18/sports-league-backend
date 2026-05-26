@@ -769,6 +769,9 @@ components:
         userId:
           type: integer
           format: int64
+        leagueId:
+          type: integer
+          format: int64
         team:
           $ref: '#/components/schemas/TeamDetails'
         dorsal:
