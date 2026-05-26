@@ -128,7 +128,7 @@ components:
           CLASSIFICATION: '#/components/schemas/ClassificationPhaseDetails'
           TOURNAMENT: '#/components/schemas/TournamentPhaseDetails'
 
-    PhaseBaseCreateRequest:
+    PhaseCreateRequest:
       type: object
       required: [ name, startDate, endDate, sequenceOrder, type ]
       properties:
