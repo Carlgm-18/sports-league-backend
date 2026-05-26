@@ -16,3 +16,17 @@ fun Team.toSummaryDTO(): TeamSummary =
         secondaryColor ?: "#FFFFFF",
         iconImageUrl?.let { URI(it) }
     )
+
+fun Team.toDetailsDTO(): TeamDetails =
+    TeamDetails(
+        id!!,
+        name,
+        initials,
+        description ?: "",
+        motto ?: "",
+        primaryColor,
+        secondaryColor,
+        members.map { it.toDetailsDTO() },
+        iconImageUrl?.let { URI(it) },
+        deletedAt,
+    )
