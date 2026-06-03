@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS sign
     id             BIGSERIAL PRIMARY KEY,
     sign_image_url VARCHAR(255) NOT NULL,
     upload_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    app_user_id    BIGINT          NOT NULL REFERENCES app_user (id) ON DELETE CASCADE
+    app_user_id    BIGINT       NOT NULL REFERENCES app_user (id) ON DELETE CASCADE
 );
 
 -- CREATE TABLE IF NOT EXISTS match_sign
@@ -275,9 +275,9 @@ CREATE TABLE IF NOT EXISTS sign
 CREATE TABLE IF NOT EXISTS incidence
 (
     id               BIGSERIAL PRIMARY KEY,
-    league_id        BIGINT  NOT NULL REFERENCES league (id) ON DELETE CASCADE,
-    participant_id BIGINT  NOT NULL REFERENCES participant (id) ON DELETE CASCADE,
-    description      TEXT NOT NULL,
+    league_id        BIGINT    NOT NULL REFERENCES league (id) ON DELETE CASCADE,
+    participant_id   BIGINT    NOT NULL REFERENCES participant (id) ON DELETE CASCADE,
+    description      TEXT      NOT NULL,
     resolution       TEXT
 );
 
