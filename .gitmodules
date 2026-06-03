@@ -1,0 +1,3 @@
+[submodule "src/main/resources/api_contracts"]
+	path = src/main/resources/api_contracts
+	url = https://github.com/Carlgm-18/sports-league-api-contracts.git

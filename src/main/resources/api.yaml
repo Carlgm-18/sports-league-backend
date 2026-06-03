@@ -901,15 +901,23 @@ components:
     BaseRequest:
       type: object
       required:
-        [ requestId, requestType, participantId, leagueId, createdAt, status ]
+        [
+          requestId,
+          requestType,
+          participantId,
+          leagueId,
+          createdAt,
+          status,
+          resolvedBy
+        ]
       properties:
         requestId:
           type: integer
           format: int64
         requestType:
           type: string
-          description: 'Discriminador para el polimorfismo'
           enum: [ 'TEAM_JOIN', 'TEAM_CREATE', 'REFEREE' ]
+          description: 'Discriminator'
         participantId:
           type: integer
           format: int64
@@ -933,59 +941,61 @@ components:
           TEAM_CREATE: '#/components/schemas/TeamCreateRequest'
           REFEREE: '#/components/schemas/RefereeRequest'
 
+    TeamJoinRequestProperties:
+      type: object
+      required: [ teamId, playerId, way ]
+      properties:
+        teamId:
+          type: integer
+          format: int64
+        playerId:
+          type: integer
+          format: int64
+        way:
+          type: string
+          enum: [ 'APPLIANCE', 'INVITATION' ]
+          description: 'Indicates if the request goes from a player to a team (APPLIANCE) or from a team to a player (INVITATION).'
+
     TeamJoinRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-        - type: object
-          required: [ teamId, way ]
-          properties:
-            teamId:
-              type: integer
-              format: int64
-              example: 101
-            way:
-              type: string
-              enum: [ 'APPLIANCE', 'INVITATION' ]
-              description: 'Indica si la solicitud se realiza desde un jugador hacia un equipo (APPLIANCE) o si es una invitación del equipo hacia el jugador (INVITATION).'
+        - $ref: '#/components/schemas/TeamJoinRequestProperties'
+
+    TeamCreateRequestProperties:
+      type: object
+      required:
+        [ name, initials, description, motto, primaryColor, secondaryColor ]
+      properties:
+        name:
+          type: string
+        initials:
+          type: string
+        description:
+          type: string
+        motto:
+          type: string
+        primaryColor:
+          type: string
+          format: regex
+          pattern: '#[0-9A-F]{6}'
+          example: '#FFAABB'
+        secondaryColor:
+          type: string
+          format: regex
+          pattern: '#[0-9A-F]{6}'
+          example: '#FFAABB'
+        iconImageUrl:
+          type: string
+          format: uri
 
     TeamCreateRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-        - type: object
-          required:
-            [ name, initials, description, motto, primaryColor, secondaryColor ]
-          properties:
-            name:
-              type: string
-            initials:
-              type: string
-            description:
-              type: string
-            motto:
-              type: string
-            primaryColor:
-              type: string
-              format: regex
-              pattern: '#[0-9A-F]{6}'
-              example: '#FFAABB'
-            secondaryColor:
-              type: string
-              format: regex
-              pattern: '#[0-9A-F]{6}'
-              example: '#FFAABB'
-            iconImageUrl:
-              type: string
-              format: uri
+        - $ref: '#/components/schemas/TeamCreateRequestProperties'
 
     RefereeRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-        - type: object
-          required: [ licenseReference ]
-          properties:
-            licenseReference:
-              type: string
-              example: 'UIB-REF-2026-X88'
 
     MatchDateProposalRequest:
       type: object
