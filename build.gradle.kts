@@ -68,7 +68,7 @@ tasks.withType<Test> {
 
 openApiGenerate {
     generatorName.set("kotlin-spring")
-    inputSpec.set("$rootDir/src/main/resources/api.yaml")
+    inputSpec.set("$rootDir/src/main/resources/api_contracts/main.yaml")
 
     outputDir.set(layout.buildDirectory.dir("generated/openapi").get().asFile.path)
 
@@ -100,7 +100,6 @@ openApiGenerate {
         "OffsetDateTime" to "java.time.LocalDateTime"
     ))
 
-    // 2. Dile qué import de Java tiene que poner en la cabecera de los archivos
     importMappings.set(mapOf(
         "java.time.OffsetDateTime" to "java.time.LocalDateTime"
     ))
