@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ParticipantRepository: JpaRepository<Participant, Long> {
     fun existsParticipantByUserIdAndLeagueId(userId: Long, leagueId: Long): Boolean
+    fun findByUserIdAndLeagueId(userId: Long, leagueId: Long): Participant?
 }
