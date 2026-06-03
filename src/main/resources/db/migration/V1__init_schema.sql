@@ -281,28 +281,42 @@ CREATE TABLE IF NOT EXISTS incidence
     resolution       TEXT
 );
 
+CREATE TABLE IF NOT EXISTS league_request
+(
+    id               BIGSERIAL   PRIMARY KEY,
+    league_id        BIGINT      NOT NULL REFERENCES league(id),
+    participant_id   BIGINT      NOT NULL REFERENCES participant (id),
+    created_at       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    resolved_at      TIMESTAMP,
+    rejection_reason  VARCHAR(200),
+    status           VARCHAR(50) NOT NULL, -- PENDING, REJECTED, APPROVED, CANCELED
+)
+
 CREATE TABLE IF NOT EXISTS team_create_request
 (
-    id               BIGSERIAL PRIMARY KEY,
-    league_id        BIGINT         NOT NULL REFERENCES league (id) ON DELETE CASCADE,
-    team_id          BIGINT         NOT NULL REFERENCES team (id) ON DELETE CASCADE,
-    participant_id BIGINT         NOT NULL REFERENCES participant (id),
-    status           VARCHAR(50) NOT NULL, -- PENDING, REJECTED, APPROVED, CANCELED
-    rejection_reason TEXT,
-    created_at       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    resolved_at      TIMESTAMP
+    id              BIGSERIAL    PRIMARY KEY,
+    request_id      BIGINT       NOT NULL REFERENCES league_request (id) ON DELETE CASCADE,
+    name            VARCHAR(100) NOT NULL,
+    initials        VARCHAR(10)  NOT NULL,
+    description     TEXT,
+    motto           VARCHAR(255),
+    primary_color   VARCHAR(7)   DEFAULT '#FFFFFF',
+    secondary_color VARCHAR(7)   DEFAULT '#000000',
+    icon_image_url  VARCHAR(255),
 );
 
 CREATE TABLE IF NOT EXISTS team_join_request
 (
-    id               BIGSERIAL PRIMARY KEY,
-    team_id          BIGINT         NOT NULL REFERENCES team (id) ON DELETE CASCADE,
-    participant_id BIGINT         NOT NULL REFERENCES participant (id) ON DELETE CASCADE,
-    way              VARCHAR(50) NOT NULL, -- APPLIANCE, INVITATION
-    status           VARCHAR(50) NOT NULL,
-    created_at       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    resolved_at      TIMESTAMP
+    id               BIGSERIAL    PRIMARY KEY,
+    request_id       BIGINT       NOT NULL REFERENCES league_request (id) ON DELETE CASCADE,
+    way              VARCHAR(50)  NOT NULL -- APPLIANCE, INVITATION
 );
+
+CREATE TABLE IF NOT EXISTS referee_request
+(
+    id               BIGSERIAL   PRIMARY KEY,
+    request_id       BIGINT      NOT NULL REFERENCES league_request (id) ON DELETE CASCADE
+)
 
 CREATE TABLE IF NOT EXISTS proposal
 (
