@@ -12,8 +12,8 @@ fun Team.toSummaryDTO(): TeamSummary =
         name,
         initials,
         motto ?: "",
-        primaryColor ?: "#FFFFFF",
-        secondaryColor ?: "#FFFFFF",
+        primaryColor,
+        secondaryColor,
         iconImageUrl?.let { URI(it) }
     )
 
