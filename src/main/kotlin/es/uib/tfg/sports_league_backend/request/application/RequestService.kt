@@ -54,9 +54,7 @@ class RequestService(
 
     @Transactional
     fun resolveRefereeRequest(
-        leagueId: Long,
         requestId: Long,
-        userId: Long,
         status: RequestState,
         rejectionReason: String?
     ): DomainResult<RefereeRequest, RequestError> {
@@ -91,16 +89,8 @@ class RequestService(
 
     @Transactional
     fun createTeamCreateRequest(
-        leagueId: Long,
-        userId: Long,
-        name: String,
-        initials: String,
-        description: String?,
-        motto: String?,
-        primaryColor: String,
-        secondaryColor: String,
-        iconImageUrl: String?
-    ): DomainResult<TeamCreateRequest, RequestError> {
+        request: es.uib.tfg.sportsapi.dto.TeamCreateRequest
+    ): DomainResult<TeamCreateRequest, ResolveRequestError> {
 
         val league = when(val result = leagueService.findLeagueById(request.participantId)) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
@@ -116,13 +106,13 @@ class RequestService(
             league = league,
             participant = participant,
             status = RequestState.PENDING,
-            name = name,
-            initials = initials,
-            description = description,
-            motto = motto,
-            primaryColor = primaryColor,
-            secondaryColor = secondaryColor,
-            iconImageUrl = iconImageUrl
+            name = request.name,
+            initials = request.initials,
+            description = request.description,
+            motto = request.motto,
+            primaryColor = request.primaryColor,
+            secondaryColor = request.secondaryColor,
+            iconImageUrl = request.iconImageUrl.toString()
         )
 
         return DomainResult.Success(requestRepository.save(teamCreateRequest))
@@ -130,9 +120,7 @@ class RequestService(
 
     @Transactional
     fun resolveTeamCreateRequest(
-        leagueId: Long,
         requestId: Long,
-        userId: Long,
         status: RequestState,
         rejectionReason: String?
     ): DomainResult<TeamCreateRequest, RequestError> {
@@ -207,7 +195,6 @@ class RequestService(
 
     @Transactional
     fun resolveTeamJoinRequest(
-        teamId: Long,
         requestId: Long,
         status: RequestState,
         userId: Long
