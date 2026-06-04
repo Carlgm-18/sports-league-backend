@@ -309,6 +309,8 @@ CREATE TABLE IF NOT EXISTS team_join_request
 (
     id               BIGSERIAL    PRIMARY KEY,
     request_id       BIGINT       NOT NULL REFERENCES league_request (id) ON DELETE CASCADE,
+    team_id          BIGINT       NOT NULL REFERENCES team (id) ON DELETE CASCADE,
+    -- guest_id         BIGINT       REFERENCES participant (id) ON DELETE CASCADE,
     way              VARCHAR(50)  NOT NULL -- APPLIANCE, INVITATION
 );
 
