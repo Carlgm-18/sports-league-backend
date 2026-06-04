@@ -8,14 +8,11 @@ import org.springframework.stereotype.Service
 class PhaseService(
     private val phaseRepository: PhaseRepository
 ) {
-    fun findAllByLeagueId(leagueId: Long): List<Phase> {
-        return phaseRepository.findAllByLeagueId(leagueId)
-    }
+    fun findAllByLeagueId(leagueId: Long): List<Phase> =
         phaseRepository.findAllByLeagueIdOrderBySequenceOrder(leagueId)
 
-    fun save(phase: Phase) {
+    fun save(phase: Phase) =
         phaseRepository.save(phase)
-    }
 
     fun findById(phaseId: Long): Phase {
         return phaseRepository.findById(phaseId)
