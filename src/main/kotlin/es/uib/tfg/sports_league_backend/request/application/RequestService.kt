@@ -1,19 +1,16 @@
 package es.uib.tfg.sports_league_backend.request.application
 
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueRepository
+import es.uib.tfg.sports_league_backend.league.application.LeagueService
+import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
+import es.uib.tfg.sports_league_backend.participant.application.ParticipationRoleService
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import es.uib.tfg.sports_league_backend.participant.domain.ParticipantRole
-import es.uib.tfg.sportsapi.dto.TeamJoinRequest.Way
-import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantRepository
-import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipationRoleRepository
 import es.uib.tfg.sports_league_backend.request.domain.*
 import es.uib.tfg.sports_league_backend.request.domain.errors.*
 import es.uib.tfg.sports_league_backend.request.infrastructure.repository.RequestRepository
 import es.uib.tfg.sports_league_backend.request.infrastructure.repository.TeamJoinRequestRepository
 import es.uib.tfg.sports_league_backend.team.application.TeamService
-import es.uib.tfg.sports_league_backend.team.domain.Team
-import es.uib.tfg.sports_league_backend.team.infrastructure.repository.TeamRepository
 import es.uib.tfg.sportsapi.dto.RequestState
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
@@ -30,19 +27,17 @@ class RequestService(
     private val teamService: TeamService
 ) {
 
-    private fun Participant.isAdmin(): Boolean =
-        roles.any { it.participationRole.roleName == "ADMIN" }
-
     private fun Participant.isCaptain(): Boolean =
         roles.any { it.participationRole.roleName == "CAPTAIN" }
 
     @Transactional
-    fun createRefereeRequest(leagueId: Long, userId: Long): DomainResult<RefereeRequest, RequestError> {
-        val league = leagueRepository.findByIdOrNull(leagueId)
-                        ?: return DomainResult.Failure(LeagueNotFound)
+    fun createRefereeRequest(
+        request: es.uib.tfg.sportsapi.dto.RefereeRequest
+    ): DomainResult<RefereeRequest, ResolveRequestError> {
         val league = when(val result = leagueService.findLeagueById(request.participantId)) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> result.data
+        }
 
         val participant = when(val result = participantService.findParticipantById(request.participantId)) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
@@ -183,13 +178,8 @@ class RequestService(
 
     @Transactional
     fun createTeamJoinRequest(
-        teamId: Long,
-        userId: Long,
-        way: Way
-    ): DomainResult<TeamJoinRequest, RequestError> {
-        val team = teamRepository.findByIdOrNull(teamId) ?: return DomainResult.Failure(TeamNotFound)
-        val league = team.league
-        val participant = participantRepository.findByUserIdAndLeagueId(userId, league.id!!) ?: return DomainResult.Failure(ParticipantNotFound)
+        request: es.uib.tfg.sportsapi.dto.TeamJoinRequest
+    ): DomainResult<TeamJoinRequest, CreateRequestError> {
         val team = when(val result = teamService.findById(request.teamId)) {
             is DomainResult.Failure -> return DomainResult.Failure(TeamNotFound)
             is DomainResult.Success -> {
@@ -202,6 +192,8 @@ class RequestService(
             is DomainResult.Success -> result.data
         }
 
+        if(team.league != participant.league)
+            return DomainResult.Failure(ParticipantAndTeamLeagueMissmatch)
 
         val teamJoinRequest = TeamJoinRequest(
             league = league,
@@ -217,12 +209,10 @@ class RequestService(
     fun resolveTeamJoinRequest(
         teamId: Long,
         requestId: Long,
-        userId: Long,
-        status: RequestState
-    ): DomainResult<TeamJoinRequest, RequestError> {
-        val team = teamRepository.findByIdOrNull(teamId) ?: return DomainResult.Failure(TeamNotFound)
-        val league = team.league
-        val resolver = participantRepository.findByUserIdAndLeagueId(userId, league.id!!) ?: return DomainResult.Failure(ParticipantNotFound)
+        status: RequestState,
+        userId: Long
+    ): DomainResult<TeamJoinRequest, ResolveRequestError> {
+
         val request = requestRepository.findByIdOrNull(requestId) as? TeamJoinRequest
                         ?: return DomainResult.Failure(RequestNotFound)
 
@@ -248,10 +238,11 @@ class RequestService(
         return DomainResult.Success(requestRepository.save(request) as TeamJoinRequest)
     }
 
-    fun findJoinRequestsByTeamId(teamId: Long, userId: Long): DomainResult<List<TeamJoinRequest>, RequestError> {
-        val team = teamRepository.findByIdOrNull(teamId) ?: return DomainResult.Failure(TeamNotFound)
-        val league = team.league
-        val viewer = participantRepository.findByUserIdAndLeagueId(userId, league.id!!) ?: return DomainResult.Failure(ParticipantNotFound)
+    fun findJoinRequestsByTeamId(
+        teamId: Long,
+        userId: Long
+    ): DomainResult<List<TeamJoinRequest>, RetrieveRequestError> {
+
         val team = when(val result = teamService.findById(teamId)) {
             is DomainResult.Failure -> return DomainResult.Failure(TeamNotFound)
             is DomainResult.Success -> result.data
@@ -264,8 +255,8 @@ class RequestService(
         }
 
         val isTeamCaptain = viewer.team?.id == teamId && viewer.isCaptain()
-        val isAdmin = viewer.isAdmin()
-        if (!isTeamCaptain && !isAdmin) return DomainResult.Failure(UnauthorizedAction)
+        if (!isTeamCaptain)
+            return DomainResult.Failure(UnauthorizedAction)
 
         val requests = teamJoinRequestRepository.findAllByTeamId(teamId)
         return DomainResult.Success(requests)
