@@ -11,6 +11,7 @@ class PhaseService(
     fun findAllByLeagueId(leagueId: Long): List<Phase> {
         return phaseRepository.findAllByLeagueId(leagueId)
     }
+        phaseRepository.findAllByLeagueIdOrderBySequenceOrder(leagueId)
 
     fun save(phase: Phase) {
         phaseRepository.save(phase)
