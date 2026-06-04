@@ -174,11 +174,11 @@ class RequestService(
             return DomainResult.Failure(ParticipantAndTeamLeagueMissmatch)
 
         val teamJoinRequest = TeamJoinRequest(
-            league = league,
+            league = team.league,
             participant = participant,
             status = RequestState.PENDING,
             team = team,
-            way = way
+            way = request.way,
         )
         return DomainResult.Success(requestRepository.save(teamJoinRequest))
     }
@@ -199,15 +199,20 @@ class RequestService(
             is DomainResult.Success -> result.data
         }
 
-        val request = requestRepository.findByIdOrNull(requestId) as? TeamJoinRequest ?: return DomainResult.Failure(RequestNotFound)
-        if (request.status != RequestState.PENDING) return DomainResult.Failure(InvalidRequestState)
+        val requestTeam = request.team
+        val isTeamCaptain = resolver.team == requestTeam && resolver.isCaptain()
+        if (!isTeamCaptain)
+            return DomainResult.Failure(UnauthorizedAction)
+
+        if (request.status != RequestState.PENDING)
+            return DomainResult.Failure(InvalidRequestState)
 
         request.status = status
         request.resolvedAt = LocalDateTime.now()
 
         if (status == RequestState.ACCEPTED) {
             val targetParticipant = request.participant
-            targetParticipant.team = team
+            targetParticipant.team = requestTeam
 
             participantService.save(targetParticipant)
         }
