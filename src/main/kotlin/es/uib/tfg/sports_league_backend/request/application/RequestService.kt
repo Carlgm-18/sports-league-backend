@@ -11,6 +11,7 @@ import es.uib.tfg.sports_league_backend.request.domain.*
 import es.uib.tfg.sports_league_backend.request.domain.errors.*
 import es.uib.tfg.sports_league_backend.request.infrastructure.repository.RequestRepository
 import es.uib.tfg.sports_league_backend.request.infrastructure.repository.TeamJoinRequestRepository
+import es.uib.tfg.sports_league_backend.team.application.TeamService
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sports_league_backend.team.infrastructure.repository.TeamRepository
 import es.uib.tfg.sportsapi.dto.RequestState
@@ -26,7 +27,7 @@ class RequestService(
     private val leagueRepository: LeagueRepository,
     private val participantRepository: ParticipantRepository,
     private val participationRoleRepository: ParticipationRoleRepository,
-    private val teamRepository: TeamRepository
+    private val teamService: TeamService
 ) {
 
     private fun Participant.isAdmin(): Boolean =
@@ -131,6 +132,7 @@ class RequestService(
         status: RequestState,
         rejectionReason: String?
     ): DomainResult<TeamCreateRequest, RequestError> {
+
         val resolver = participantRepository.findByUserIdAndLeagueId(userId, leagueId)
                         ?: return DomainResult.Failure(ParticipantNotFound)
 
@@ -150,21 +152,10 @@ class RequestService(
             val targetParticipant = request.participant
             val league = request.league
 
-            // TODO: abstraer la logica de creacion en el TeamService
-            val team = Team(
-                league = league,
-                name = request.name,
-                initials = request.initials,
-                description = request.description,
-                motto = request.motto,
-                primaryColor = request.primaryColor,
-                secondaryColor = request.secondaryColor,
-                iconImageUrl = request.iconImageUrl
-            )
-            val savedTeam = teamRepository.save(team)
-
+            teamService.createTeamWithRequest(request, league)
 
             // Make the requesting participant the team CAPTAIN
+            // TODO: apply when to teamService return value
             targetParticipant.team = savedTeam
             val captainRole = participationRoleRepository.findByRoleName("CAPTAIN")
             if (targetParticipant.roles.none { it.participationRole.roleName == "CAPTAIN" }) {

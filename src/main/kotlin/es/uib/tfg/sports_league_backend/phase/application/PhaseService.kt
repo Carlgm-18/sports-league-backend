@@ -1,7 +1,11 @@
 package es.uib.tfg.sports_league_backend.phase.application
 
+import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.phase.domain.Phase
+import es.uib.tfg.sports_league_backend.phase.domain.errors.PhaseNotFound
+import es.uib.tfg.sports_league_backend.phase.domain.errors.PhaseRetrieveError
 import es.uib.tfg.sports_league_backend.phase.infrastructure.repository.PhaseRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
