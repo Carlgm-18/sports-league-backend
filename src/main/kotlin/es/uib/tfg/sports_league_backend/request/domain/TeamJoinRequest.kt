@@ -4,6 +4,7 @@ import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.RequestState
+import es.uib.tfg.sportsapi.dto.TeamJoinRequest
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -24,7 +25,7 @@ class TeamJoinRequest(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var way: TeamJoinWay,
+    var way: TeamJoinRequest.Way,
 ) : Request(
     league = league,
     participant = participant,
