@@ -202,7 +202,7 @@ class RequestService(
             team = team,
             way = way
         )
-        return DomainResult.Success(requestRepository.save(teamJoinRequest) as TeamJoinRequest)
+        return DomainResult.Success(requestRepository.save(teamJoinRequest))
     }
 
     @Transactional
@@ -235,7 +235,7 @@ class RequestService(
             participantService.save(targetParticipant)
         }
 
-        return DomainResult.Success(requestRepository.save(request) as TeamJoinRequest)
+        return DomainResult.Success(requestRepository.save(request))
     }
 
     fun findJoinRequestsByTeamId(
