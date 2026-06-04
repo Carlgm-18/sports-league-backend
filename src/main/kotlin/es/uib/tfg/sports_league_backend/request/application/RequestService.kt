@@ -57,11 +57,7 @@ class RequestService(
         requestId: Long,
         status: RequestState,
         rejectionReason: String?
-    ): DomainResult<RefereeRequest, RequestError> {
-        val resolver = participantRepository.findByUserIdAndLeagueId(userId, leagueId)
-                        ?: return DomainResult.Failure(ParticipantNotFound)
-        if (!resolver.isAdmin())
-            return DomainResult.Failure(UnauthorizedAction)
+    ): DomainResult<RefereeRequest, ResolveRequestError> {
 
         val request = requestRepository.findByIdOrNull(requestId) as? RefereeRequest
                         ?: return DomainResult.Failure(RequestNotFound)
@@ -123,13 +119,7 @@ class RequestService(
         requestId: Long,
         status: RequestState,
         rejectionReason: String?
-    ): DomainResult<TeamCreateRequest, RequestError> {
-
-        val resolver = participantRepository.findByUserIdAndLeagueId(userId, leagueId)
-                        ?: return DomainResult.Failure(ParticipantNotFound)
-
-        if (!resolver.isAdmin())
-            return DomainResult.Failure(UnauthorizedAction)
+    ): DomainResult<TeamCreateRequest, ResolveRequestError> {
 
         val request = requestRepository.findByIdOrNull(requestId) as? TeamCreateRequest
                         ?: return DomainResult.Failure(RequestNotFound)

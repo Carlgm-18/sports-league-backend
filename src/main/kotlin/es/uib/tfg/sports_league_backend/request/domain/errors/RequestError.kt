@@ -1,10 +1,14 @@
 package es.uib.tfg.sports_league_backend.request.domain.errors
 
-sealed interface RequestError
+sealed interface ResolveRequestError
+sealed interface CreateRequestError
+sealed interface RetrieveRequestError
 
-object RequestNotFound : RequestError
-object LeagueNotFound : RequestError
-object ParticipantNotFound : RequestError
-object TeamNotFound : RequestError
-object UnauthorizedAction : RequestError
-object InvalidRequestState : RequestError
+object RequestNotFound : ResolveRequestError
+object LeagueNotFound : ResolveRequestError
+object ParticipantNotFound : ResolveRequestError, CreateRequestError, RetrieveRequestError
+object TeamNotFound : ResolveRequestError, CreateRequestError, RetrieveRequestError
+object UnauthorizedAction : ResolveRequestError, RetrieveRequestError
+object InvalidRequestState : ResolveRequestError
+object CouldNotCreateTeam : ResolveRequestError
+object ParticipantAndTeamLeagueMissmatch: CreateRequestError
