@@ -14,9 +14,10 @@ class PhaseService(
     fun save(phase: Phase) =
         phaseRepository.save(phase)
 
-    fun findById(phaseId: Long): Phase {
-        return phaseRepository.findById(phaseId)
-            .orElseThrow { NoSuchElementException("Phase with id $phaseId not found") }
-    }
+
+    fun findById(phaseId: Long): DomainResult<Phase, PhaseRetrieveError> =
+        phaseRepository.findByIdOrNull(phaseId)
+            ?.let{ DomainResult.Success(it) }
+            ?: DomainResult.Failure(PhaseNotFound)
 
 }
