@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface PhaseRepository: JpaRepository<Phase, Long> {
-    fun findAllByLeagueId(leagueId: Long): List<Phase>
+    fun findAllByLeagueIdOrderBySequenceOrder(leagueId: Long): List<Phase>
 }
