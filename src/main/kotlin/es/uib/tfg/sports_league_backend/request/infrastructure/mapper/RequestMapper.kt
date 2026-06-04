@@ -4,8 +4,8 @@ import es.uib.tfg.sports_league_backend.request.domain.RefereeRequest
 import es.uib.tfg.sports_league_backend.request.domain.Request
 import es.uib.tfg.sports_league_backend.request.domain.TeamCreateRequest
 import es.uib.tfg.sports_league_backend.request.domain.TeamJoinRequest
-import es.uib.tfg.sports_league_backend.request.domain.TeamJoinWay
 import es.uib.tfg.sportsapi.dto.BaseRequest
+import es.uib.tfg.sportsapi.dto.BaseRequest.RequestType
 import es.uib.tfg.sportsapi.dto.RefereeRequest as RefereeRequestDTO
 import es.uib.tfg.sportsapi.dto.TeamCreateRequest as TeamCreateRequestDTO
 import es.uib.tfg.sportsapi.dto.TeamJoinRequest as TeamJoinRequestDTO
@@ -22,7 +22,7 @@ fun Request.toDTO(): BaseRequest =
 fun RefereeRequest.toDTO(): RefereeRequestDTO =
     RefereeRequestDTO(
         requestId = id!!,
-        requestType = RefereeRequestDTO.RequestType.REFEREE,
+        requestType = RequestType.REFEREE,
         participantId = participant.id!!,
         leagueId = league.id!!,
         createdAt = createdAt,
@@ -34,7 +34,7 @@ fun RefereeRequest.toDTO(): RefereeRequestDTO =
 fun TeamCreateRequest.toDTO(): TeamCreateRequestDTO =
     TeamCreateRequestDTO(
         requestId = id!!,
-        requestType = TeamCreateRequestDTO.RequestType.TEAM_CREATE,
+        requestType = RequestType.TEAM_CREATE,
         participantId = participant.id!!,
         leagueId = league.id!!,
         createdAt = createdAt,
@@ -53,7 +53,7 @@ fun TeamCreateRequest.toDTO(): TeamCreateRequestDTO =
 fun TeamJoinRequest.toDTO(): TeamJoinRequestDTO =
     TeamJoinRequestDTO(
         requestId = id!!,
-        requestType = TeamJoinRequestDTO.RequestType.TEAM_JOIN,
+        requestType = RequestType.TEAM_JOIN,
         participantId = participant.id!!,
         leagueId = league.id!!,
         createdAt = createdAt,
@@ -63,7 +63,7 @@ fun TeamJoinRequest.toDTO(): TeamJoinRequestDTO =
         teamId = team.id!!,
         playerId = participant.id!!,
         way = when (way) {
-            TeamJoinWay.APPLIANCE -> TeamJoinRequestDTO.Way.APPLIANCE
-            TeamJoinWay.INVITATION -> TeamJoinRequestDTO.Way.INVITATION
+            TeamJoinRequestDTO.Way.APPLIANCE -> TeamJoinRequestDTO.Way.APPLIANCE
+            TeamJoinRequestDTO.Way.INVITATION -> TeamJoinRequestDTO.Way.INVITATION
         }
     )
