@@ -6,3 +6,4 @@ sealed interface ParticipantRetrieveError
 object LeagueNotFound : ParticipantRetrieveError
 object UserNotFound : ParticipantRetrieveError
 object AlreadyParticipant : ParticipantJoinError
+object ParticipantNotFound : ParticipantRetrieveError
