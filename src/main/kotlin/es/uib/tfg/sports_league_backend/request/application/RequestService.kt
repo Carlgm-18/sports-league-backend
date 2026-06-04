@@ -24,9 +24,9 @@ import java.time.LocalDateTime
 class RequestService(
     private val requestRepository: RequestRepository,
     private val teamJoinRequestRepository: TeamJoinRequestRepository,
-    private val leagueRepository: LeagueRepository,
-    private val participantRepository: ParticipantRepository,
-    private val participationRoleRepository: ParticipationRoleRepository,
+    private val leagueService: LeagueService,
+    private val participantService: ParticipantService,
+    private val participationRoleService: ParticipationRoleService,
     private val teamService: TeamService
 ) {
 
@@ -40,9 +40,14 @@ class RequestService(
     fun createRefereeRequest(leagueId: Long, userId: Long): DomainResult<RefereeRequest, RequestError> {
         val league = leagueRepository.findByIdOrNull(leagueId)
                         ?: return DomainResult.Failure(LeagueNotFound)
+        val league = when(val result = leagueService.findLeagueById(request.participantId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
+            is DomainResult.Success -> result.data
 
-        val participant = participantRepository.findByUserIdAndLeagueId(userId, leagueId)
-                            ?: return DomainResult.Failure(ParticipantNotFound)
+        val participant = when(val result = participantService.findParticipantById(request.participantId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
+            is DomainResult.Success -> result.data
+        }
 
         val refereeRequest = RefereeRequest(
             league = league,
@@ -76,12 +81,12 @@ class RequestService(
 
         if (status == RequestState.ACCEPTED) {
             val targetParticipant = request.participant
-            val refereeRole = participationRoleRepository.findByRoleName("REFEREE")
-            if (targetParticipant.roles.none { it.participationRole.roleName == "REFEREE" }) {
-                val newRole = ParticipantRole(participant = targetParticipant, participationRole = refereeRole)
-                targetParticipant.roles.add(newRole)
-                participantRepository.save(targetParticipant)
-            }
+
+            val refereeRole = participationRoleService.findRoleByName("REFEREE")
+            val newRole = ParticipantRole(participant = targetParticipant, participationRole = refereeRole)
+            targetParticipant.roles.add(newRole)
+
+            participantService.save(targetParticipant)
         } else if (status == RequestState.REJECTED) {
             request.rejectionReason = rejectionReason
         }
@@ -102,11 +107,15 @@ class RequestService(
         iconImageUrl: String?
     ): DomainResult<TeamCreateRequest, RequestError> {
 
-        val league = leagueRepository.findByIdOrNull(leagueId)
-                        ?: return DomainResult.Failure(LeagueNotFound)
+        val league = when(val result = leagueService.findLeagueById(request.participantId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
+            is DomainResult.Success -> result.data
+        }
 
-        val participant = participantRepository.findByUserIdAndLeagueId(userId, leagueId)
-                            ?: return DomainResult.Failure(ParticipantNotFound)
+        val participant = when(val result = participantService.findParticipantById(request.participantId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
+            is DomainResult.Success -> result.data
+        }
 
         val teamCreateRequest = TeamCreateRequest(
             league = league,
@@ -150,24 +159,26 @@ class RequestService(
 
         if (status == RequestState.ACCEPTED) {
             val targetParticipant = request.participant
-            val league = request.league
 
-            teamService.createTeamWithRequest(request, league)
-
-            // Make the requesting participant the team CAPTAIN
-            // TODO: apply when to teamService return value
-            targetParticipant.team = savedTeam
-            val captainRole = participationRoleRepository.findByRoleName("CAPTAIN")
-            if (targetParticipant.roles.none { it.participationRole.roleName == "CAPTAIN" }) {
-                val newRole = ParticipantRole(participant = targetParticipant, participationRole = captainRole)
-                targetParticipant.roles.add(newRole)
+            when(val result = teamService.createTeamWithRequest(request, request.league)) {
+                is DomainResult.Failure -> {
+                    return DomainResult.Failure(CouldNotCreateTeam)
+                }
+                is DomainResult.Success -> {
+                    targetParticipant.team = result.data
+                }
             }
-            participantRepository.save(targetParticipant)
+
+            val captainRole = participationRoleService.findRoleByName("CAPTAIN")
+            val newRole = ParticipantRole(participant = targetParticipant, participationRole = captainRole)
+            targetParticipant.roles.add(newRole)
+
+            participantService.save(targetParticipant)
         } else if (status == RequestState.REJECTED) {
             request.rejectionReason = rejectionReason
         }
 
-        return DomainResult.Success(requestRepository.save(request) as TeamCreateRequest)
+        return DomainResult.Success(requestRepository.save(request))
     }
 
     @Transactional
@@ -179,6 +190,18 @@ class RequestService(
         val team = teamRepository.findByIdOrNull(teamId) ?: return DomainResult.Failure(TeamNotFound)
         val league = team.league
         val participant = participantRepository.findByUserIdAndLeagueId(userId, league.id!!) ?: return DomainResult.Failure(ParticipantNotFound)
+        val team = when(val result = teamService.findById(request.teamId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(TeamNotFound)
+            is DomainResult.Success -> {
+                result.data
+            }
+        }
+
+        val participant = when(val result = participantService.findParticipantById(request.participantId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
+            is DomainResult.Success -> result.data
+        }
+
 
         val teamJoinRequest = TeamJoinRequest(
             league = league,
@@ -200,11 +223,14 @@ class RequestService(
         val team = teamRepository.findByIdOrNull(teamId) ?: return DomainResult.Failure(TeamNotFound)
         val league = team.league
         val resolver = participantRepository.findByUserIdAndLeagueId(userId, league.id!!) ?: return DomainResult.Failure(ParticipantNotFound)
+        val request = requestRepository.findByIdOrNull(requestId) as? TeamJoinRequest
+                        ?: return DomainResult.Failure(RequestNotFound)
 
-        // Check permission: Captain of the target team or Admin of the league
-        val isTeamCaptain = resolver.team?.id == teamId && resolver.isCaptain()
-        val isAdmin = resolver.isAdmin()
-        if (!isTeamCaptain && !isAdmin) return DomainResult.Failure(UnauthorizedAction)
+        val resolver = when(val result = participantService
+            .findParticipantByUserIdAndLeagueId(userId, request.league.id!!)) {
+            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
+            is DomainResult.Success -> result.data
+        }
 
         val request = requestRepository.findByIdOrNull(requestId) as? TeamJoinRequest ?: return DomainResult.Failure(RequestNotFound)
         if (request.status != RequestState.PENDING) return DomainResult.Failure(InvalidRequestState)
@@ -216,13 +242,7 @@ class RequestService(
             val targetParticipant = request.participant
             targetParticipant.team = team
 
-            // Assign PLAYER role to the participant if they don't have it
-            val playerRole = participationRoleRepository.findByRoleName("PLAYER")
-            if (targetParticipant.roles.none { it.participationRole.roleName == "PLAYER" }) {
-                val newRole = ParticipantRole(participant = targetParticipant, participationRole = playerRole)
-                targetParticipant.roles.add(newRole)
-            }
-            participantRepository.save(targetParticipant)
+            participantService.save(targetParticipant)
         }
 
         return DomainResult.Success(requestRepository.save(request) as TeamJoinRequest)
@@ -232,8 +252,17 @@ class RequestService(
         val team = teamRepository.findByIdOrNull(teamId) ?: return DomainResult.Failure(TeamNotFound)
         val league = team.league
         val viewer = participantRepository.findByUserIdAndLeagueId(userId, league.id!!) ?: return DomainResult.Failure(ParticipantNotFound)
+        val team = when(val result = teamService.findById(teamId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(TeamNotFound)
+            is DomainResult.Success -> result.data
+        }
 
-        // Check permission: Only team captain or league admin can list join requests
+        val viewer = when(val result = participantService
+            .findParticipantByUserIdAndLeagueId(userId, team.league.id!!)) {
+            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
+            is DomainResult.Success -> result.data
+        }
+
         val isTeamCaptain = viewer.team?.id == teamId && viewer.isCaptain()
         val isAdmin = viewer.isAdmin()
         if (!isTeamCaptain && !isAdmin) return DomainResult.Failure(UnauthorizedAction)
