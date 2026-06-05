@@ -1,7 +1,7 @@
 package es.uib.tfg.sports_league_backend.match.domain
 
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
-import es.uib.tfg.sports_league_backend.round.entities.Round
+import es.uib.tfg.sports_league_backend.round.domain.Round
 import es.uib.tfg.sports_league_backend.schedule.domain.DateTimeSlot
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.MatchState
