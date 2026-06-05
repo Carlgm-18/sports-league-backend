@@ -3,8 +3,6 @@ package es.uib.tfg.sports_league_backend.user.infrastructure.controller
 import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.user.application.UserService
-import es.uib.tfg.sports_league_backend.user.domain.errors.UserRegisterError
-import es.uib.tfg.sports_league_backend.user.domain.errors.UserRetrieveError
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toCommand
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toCreateResponse
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toDetailsDTO
