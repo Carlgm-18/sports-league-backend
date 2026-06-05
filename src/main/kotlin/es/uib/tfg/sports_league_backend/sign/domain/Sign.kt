@@ -1,6 +1,7 @@
 package es.uib.tfg.sports_league_backend.sign.domain
 
 import jakarta.persistence.*
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "sign")
@@ -10,8 +11,8 @@ class Sign (
     var id: Long? = null,
 
     @Column(nullable = false)
-    signImageUrl: String,
+    var signImageUrl: String,
 
     @Column(nullable = false)
-    uploadAt: LocalDateTime,
+    var uploadAt: LocalDateTime,
 )
