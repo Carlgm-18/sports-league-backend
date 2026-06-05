@@ -1,9 +1,12 @@
 package es.uib.tfg.sports_league_backend.request.infrastructure.mapper
 
+import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import es.uib.tfg.sports_league_backend.request.domain.RefereeRequest
 import es.uib.tfg.sports_league_backend.request.domain.Request
 import es.uib.tfg.sports_league_backend.request.domain.TeamCreateRequest
 import es.uib.tfg.sports_league_backend.request.domain.TeamJoinRequest
+import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.BaseRequest
 import es.uib.tfg.sportsapi.dto.BaseRequest.RequestType
 import es.uib.tfg.sportsapi.dto.RefereeRequest as RefereeRequestDTO
@@ -66,4 +69,12 @@ fun TeamJoinRequest.toDTO(): TeamJoinRequestDTO =
             TeamJoinRequestDTO.Way.APPLIANCE -> TeamJoinRequestDTO.Way.APPLIANCE
             TeamJoinRequestDTO.Way.INVITATION -> TeamJoinRequestDTO.Way.INVITATION
         }
+    )
+
+fun TeamJoinRequestDTO.toEntity(league: League, participant: Participant, team: Team) =
+    TeamJoinRequest(
+        league = league,
+        participant = participant,
+        team = team,
+        way = way,
     )
