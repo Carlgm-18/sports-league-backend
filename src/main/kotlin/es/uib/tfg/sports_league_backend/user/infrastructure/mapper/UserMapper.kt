@@ -3,6 +3,7 @@ package es.uib.tfg.sports_league_backend.user.infrastructure.mapper
 import es.uib.tfg.sports_league_backend.user.application.login.LoginSessionInfo
 import es.uib.tfg.sports_league_backend.user.application.login.UserLoginCommand
 import es.uib.tfg.sports_league_backend.user.application.register.UserRegisterCommand
+import es.uib.tfg.sports_league_backend.user.application.update.UserUpdateCommand
 import es.uib.tfg.sports_league_backend.user.domain.SecurePassword
 import es.uib.tfg.sports_league_backend.user.domain.User
 import es.uib.tfg.sportsapi.dto.UserAuthResponse
@@ -11,35 +12,34 @@ import es.uib.tfg.sportsapi.dto.UserCreateResponse
 import es.uib.tfg.sportsapi.dto.UserDetails
 import es.uib.tfg.sportsapi.dto.UserLoginRequest
 import es.uib.tfg.sportsapi.dto.UserSummary
+import es.uib.tfg.sportsapi.dto.UserUpdateRequest
 import java.net.URI
 import java.time.LocalDateTime
 
 // users/me
 fun User.toDetailsDTO() =
     UserDetails(
-        userId = this.id!!,
-        email = this.email,
-        fullName = "${this.firstName} ${this.lastName}",
-        category = this.category,
-        profileImageUrl = URI(this.profileImageUrl ?: ""),
-        licenses = this.licenses ?: listOf(),
-        signature = this.signature,
-        createdAt = this.createdAt
+        id!!,
+        email,
+        "$firstName $lastName",
+        category,
+        createdAt,
+        URI(profileImageUrl ?: ""),
+        licenses.map { it.toDTO() }.toList(),
+        signature,
     )
 
 // users/register
 fun UserCreateRequest.toCommand() =
     UserRegisterCommand(
-        email = this.email,
-        firstName = this.firstName,
-        lastName = this.lastName,
-        category = this.category,
+        email = email,
+        firstName = firstName,
+        lastName = lastName,
+        category = category,
         createdAt = LocalDateTime.now(),
-        licenses = this.licenses,
-        password = this.password,
-        confirmPassword = this.confirmPassword,
-        profileImageUrl = "",
-        signature = null
+        licenses = licenses,
+        password = password,
+        confirmPassword = confirmPassword,
     )
 
 fun UserRegisterCommand.toEntity(securePassword: SecurePassword) =
@@ -54,15 +54,17 @@ fun UserRegisterCommand.toEntity(securePassword: SecurePassword) =
         profileImageUrl,
         licenses,
         signature,
+        signature = signature,
+    )
     )
 
 fun User.toCreateResponse() =
     UserCreateResponse(
-        email = this.email,
-        firstName = this.firstName,
-        lastName = this.lastName,
-        licenses = this.licenses,
-        category = this.category,
+        firstName,
+        lastName,
+        email,
+        category,
+        licenses.map { it.toDTO() }.toList()
     )
 
 fun User.toSummary() =
@@ -73,7 +75,6 @@ fun User.toSummary() =
         URI(profileImageUrl ?: ""),
     )
 
-// users/login endpoint
 
 fun UserLoginRequest.toCommand() =
     UserLoginCommand(

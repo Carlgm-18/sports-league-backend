@@ -3,7 +3,7 @@ package es.uib.tfg.sports_league_backend.user.application
 import es.uib.tfg.sports_league_backend.common.security.JwtService
 import es.uib.tfg.sports_league_backend.common.security.TokenType
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.league.domain.errors.UserNotFound
+import es.uib.tfg.sports_league_backend.user.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.user.application.login.LoginSessionInfo
 import es.uib.tfg.sports_league_backend.user.application.login.UserLoginCommand
 import es.uib.tfg.sports_league_backend.user.application.register.UserRegisterCommand
@@ -55,12 +55,7 @@ class UserService(
             user == null ||
             !passwordEncoder.matches(command.password, user.passwordHash.value)
         ) {
-            return DomainResult.Failure(
-                UserLoginError.NotValidCredentials(
-                    command.email,
-                    command.password
-                )
-            )
+            return DomainResult.Failure(NotValidCredentials)
         }
 
         val accessToken = jwtService.generateToken(user.id!!, TokenType.ACCESS)

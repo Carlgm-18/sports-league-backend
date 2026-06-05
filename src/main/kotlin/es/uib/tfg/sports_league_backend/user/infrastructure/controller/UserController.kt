@@ -3,12 +3,15 @@ package es.uib.tfg.sports_league_backend.user.infrastructure.controller
 import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.user.application.UserService
+import es.uib.tfg.sports_league_backend.user.domain.errors.EmailAlreadyExists
+import es.uib.tfg.sports_league_backend.user.domain.errors.PasswordEncodingFailed
+import es.uib.tfg.sports_league_backend.user.domain.errors.PasswordsDontMatch
+import es.uib.tfg.sports_league_backend.user.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toCommand
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toCreateResponse
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toLoginResponse
 import es.uib.tfg.sportsapi.dto.UserCreateRequest
-import es.uib.tfg.sportsapi.dto.UserDetails
 import es.uib.tfg.sportsapi.dto.UserLoginRequest
 import es.uib.tfg.sportsapi.dto.UserUpdateRequest
 import jakarta.validation.Valid
@@ -19,14 +22,16 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@RequestMapping("/api/v1/users")
 class UserController(
     private val userService: UserService
 ) {
 
-    @PostMapping("/api/v1/users/register")
+    @PostMapping("/register")
     fun register(@RequestBody @Valid request: UserCreateRequest): ResponseEntity<*> =
         when (
             val result = userService.registerUser(request.toCommand())
@@ -39,24 +44,24 @@ class UserController(
 
             is DomainResult.Failure ->
                 when (result.error) {
-                    UserRegisterError.EmailAlreadyExists ->
+                    EmailAlreadyExists ->
                         ResponseEntity
                             .status(HttpStatus.CONFLICT)
                             .body(mapOf("error" to ErrorCode.EMAIL_ALREADY_EXISTS))
 
-                    UserRegisterError.PasswordEncodingFailed ->
+                    PasswordEncodingFailed ->
                         ResponseEntity
                             .status(HttpStatus.INTERNAL_SERVER_ERROR)
                             .body(mapOf("error" to ErrorCode.PASSWORD_ENCODING_FAILED))
 
-                    UserRegisterError.PasswordsDontMatch ->
+                    PasswordsDontMatch ->
                         ResponseEntity
                             .status(HttpStatus.BAD_REQUEST)
                             .body(mapOf("error" to ErrorCode.PASSWORDS_DONT_MATCH))
                 }
         }
 
-    @PostMapping("/api/v1/users/login")
+    @PostMapping("/login")
     fun login(@Valid @RequestBody request: UserLoginRequest): ResponseEntity<*> =
         when (val result = userService.login(request.toCommand())) {
             is DomainResult.Success ->
@@ -67,7 +72,7 @@ class UserController(
                     .body(mapOf("error" to ErrorCode.INVALID_CREDENTIALS))
         }
 
-    @GetMapping("/api/v1/users/me")
+    @GetMapping("/me")
     fun getCurrentUser(@AuthenticationPrincipal principal: Long): ResponseEntity<*> =
         when (val user = userService.findUserById(principal)) {
             is DomainResult.Success -> {
@@ -76,7 +81,7 @@ class UserController(
 
             is DomainResult.Failure -> {
                 when (user.error) {
-                    is UserRetrieveError.UserNotFound -> {
+                    is UserNotFound -> {
                         ResponseEntity
                             .status(HttpStatus.NOT_FOUND)
                             .body(
