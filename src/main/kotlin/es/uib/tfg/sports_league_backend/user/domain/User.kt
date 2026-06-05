@@ -36,8 +36,8 @@ class User(
     @Column
     var profileImageUrl: String? = null,
 
-    @Transient
-    var licenses: List<LicenseElement>? = null,
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    var licenses: MutableSet<RefereeLicense> = mutableSetOf(),
 
     @Transient
     var signature: SignImageUrl? = null,

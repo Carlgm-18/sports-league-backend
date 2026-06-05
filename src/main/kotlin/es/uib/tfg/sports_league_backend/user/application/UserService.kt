@@ -78,13 +78,16 @@ class UserService(
             ?: DomainResult.Failure(UserNotFound)
 
     fun updateUserById(id: Long, newUser: UserUpdateCommand): DomainResult<User, UserRetrieveError> {
+
         val user = userRepository.findByIdOrNull(id)
             ?: return DomainResult.Failure(UserNotFound)
-        newUser.email?.let{ user.email = it }
+
         newUser.firstName?.let{ user.firstName = it }
         newUser.lastName?.let{ user.lastName = it }
-        newUser.licenses?.let{ user.licenses = it }
-        newUser.signature?.let{ user.signature = it }
+        newUser.licenses?.let{
+            user.licenses.clear()
+            user.licenses.addAll(it.map { l -> l.toEntity() })
+        }
 
         return DomainResult.Success(userRepository.save(user))
     }

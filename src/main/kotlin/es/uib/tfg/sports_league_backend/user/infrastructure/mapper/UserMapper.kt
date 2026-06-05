@@ -52,10 +52,14 @@ fun UserRegisterCommand.toEntity(securePassword: SecurePassword) =
         category,
         createdAt,
         profileImageUrl,
-        licenses,
-        signature,
         signature = signature,
     )
+
+fun UserUpdateRequest.toCommand() =
+    UserUpdateCommand(
+        firstName,
+        lastName,
+        licenses
     )
 
 fun User.toCreateResponse() =

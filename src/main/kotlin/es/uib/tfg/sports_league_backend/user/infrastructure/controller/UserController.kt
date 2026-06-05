@@ -95,11 +95,26 @@ class UserController(
             }
         }
 
-    @PatchMapping("/api/v1/users/me")
+
+    @PatchMapping("/me")
     fun updateCurrentUser(
         @AuthenticationPrincipal principal: Long,
         @Valid @RequestBody request: UserUpdateRequest
-    ): ResponseEntity<*> {
-        TODO("Not yet implemented")
-    }
+    ): ResponseEntity<*> =
+        when (val result = userService.updateUserById(principal, request.toCommand())) {
+            is DomainResult.Failure ->
+                when(result.error) {
+                    is UserNotFound ->
+                        ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(
+                                mapOf(
+                                "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                                "resource" to "user"
+                                )
+                            )
+                }
+            is DomainResult.Success ->
+                ResponseEntity.status(HttpStatus.CREATED).body(result.data.toDetailsDTO())
+        }
 }
