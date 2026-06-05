@@ -6,7 +6,7 @@
 
 CREATE TABLE IF NOT EXISTS app_user
 (
-    id                BIGSERIAL PRIMARY KEY,
+    id                BIGSERIAL           PRIMARY KEY,
     first_name        VARCHAR(50)         NOT NULL,
     last_name         VARCHAR(50)         NOT NULL,
     email             VARCHAR(100) UNIQUE NOT NULL,
@@ -19,22 +19,22 @@ CREATE TABLE IF NOT EXISTS app_user
 
 CREATE TABLE IF NOT EXISTS sport
 (
-    id         BIGSERIAL PRIMARY KEY,
-    sport_name VARCHAR(100) UNIQUE NOT NULL
+    id         BIGSERIAL        PRIMARY KEY,
+    sport_name VARCHAR(100)     UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS referee_license
 (
-    id          BIGSERIAL PRIMARY KEY,
+    id          BIGSERIAL       PRIMARY KEY,
     app_user_id BIGINT          NOT NULL REFERENCES app_user (id) ON DELETE CASCADE,
     sport_id    BIGINT          NOT NULL REFERENCES sport (id) ON DELETE CASCADE,
-    license     VARCHAR(100) NOT NULL,
-    upload_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    license     VARCHAR(100)    NOT NULL,
+    upload_at   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS league_configuration
 (
-    id                         BIGSERIAL PRIMARY KEY,
+    id                         BIGSERIAL    PRIMARY KEY,
     sport_id                   BIGINT       NOT NULL REFERENCES sport (id),
     name                       VARCHAR(100) NOT NULL UNIQUE,
     category                   VARCHAR(50)  NOT NULL, -- MALE, FEMALE, MIXT
@@ -50,9 +50,9 @@ CREATE TABLE IF NOT EXISTS league_configuration
 
 CREATE TABLE IF NOT EXISTS punctuation_system
 (
-    id             BIGSERIAL PRIMARY KEY,
-    sport_id       BIGINT          NOT NULL REFERENCES sport (id) ON DELETE CASCADE,
-    name           VARCHAR(50)  NOT NULL
+    id             BIGSERIAL        PRIMARY KEY,
+    sport_id       BIGINT           NOT NULL REFERENCES sport (id) ON DELETE CASCADE,
+    name           VARCHAR(50)      NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS punctuation_rule
@@ -164,10 +164,10 @@ CREATE TABLE IF NOT EXISTS round
 
 CREATE TABLE IF NOT EXISTS datetime_slot
 (
-    id        BIGSERIAL PRIMARY KEY,
-    round_id  BIGINT REFERENCES round (id) ON DELETE CASCADE,
-    date_time TIMESTAMP NOT NULL,
-    duration  INT       NOT NULL
+    id        BIGSERIAL     PRIMARY KEY,
+    round_id  BIGINT        NOT NULL REFERENCES round (id) ON DELETE CASCADE,
+    date_time TIMESTAMP     NOT NULL,
+    duration  INT           NOT NULL
 );
 
 -- ==========================================
@@ -212,10 +212,11 @@ CREATE TABLE IF NOT EXISTS tournament_slot
 
 CREATE TABLE IF NOT EXISTS sign
 (
-    id             BIGSERIAL PRIMARY KEY,
-    sign_image_url VARCHAR(255) NOT NULL,
-    upload_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    app_user_id    BIGINT       NOT NULL REFERENCES app_user (id) ON DELETE CASCADE
+    id              BIGSERIAL       PRIMARY KEY,
+    sign_image_url  VARCHAR(255)    NOT NULL,
+    upload_at       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id         BIGINT          NOT NULL REFERENCES app_user (id) ON DELETE CASCADE --,
+    -- UNIQUE (user_id, upload_at) Crear indice en la clave de ordención si la tabla crece demasiado
 );
 
 -- CREATE TABLE IF NOT EXISTS match_sign
