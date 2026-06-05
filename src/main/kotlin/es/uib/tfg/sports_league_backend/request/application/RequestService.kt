@@ -88,7 +88,7 @@ class RequestService(
         request: es.uib.tfg.sportsapi.dto.TeamCreateRequest
     ): DomainResult<TeamCreateRequest, ResolveRequestError> {
 
-        val league = when(val result = leagueService.findLeagueById(request.participantId)) {
+        val league = when(val result = leagueService.findLeagueById(request.leagueId)) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> result.data
         }
