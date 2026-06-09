@@ -6,15 +6,20 @@ import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import es.uib.tfg.sports_league_backend.participant.domain.ParticipantRole
 import es.uib.tfg.sports_league_backend.participant.domain.errors.AlreadyParticipant
+import es.uib.tfg.sports_league_backend.participant.domain.errors.DorsalAlreadyTaken
 import es.uib.tfg.sports_league_backend.participant.domain.errors.LeagueNotFound
+import es.uib.tfg.sports_league_backend.participant.domain.errors.NotInATeam
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantJoinError
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantNotFound
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantRetrieveError
+import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantUpdateError
+import es.uib.tfg.sports_league_backend.participant.domain.errors.UnauthorizedAction
 import es.uib.tfg.sports_league_backend.participant.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantRepository
 import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipationRoleRepository
 import es.uib.tfg.sports_league_backend.user.application.UserService
 import es.uib.tfg.sports_league_backend.user.domain.User
+import es.uib.tfg.sportsapi.dto.ParticipantUpdateRequest
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -76,5 +81,7 @@ class ParticipantService(
     fun save(participant: Participant): DomainResult<Participant, ParticipantJoinError> =
         participantRepository.save(participant).let { DomainResult.Success(it) }
 
+    fun findAllLeagueParticipants(leagueId: Long): List<Participant> =
+        participantRepository.findAllByLeagueId(leagueId)
 
 }

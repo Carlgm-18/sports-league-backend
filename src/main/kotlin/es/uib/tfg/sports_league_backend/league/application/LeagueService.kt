@@ -166,5 +166,11 @@ class LeagueService(
         // TODO: Implement database logic
         TODO("Not yet implemented")
     }
-
+    
+    fun findAllParticipantsByLeagueId(leagueId: Long): DomainResult<List<Participant>, LeagueRetrieveError> {
+        return leagueRepository.findByIdOrNull(leagueId)
+        ?.let { DomainResult.Success(participantService.findAllLeagueParticipants(leagueId)) }
+        ?: DomainResult.Failure(LeagueNotFound)
+    }
+    
 }
