@@ -15,7 +15,7 @@ import es.uib.tfg.sports_league_backend.league.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toDetailsDTO
-import es.uib.tfg.sportsapi.dto.BaseRequest
+import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -44,9 +43,7 @@ class LeagueController(
     fun getAllLeagues(): List<LeagueSummary> =
         leagueService.findAll().map { it.toSummaryDTO() }
 
-
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     fun createLeague(
             @Valid @RequestBody request: LeagueCreateRequest,
             @AuthenticationPrincipal userId: Long
