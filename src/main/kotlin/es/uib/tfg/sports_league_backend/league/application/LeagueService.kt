@@ -1,7 +1,6 @@
 package es.uib.tfg.sports_league_backend.league.application
 
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.core.DomainResult.*
 import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.league.domain.LeagueConfiguration
 import es.uib.tfg.sports_league_backend.league.domain.PunctuationSystem
@@ -52,18 +51,18 @@ class LeagueService(
     fun createLeague(request: LeagueCreateRequest, ownerId: Long): DomainResult<League, LeagueCreateError> {
         // Check for user existence
         val userResult = userService.findUserById(ownerId)
-        val user = (userResult as? Success)?.data
-            ?: return Failure(UserNotFound)
+        val user = (userResult as? DomainResult.Success)?.data
+            ?: return DomainResult.Failure(UserNotFound)
 
         // Validate configuration state
         val configResult = getOrCreateConfiguration(request)
-        val configuration = (configResult as? Success)?.data
-            ?: return Failure((configResult as Failure).error)
+        val configuration = (configResult as? DomainResult.Success)?.data
+            ?: return DomainResult.Failure((configResult as DomainResult.Failure).error)
 
         // Validate punctuation system state
         val punctuationSystemResult = getOrCreatePunctuationSystem(request)
-        val punctuationSystem = (punctuationSystemResult as? Success)?.data
-            ?: return Failure((punctuationSystemResult as Failure).error)
+        val punctuationSystem = (punctuationSystemResult as? DomainResult.Success)?.data
+            ?: return DomainResult.Failure((punctuationSystemResult as DomainResult.Failure).error)
 
         // Save league
         val league = request.toEntity(configuration, punctuationSystem, user)
@@ -72,22 +71,22 @@ class LeagueService(
         // Register creator as owner
         participantService.registerOwner(user, savedLeague)
 
-        return Success(savedLeague)
+        return DomainResult.Success(savedLeague)
     }
 
     private fun getOrCreateConfiguration(request: LeagueCreateRequest): DomainResult<LeagueConfiguration, LeagueCreateError> {
         return when {
             request.configurationId != null -> {
                 leagueConfigurationRepository.findByIdOrNull(request.configurationId)
-                    ?.let { Success(it) }
-                    ?: Failure(ConfigurationNotFound)
+                    ?.let { DomainResult.Success(it) }
+                    ?: DomainResult.Failure(ConfigurationNotFound)
             }
             request.customConfiguration != null -> {
                 val sportResult = sportService.getSportById(request.customConfiguration.sportId)
-                (sportResult as? Success)?.data?.let { sport ->
+                (sportResult as? DomainResult.Success)?.data?.let { sport ->
                     val newConfig = request.customConfiguration.toEntity(sport)
-                    Success(leagueConfigurationRepository.save(newConfig))
-                } ?: Failure(SportNotFound)
+                    DomainResult.Success(leagueConfigurationRepository.save(newConfig))
+                } ?: DomainResult.Failure(SportNotFound)
             }
             else -> throw IllegalStateException("Request must have either configurationId or customConfiguration")
         }
@@ -97,15 +96,15 @@ class LeagueService(
         return when {
             request.punctuationSystemId != null -> {
                 punctuationSystemRepository.findByIdOrNull(request.punctuationSystemId)
-                    ?.let { Success(it) }
-                    ?: Failure(PunctuationSystemNotFound)
+                    ?.let { DomainResult.Success(it) }
+                    ?: DomainResult.Failure(PunctuationSystemNotFound)
             }
             request.customPunctuationSystem != null -> {
                 val sportResult = sportService.getSportById(request.customPunctuationSystem.sportId)
-                (sportResult as? Success)?.data?.let { sport ->
+                (sportResult as? DomainResult.Success)?.data?.let { sport ->
                     val newSystem = request.customPunctuationSystem.toEntity(sport)
-                    Success(punctuationSystemRepository.save(newSystem))
-                } ?: Failure(SportNotFound)
+                    DomainResult.Success(punctuationSystemRepository.save(newSystem))
+                } ?: DomainResult.Failure(SportNotFound)
             }
             else -> throw IllegalStateException("Request must have either punctuationSystemId or customPunctuationSystem")
         }
@@ -113,47 +112,47 @@ class LeagueService(
 
     fun findLeagueById(leagueId: Long): DomainResult<League, LeagueRetrieveError> =
         leagueRepository.findByIdOrNull(leagueId)
-            ?.let { Success(it) }
-            ?: Failure(LeagueNotFound)
+            ?.let { DomainResult.Success(it) }
+            ?: DomainResult.Failure(LeagueNotFound)
 
     @Transactional
     fun joinLeague(leagueId: Long, userId: Long): DomainResult<Participant, LeagueJoinError> {
         // Validate user existence
         val userResult = userService.findUserById(userId)
-        val user = (userResult as? Success)?.data
-            ?: return Failure(UserNotFound)
+        val user = (userResult as? DomainResult.Success)?.data
+            ?: return DomainResult.Failure(UserNotFound)
 
         // Validate league existence
         val league = leagueRepository.findByIdOrNull(leagueId)
-            ?: return Failure(LeagueNotFound)
+            ?: return DomainResult.Failure(LeagueNotFound)
 
         // Validate league restrictions
         // 1.Category
         if(
             league.configuration.category != LeagueCategory.MIXT
             && league.configuration.category.value != user.category.value
-        ) return Failure(CategoryMismatch)
+        ) return DomainResult.Failure(CategoryMismatch)
 
         // 2. Max inscription date
         league.maxInscriptionDate?.let {
             if(LocalDate.now().isAfter(league.maxInscriptionDate))
-                return Failure(InscriptionClosed)
+                return DomainResult.Failure(InscriptionClosed)
         }
 
         // 3. League already ended
         if(league.status == LeagueState.ENDED)
-            return Failure(LeagueAlreadyEnded)
+            return DomainResult.Failure(LeagueAlreadyEnded)
 
         // Try to register player
         return when(val savedParticipant = participantService.registerPlayer(user, league)) {
-            is Success -> {
-                Success(savedParticipant.data)
+            is DomainResult.Success -> {
+                DomainResult.Success(savedParticipant.data)
             }
 
-            is Failure -> {
+            is DomainResult.Failure -> {
                 when(savedParticipant.error) {
                     AlreadyParticipant ->
-                        Failure(AlreadyJoin)
+                        DomainResult.Failure(AlreadyJoin)
                 }
             }
         }
