@@ -167,14 +167,25 @@ class LeagueController(
                 }
         }
 
-    @PostMapping("/{leagueId}/request")
-    fun createLeagueRequest(
-        @PathVariable leagueId: Long,
-        @AuthenticationPrincipal userId: Long,
-        @RequestBody request: BaseRequest
-    ): ResponseEntity<*> {
-        return ResponseEntity.badRequest().body("Not implemented yet")
-    }
+    @GetMapping("/{leagueId}/participants")
+    fun getLeagueParticipants(@PathVariable leagueId: Long): ResponseEntity<*> =
+        when(val result = leagueService.findAllParticipantsByLeagueId(leagueId)) {
+            is DomainResult.Success ->
+                ResponseEntity.ok(result.data.map { it.toSummaryDTO() })
+            is DomainResult.Failure ->
+                when(result.error) {
+                    is LeagueNotFound ->
+                        ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                                    "resource" to "league"
+                                )
+                            )
+                }
+        }
+
 
     @PatchMapping("/{leagueId}/configuration")
     fun updateConfiguration(
@@ -187,5 +198,7 @@ class LeagueController(
     fun updateLeague(
         @PathVariable leagueId: Long,
         @Valid @RequestBody request: LeagueUpdateRequest
-    ) {}
+    ): ResponseEntity<*> {
+        TODO("Not implemented yet")
+    }
 }
