@@ -4,8 +4,8 @@ sealed interface ResolveRequestError
 sealed interface CreateRequestError
 sealed interface RetrieveRequestError
 
-object RequestNotFound : ResolveRequestError
-object LeagueNotFound : ResolveRequestError
+object RequestNotFound : ResolveRequestError, RetrieveRequestError
+object LeagueNotFound : CreateRequestError, ResolveRequestError
 object ParticipantNotFound : ResolveRequestError, CreateRequestError, RetrieveRequestError
 object TeamNotFound : ResolveRequestError, CreateRequestError, RetrieveRequestError
 object UnauthorizedAction : ResolveRequestError, RetrieveRequestError
