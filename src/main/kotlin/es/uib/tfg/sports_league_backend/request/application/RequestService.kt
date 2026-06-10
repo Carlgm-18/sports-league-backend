@@ -12,6 +12,13 @@ import es.uib.tfg.sports_league_backend.request.infrastructure.repository.Reques
 import es.uib.tfg.sports_league_backend.request.infrastructure.repository.TeamJoinRequestRepository
 import es.uib.tfg.sports_league_backend.team.application.TeamService
 import es.uib.tfg.sportsapi.dto.RequestState
+import es.uib.tfg.sportsapi.dto.RefereeRequest as RefereeRequestDTO
+import es.uib.tfg.sportsapi.dto.TeamCreateRequest as TeamCreateRequestDTO
+import es.uib.tfg.sportsapi.dto.TeamJoinRequest as TeamJoinRequestDTO
+import es.uib.tfg.sports_league_backend.request.domain.RefereeRequest
+import es.uib.tfg.sports_league_backend.request.domain.TeamCreateRequest
+import es.uib.tfg.sports_league_backend.request.domain.TeamJoinRequest
+import es.uib.tfg.sportsapi.dto.ResolveRequestInput
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -29,6 +36,30 @@ class RequestService(
 
     private fun Participant.isCaptain(): Boolean =
         roles.any { it.participationRole.roleName == "CAPTAIN" }
+
+    private fun isTeamCaptain(userId: Long, request: TeamJoinRequest): Boolean =
+        when(
+            val result = participantService
+                .findParticipantByUserIdAndLeagueId(userId, request.league.id!!)
+        ) {
+            is DomainResult.Failure -> false
+
+            is DomainResult.Success -> result.data.team == request.team && result.data.isCaptain()
+        }
+
+    private fun Participant.isAdmin(): Boolean =
+        roles.any { it.participationRole.roleName == "ADMIN" }
+
+    private fun isAdminFromSameLeague(userId: Long, request: Request): Boolean =
+        when(
+            val result = participantService
+                            .findParticipantByUserIdAndLeagueId(userId, request.league.id!!)
+        ) {
+            is DomainResult.Failure -> false
+
+            is DomainResult.Success -> result.data.isAdmin()
+        }
+
 
     @Transactional
     fun createRefereeRequest(
@@ -244,6 +275,8 @@ class RequestService(
         return DomainResult.Success(requestRepository.save(request))
     }
 
+    private fun isRequestCreator(userId: Long, request: Request): Boolean =
+        userId == request.participant.id
     fun findJoinRequestsByTeamId(
         teamId: Long,
         userId: Long
