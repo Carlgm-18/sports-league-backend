@@ -1,0 +1,3 @@
+package es.uib.tfg.sports_league_backend.availability.domain.errors
+
+sealed interface RegisterAvailabilityError
