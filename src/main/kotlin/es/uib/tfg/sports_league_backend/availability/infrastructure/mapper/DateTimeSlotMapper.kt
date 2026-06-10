@@ -8,3 +8,10 @@ fun DateTimeSlot.toDetailsDTO(): DateTimeSlotDetails =
         dateTime,
         duration
     )
+
+fun DateTimeSlotDetails.toEntity(roundId: Long): DateTimeSlot =
+    DateTimeSlot(
+        dateTime = dateTime,
+        duration = duration,
+        roundId = roundId
+    )
