@@ -1,7 +1,7 @@
 package es.uib.tfg.sports_league_backend.round.domain
 
 import es.uib.tfg.sports_league_backend.phase.domain.Phase
-import es.uib.tfg.sports_league_backend.schedule.domain.DateTimeSlot
+import es.uib.tfg.sports_league_backend.availability.domain.DateTimeSlot
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

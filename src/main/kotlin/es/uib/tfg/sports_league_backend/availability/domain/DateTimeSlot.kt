@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.schedule.domain
+package es.uib.tfg.sports_league_backend.availability.domain
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

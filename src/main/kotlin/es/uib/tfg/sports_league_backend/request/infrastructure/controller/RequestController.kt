@@ -3,10 +3,12 @@ package es.uib.tfg.sports_league_backend.request.infrastructure.controller
 import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.request.application.RequestService
-import es.uib.tfg.sports_league_backend.request.domain.TeamJoinWay
 import es.uib.tfg.sports_league_backend.request.domain.errors.*
 import es.uib.tfg.sports_league_backend.request.infrastructure.mapper.toDTO
-import es.uib.tfg.sportsapi.dto.RequestState
+import es.uib.tfg.sportsapi.dto.BaseRequest
+import es.uib.tfg.sportsapi.dto.RefereeRequest
+import es.uib.tfg.sportsapi.dto.ResolveRequestInput
+import jakarta.validation.Valid
 import es.uib.tfg.sportsapi.dto.TeamCreateRequest as TeamCreateRequestDTO
 import es.uib.tfg.sportsapi.dto.TeamJoinRequest as TeamJoinRequestDTO
 import org.springframework.http.HttpStatus
