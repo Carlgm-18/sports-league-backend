@@ -2,8 +2,12 @@ package es.uib.tfg.sports_league_backend.participant.domain.errors
 
 sealed interface ParticipantJoinError
 sealed interface ParticipantRetrieveError
+sealed interface ParticipantUpdateError
 
 object LeagueNotFound : ParticipantRetrieveError
 object UserNotFound : ParticipantRetrieveError
 object AlreadyParticipant : ParticipantJoinError
-object ParticipantNotFound : ParticipantRetrieveError
+object ParticipantNotFound : ParticipantRetrieveError, ParticipantUpdateError
+object NotInATeam : ParticipantUpdateError
+object UnauthorizedAction : ParticipantUpdateError
+object DorsalAlreadyTaken : ParticipantUpdateError

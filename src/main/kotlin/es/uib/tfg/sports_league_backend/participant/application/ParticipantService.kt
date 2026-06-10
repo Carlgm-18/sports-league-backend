@@ -84,4 +84,25 @@ class ParticipantService(
     fun findAllLeagueParticipants(leagueId: Long): List<Participant> =
         participantRepository.findAllByLeagueId(leagueId)
 
+    @Transactional
+    fun updateParticipantById(
+        participantId: Long,
+        userId: Long,
+        updateRequest: ParticipantUpdateRequest
+    ): DomainResult<Participant, ParticipantUpdateError> {
+        val participant = participantRepository.findByIdOrNull(participantId)
+            ?: return DomainResult.Failure(ParticipantNotFound)
+
+        if(participant.user.id != userId)
+            return DomainResult.Failure(UnauthorizedAction)
+
+        if(participant.team == null)
+            return DomainResult.Failure(NotInATeam)
+
+        if(participant.team!!.members.map { it.dorsal }.contains(updateRequest.dorsal))
+            return DomainResult.Failure(DorsalAlreadyTaken)
+
+        participant.dorsal = updateRequest.dorsal
+        return DomainResult.Success(participantRepository.save(participant))
+    }
 }
