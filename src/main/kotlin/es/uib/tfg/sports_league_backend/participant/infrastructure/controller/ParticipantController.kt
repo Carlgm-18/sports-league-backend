@@ -1,14 +1,58 @@
-package es.uib.tfg.sports_league_backend.participant.infrastructure.controller;
+package es.uib.tfg.sports_league_backend.participant.infrastructure.controller
 
+import es.uib.tfg.sports_league_backend.common.ErrorCode
+import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import es.uib.tfg.sports_league_backend.participant.domain.errors.DorsalAlreadyTaken
+import es.uib.tfg.sports_league_backend.participant.domain.errors.LeagueNotFound
+import es.uib.tfg.sports_league_backend.participant.domain.errors.NotInATeam
+import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantNotFound
+import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantUpdateError
+import es.uib.tfg.sports_league_backend.participant.domain.errors.UnauthorizedAction
+import es.uib.tfg.sports_league_backend.participant.domain.errors.UserNotFound
+import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sportsapi.dto.ParticipantUpdateRequest
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/leagues/{leagueId}/participants")
+@RequestMapping("/api/v1")
 class ParticipantController(
     private val participantService: ParticipantService
 ) {
+    @GetMapping("/leagues/{leagueId}/my-status")
+    fun getParticipantLeagueStatus(
+        @PathVariable leagueId: Long,
+        @AuthenticationPrincipal userId: Long,
+    ): ResponseEntity<*> =
+        when(val result = participantService.findParticipantByUserIdAndLeagueId(leagueId, userId)) {
+            is DomainResult.Success ->
+                ResponseEntity.ok(result.data.toDetailsDTO())
+            is DomainResult.Failure ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to
+                                when (result.error) {
+                                    is ParticipantNotFound -> "participant"
+
+                                    is LeagueNotFound -> "league"
+                                    is UserNotFound -> "user"
+                            }
+                        )
+                    )
+        }
+
+
     @PatchMapping("/participants/{participantId}")
     fun updateParticipantLeague(
         @PathVariable participantId: Long,
