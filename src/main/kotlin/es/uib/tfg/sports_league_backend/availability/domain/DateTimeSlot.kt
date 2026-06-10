@@ -19,5 +19,6 @@ class DateTimeSlot(
     var dateTime: LocalDateTime,
 
     @Column(nullable = false)
-    var duration: Int
+    var duration: Int,
+    var roundId: Long
 )
