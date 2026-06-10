@@ -275,8 +275,60 @@ class RequestService(
         return DomainResult.Success(requestRepository.save(request))
     }
 
+    fun findRequestByRequestId(
+        requestId: Long,
+        userId: Long
+    ): DomainResult<Request, RetrieveRequestError> =
+        requestRepository.findByIdOrNull(requestId)
+            ?.let {
+                return when(it) {
+                    is RefereeRequest ->
+                        findRequest(it, userId)
+                    is TeamJoinRequest ->
+                        findRequest(it, userId)
+                    is TeamCreateRequest ->
+                        findRequest(it, userId)
+
+                    else -> throw IllegalArgumentException("Unexpected type of request")
+                }
+            }
+            ?: DomainResult.Failure(RequestNotFound)
+
     private fun isRequestCreator(userId: Long, request: Request): Boolean =
         userId == request.participant.id
+
+
+    private fun findRequest(
+        request: TeamCreateRequest,
+        userId: Long
+    ): DomainResult<TeamCreateRequest, RetrieveRequestError> {
+        return if(!isRequestCreator(userId, request) && !isAdminFromSameLeague(userId, request))
+            DomainResult.Failure(UnauthorizedAction)
+        else
+            DomainResult.Success(request)
+    }
+
+    private fun findRequest(
+        request: RefereeRequest,
+        userId: Long
+    ): DomainResult<RefereeRequest, RetrieveRequestError> {
+        return if(!isRequestCreator(userId, request) && !isAdminFromSameLeague(userId, request))
+            DomainResult.Failure(UnauthorizedAction)
+        else
+            DomainResult.Success(request)
+    }
+
+    private fun findRequest(
+        request: TeamJoinRequest,
+        userId: Long
+    ): DomainResult<TeamJoinRequest, RetrieveRequestError> {
+        return if(!isRequestCreator(userId, request) && !isTeamCaptain(userId, request))
+            DomainResult.Failure(UnauthorizedAction)
+        else
+            DomainResult.Success(request)
+    }
+
+
     fun findJoinRequestsByTeamId(
         teamId: Long,
         userId: Long
