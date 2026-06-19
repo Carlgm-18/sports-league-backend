@@ -175,8 +175,6 @@ class LeagueService(
         leagueId: Long,
         request: ConfigurationUpdateRequest
     ): ConfigurationDetails {
-        // TODO: Implement database logic
-        TODO("Not yet implemented")
         val league = leagueRepository.findByIdOrNull(leagueId)
             ?: throw IllegalArgumentException("League not found")
         val config = league.configuration

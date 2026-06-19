@@ -207,8 +207,6 @@ class LeagueController(
         @PathVariable leagueId: Long,
         @Valid @RequestBody request: LeagueUpdateRequest
     ): ResponseEntity<*> {
-        TODO("Not implemented yet")
-    }
         return when(val result = leagueService.updateLeague(leagueId, request)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.toDetailsDTO())
