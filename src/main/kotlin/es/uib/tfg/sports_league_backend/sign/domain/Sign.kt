@@ -15,4 +15,6 @@ class Sign (
 
     @Column(nullable = false)
     var uploadAt: LocalDateTime,
+
+    var userId: Long
 )
