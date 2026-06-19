@@ -43,12 +43,4 @@ class TeamController(
         }
     }
 
-//    @PostMapping("/teams/{teamId}/join-requests")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    fun requestToJoinTeam(
-//        @PathVariable teamId: Int,
-//        @Valid @RequestBody request: TeamJoinRequest
-//    ) {
-//        teamService.requestToJoin(teamId, request)
-//    }
 }
