@@ -1,9 +1,12 @@
 package es.uib.tfg.sports_league_backend.participant.application
 
+import es.uib.tfg.sports_league_backend.availability.application.AvailabilityService
+import es.uib.tfg.sports_league_backend.availability.domain.DateTimeSlot
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.league.application.LeagueService
 import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
+import es.uib.tfg.sports_league_backend.participant.domain.ParticipantAvailability
 import es.uib.tfg.sports_league_backend.participant.domain.ParticipantRole
 import es.uib.tfg.sports_league_backend.participant.domain.errors.AlreadyParticipant
 import es.uib.tfg.sports_league_backend.participant.domain.errors.DorsalAlreadyTaken
@@ -15,7 +18,7 @@ import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantRet
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantUpdateError
 import es.uib.tfg.sports_league_backend.participant.domain.errors.UnauthorizedAction
 import es.uib.tfg.sports_league_backend.participant.domain.errors.UserNotFound
-import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantRepository
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantJPARepository
 import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipationRoleRepository
 import es.uib.tfg.sports_league_backend.user.application.UserService
 import es.uib.tfg.sports_league_backend.user.domain.User
@@ -26,10 +29,11 @@ import org.springframework.stereotype.Service
 
 @Service
 class ParticipantService(
-    private val participantRepository: ParticipantRepository,
+    private val participantJPARepository: ParticipantJPARepository,
     private val participationRoleRepository: ParticipationRoleRepository,
     private val leagueService: LeagueService,
-    private val userService: UserService
+    private val userService: UserService,
+    private val availabilityService: AvailabilityService
 ) {
 
     @Transactional
@@ -39,14 +43,14 @@ class ParticipantService(
         val participantRole = ParticipantRole(participant = participantOwner, participationRole = adminRole)
         participantOwner.roles.add(participantRole)
 
-        participantRepository.save(participantOwner)
+        participantJPARepository.save(participantOwner)
     }
 
     @Transactional
     fun registerPlayer(user: User, league: League): DomainResult<Participant, ParticipantJoinError> {
 
         // Validate that user has not already joined the league
-        if (participantRepository.existsParticipantByUserIdAndLeagueId(league.id!!, user.id!!)) {
+        if (participantJPARepository.existsParticipant(league.id!!, user.id!!)) {
             return DomainResult.Failure(AlreadyParticipant)
         }
 
@@ -55,15 +59,15 @@ class ParticipantService(
         val participantRole = ParticipantRole(participant = participantPlayer, participationRole = playerRole)
         participantPlayer.roles.add(participantRole)
 
-        return DomainResult.Success(participantRepository.save(participantPlayer))
+        return DomainResult.Success(participantJPARepository.save(participantPlayer))
     }
 
     fun findParticipantById(participantId: Long): DomainResult<Participant, ParticipantRetrieveError> =
-        participantRepository.findByIdOrNull(participantId)
+        participantJPARepository.findParticipantById(participantId)
             ?.let { DomainResult.Success(it) }
             ?: DomainResult.Failure(ParticipantNotFound)
 
-    fun findParticipantByUserIdAndLeagueId(
+    fun findParticipant(
         userId: Long,
         leagueId: Long
     ): DomainResult<Participant, ParticipantRetrieveError> {
@@ -73,16 +77,16 @@ class ParticipantService(
         if(userService.findUserById(userId) is DomainResult.Failure)
             return DomainResult.Failure(UserNotFound)
 
-        return participantRepository.findByUserIdAndLeagueId(userId, leagueId)
+        return participantJPARepository.findParticipant(userId, leagueId)
             ?.let { DomainResult.Success(it) }
             ?: DomainResult.Failure(UserNotFound)
     }
 
     fun save(participant: Participant): DomainResult<Participant, ParticipantJoinError> =
-        participantRepository.save(participant).let { DomainResult.Success(it) }
+        participantJPARepository.save(participant).let { DomainResult.Success(it) }
 
     fun findAllLeagueParticipants(leagueId: Long): List<Participant> =
-        participantRepository.findAllByLeagueId(leagueId)
+        participantJPARepository.findAllByLeagueId(leagueId)
 
     @Transactional
     fun updateParticipantById(
@@ -90,7 +94,7 @@ class ParticipantService(
         userId: Long,
         updateRequest: ParticipantUpdateRequest
     ): DomainResult<Participant, ParticipantUpdateError> {
-        val participant = participantRepository.findByIdOrNull(participantId)
+        val participant = participantJPARepository.findParticipantById(participantId)
             ?: return DomainResult.Failure(ParticipantNotFound)
 
         if(participant.user.id != userId)
@@ -103,6 +107,49 @@ class ParticipantService(
             return DomainResult.Failure(DorsalAlreadyTaken)
 
         participant.dorsal = updateRequest.dorsal
-        return DomainResult.Success(participantRepository.save(participant))
+        return DomainResult.Success(participantJPARepository.save(participant))
+    }
+
+    fun isLeagueParticipantAndHasRole(userId: Long, leagueId: Long, role: String): Boolean =
+        participantJPARepository.findParticipant(userId, leagueId)
+            ?.roles?.map { it.participationRole.roleName }?.contains(role)
+            ?: false
+
+    fun findParticipantAvailability(
+        userId: Long,
+        leagueId: Long
+    ): DomainResult<List<DateTimeSlot>, ParticipantRetrieveError> {
+        if(leagueService.findLeagueById(leagueId) is DomainResult.Failure)
+            return DomainResult.Failure(LeagueNotFound)
+
+        val participant = participantJPARepository.findParticipant(userId, leagueId)
+
+        return DomainResult.Success(participant?.availability?.map { it.dateTimeSlot } ?: listOf())
+    }
+
+    @Transactional
+    fun updateParticipantAvailability(
+        userId: Long,
+        leagueId: Long,
+        request: List<Long>
+    ): DomainResult<Unit, ParticipantUpdateError> {
+
+        if(leagueService.findLeagueById(leagueId) is DomainResult.Failure)
+            return DomainResult.Failure(LeagueNotFound)
+
+        val participant = participantJPARepository.findParticipant(userId, leagueId)
+                            ?: return DomainResult.Failure(ParticipantNotFound)
+
+        val newAvailabilities = request
+                                    .map { availabilityService.findDateTimeSlotById(it) }
+                                    .filter { it is DomainResult.Success }
+                                    .map { ParticipantAvailability(
+                                        participant = participant,
+                                        dateTimeSlot = (it as DomainResult.Success).data
+                                    ) }.toMutableList()
+
+        participant.availability = newAvailabilities
+        participantJPARepository.save(participant)
+        return DomainResult.Success(Unit)
     }
 }

@@ -48,7 +48,7 @@ class RequestController(
     fun resolveRequest(
         @PathVariable requestId: Long,
         @AuthenticationPrincipal userId: Long,
-        @RequestBody input: ResolveRequestInput
+        @Valid @RequestBody input: ResolveRequestInput
     ): ResponseEntity<*> {
 
         return when (val result = requestService.resolveRequest(requestId, input, userId)) {
