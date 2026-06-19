@@ -1,22 +1,52 @@
 package es.uib.tfg.sports_league_backend.match.infrastructure.mapper
 
 import es.uib.tfg.sports_league_backend.match.domain.Match
+import es.uib.tfg.sports_league_backend.match.domain.Proposal
 import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toSummaryDTO
+import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.availability.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.team.infrastructure.mapper.toSummaryDTO
+import es.uib.tfg.sports_league_backend.result.infrastructure.mapper.toSummaryDTO
+import es.uib.tfg.sports_league_backend.result.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sportsapi.dto.MatchSummary
+import es.uib.tfg.sportsapi.dto.MatchDetails
+import es.uib.tfg.sportsapi.dto.MatchDateProposalDetails
 
 fun Match.toSummaryDTO(): MatchSummary =
     MatchSummary(
-        id!!,
-        status,
-        1,
-        localTeam?.toSummaryDTO(),
-        visitorTeam?.toSummaryDTO(),
-        dateTime?.toDetailsDTO(),
-        if (dateTime == null) MatchSummary.ProposalState.PENDING
+        matchId = id!!,
+        status = status,
+        roundId = roundId,
+        localTeam = localTeam?.toSummaryDTO(),
+        visitorTeam = visitorTeam?.toSummaryDTO(),
+        dateTime = dateTime?.toDetailsDTO(),
+        proposalState = if (dateTime == null) MatchSummary.ProposalState.PENDING
         else MatchSummary.ProposalState.PROPOSED,
-        firstReferee?.toSummaryDTO(),
-        secondReferee?.toSummaryDTO(),
-        null,
+        firstReferee = firstReferee?.toSummaryDTO(),
+        secondReferee = secondReferee?.toSummaryDTO(),
+        resultSummary = result?.toSummaryDTO(),
+    )
+
+fun Match.toDetailsDTO(activeProposal: Proposal?): MatchDetails =
+    MatchDetails(
+        matchId = id!!,
+        status = status,
+        proposal = activeProposal?.toDetailsDTO(),
+        roundId = roundId,
+        localTeam = localTeam?.toSummaryDTO(),
+        visitorTeam = visitorTeam?.toSummaryDTO(),
+        dateTime = dateTime?.toDetailsDTO(),
+        firstReferee = firstReferee?.toDetailsDTO(),
+        secondReferee = secondReferee?.toDetailsDTO(),
+        resultSummary = result?.toSummaryDTO(),
+        resultDetails = result?.toDetailsDTO()
+    )
+
+fun Proposal.toDetailsDTO(): MatchDateProposalDetails =
+    MatchDateProposalDetails(
+        proposalId = id!!,
+        status = status,
+        dateTimeSlot = dateTimeSlot.toDetailsDTO(),
+        proposedAt = proposedAt,
+        resolvedAt = resolvedAt
     )

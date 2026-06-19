@@ -14,9 +14,7 @@ class Match(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "round_id")
-    var round: Round,
+    var roundId: Long,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_team_id")
