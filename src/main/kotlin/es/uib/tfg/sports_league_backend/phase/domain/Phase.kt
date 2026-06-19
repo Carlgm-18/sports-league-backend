@@ -1,6 +1,7 @@
 package es.uib.tfg.sports_league_backend.phase.domain
 
 import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.round.domain.Round
 import jakarta.persistence.*
 import java.time.LocalDate
 
@@ -15,7 +16,7 @@ abstract class Phase(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id", nullable = false)
-    var league: League? = null,
+    var league: League,
 
     @Column(nullable = false)
     var name: String,
@@ -27,5 +28,8 @@ abstract class Phase(
     var endDate: LocalDate,
 
     @Column(nullable = false)
-    var sequenceOrder: Int
+    var sequenceOrder: Int,
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var rounds: MutableList<Round>
 )

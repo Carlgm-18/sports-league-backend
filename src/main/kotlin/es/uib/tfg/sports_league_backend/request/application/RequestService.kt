@@ -40,7 +40,7 @@ class RequestService(
     private fun isTeamCaptain(userId: Long, request: TeamJoinRequest): Boolean =
         when(
             val result = participantService
-                .findParticipantByUserIdAndLeagueId(userId, request.league.id!!)
+                .findParticipant(userId, request.league.id!!)
         ) {
             is DomainResult.Failure -> false
 
@@ -53,7 +53,7 @@ class RequestService(
     private fun isAdminFromSameLeague(userId: Long, request: Request): Boolean =
         when(
             val result = participantService
-                            .findParticipantByUserIdAndLeagueId(userId, request.league.id!!)
+                            .findParticipant(userId, request.league.id!!)
         ) {
             is DomainResult.Failure -> false
 
@@ -191,7 +191,7 @@ class RequestService(
     ): DomainResult<TeamCreateRequest, ResolveRequestError> {
 
         when(val resolver = participantService
-                            .findParticipantByUserIdAndLeagueId(userId, request.league.id!!)
+                            .findParticipant(userId, request.league.id!!)
         ){
             is DomainResult.Failure -> DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> {
@@ -228,7 +228,7 @@ class RequestService(
     ): DomainResult<RefereeRequest, ResolveRequestError> {
 
         when(val resolver = participantService
-            .findParticipantByUserIdAndLeagueId(userId, request.league.id!!)
+            .findParticipant(userId, request.league.id!!)
         ){
             is DomainResult.Failure -> DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> {
@@ -256,7 +256,7 @@ class RequestService(
 
         val resolver = when(
             val result = participantService
-                            .findParticipantByUserIdAndLeagueId(userId, request.league.id!!)
+                            .findParticipant(userId, request.league.id!!)
         ) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> result.data
@@ -340,7 +340,7 @@ class RequestService(
         }
 
         val viewer = when(val result = participantService
-            .findParticipantByUserIdAndLeagueId(userId, team.league.id!!)) {
+            .findParticipant(userId, team.league.id!!)) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> result.data
         }

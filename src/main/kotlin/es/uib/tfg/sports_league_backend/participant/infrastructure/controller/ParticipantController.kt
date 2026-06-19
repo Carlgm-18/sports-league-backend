@@ -1,5 +1,6 @@
 package es.uib.tfg.sports_league_backend.participant.infrastructure.controller
 
+import es.uib.tfg.sports_league_backend.availability.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
@@ -7,17 +8,20 @@ import es.uib.tfg.sports_league_backend.participant.domain.errors.DorsalAlreadyT
 import es.uib.tfg.sports_league_backend.participant.domain.errors.LeagueNotFound
 import es.uib.tfg.sports_league_backend.participant.domain.errors.NotInATeam
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantNotFound
+import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantRetrieveError
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantUpdateError
 import es.uib.tfg.sports_league_backend.participant.domain.errors.UnauthorizedAction
 import es.uib.tfg.sports_league_backend.participant.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sportsapi.dto.ParticipantUpdateRequest
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -32,7 +36,7 @@ class ParticipantController(
         @PathVariable leagueId: Long,
         @AuthenticationPrincipal userId: Long,
     ): ResponseEntity<*> =
-        when(val result = participantService.findParticipantByUserIdAndLeagueId(leagueId, userId)) {
+        when(val result = participantService.findParticipant(userId, leagueId)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.toDetailsDTO())
             is DomainResult.Failure ->
@@ -107,6 +111,16 @@ class ParticipantController(
                         )
                     )
 
+            is LeagueNotFound ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "league"
+                        )
+                    )
+
             is NotInATeam ->
                 ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -131,6 +145,40 @@ class ParticipantController(
                     .body(
                         mapOf(
                             "error" to ErrorCode.DORSAL_ALREADY_TAKEN
+                        )
+                    )
+
+        }
+
+    private fun mapError(error: ParticipantRetrieveError): ResponseEntity<*> =
+        when(error) {
+            LeagueNotFound ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "league"
+                        )
+                    )
+
+            ParticipantNotFound ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "participant"
+                        )
+                    )
+
+            UserNotFound ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "user"
                         )
                     )
         }
