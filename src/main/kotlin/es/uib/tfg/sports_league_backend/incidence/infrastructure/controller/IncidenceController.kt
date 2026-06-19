@@ -6,6 +6,7 @@ import es.uib.tfg.sports_league_backend.incidence.application.IncidenceService
 import es.uib.tfg.sports_league_backend.incidence.domain.errors.ParticipantNotFound
 import es.uib.tfg.sports_league_backend.incidence.infrastructure.mapper.toDTO
 import es.uib.tfg.sportsapi.dto.IncidenceCreateRequest
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -23,7 +24,7 @@ class IncidenceController(
     @PostMapping
     fun createIncidence(
         @PathVariable leagueId: Long,
-        @RequestBody incidence: IncidenceCreateRequest,
+        @Valid @RequestBody incidence: IncidenceCreateRequest,
         @AuthenticationPrincipal userId: Long
     ): ResponseEntity<*> =
         when(val result = incidenceService.save(userId, leagueId, incidence)) {

@@ -4,7 +4,7 @@ sealed interface ParticipantJoinError
 sealed interface ParticipantRetrieveError
 sealed interface ParticipantUpdateError
 
-object LeagueNotFound : ParticipantRetrieveError
+object LeagueNotFound : ParticipantRetrieveError, ParticipantUpdateError
 object UserNotFound : ParticipantRetrieveError
 object AlreadyParticipant : ParticipantJoinError
 object ParticipantNotFound : ParticipantRetrieveError, ParticipantUpdateError

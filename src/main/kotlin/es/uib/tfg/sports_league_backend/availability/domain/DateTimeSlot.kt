@@ -20,5 +20,7 @@ class DateTimeSlot(
 
     @Column(nullable = false)
     var duration: Int,
+
+    @Column(nullable = false)
     var roundId: Long
 )

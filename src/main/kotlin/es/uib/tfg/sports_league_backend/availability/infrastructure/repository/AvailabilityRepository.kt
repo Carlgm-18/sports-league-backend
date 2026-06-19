@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface AvailabilityRepository : JpaRepository<DateTimeSlot, Long> {
     fun findAllAvailabilityByRoundId(roundId: Long): List<DateTimeSlot>
+    fun deleteAvailabilityByRoundId(roundId: Long)
 }

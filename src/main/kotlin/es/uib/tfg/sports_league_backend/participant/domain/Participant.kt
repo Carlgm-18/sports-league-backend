@@ -1,5 +1,6 @@
 package es.uib.tfg.sports_league_backend.participant.domain
 
+import es.uib.tfg.sports_league_backend.availability.domain.DateTimeSlot
 import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sports_league_backend.user.domain.User
@@ -31,5 +32,15 @@ class Participant(
     var dorsal: Int? = null,
 
     @Column(nullable = false)
-    var joinDate: LocalDateTime = LocalDateTime.now()
-)
+    var joinDate: LocalDateTime = LocalDateTime.now(),
+
+    @OneToMany(mappedBy = "participant", orphanRemoval = true, cascade = [CascadeType.ALL])
+    var availability: MutableList<ParticipantAvailability> = mutableListOf(),
+) {
+    var availabilitySlots = listOf<DateTimeSlot>()
+        get() = availability.map { it.dateTimeSlot }
+
+    fun getRoundAvailability(roundId: Long) =
+        availabilitySlots.filter { it.id == roundId }
+
+}

@@ -52,12 +52,41 @@ class ParticipantController(
                     )
         }
 
+    @PutMapping("/leagues/{leagueId}/my-status/availability")
+    fun updateParticipantLeagueAvailability(
+        @PathVariable leagueId: Long,
+        @AuthenticationPrincipal userId: Long,
+        @Valid @RequestBody request: List<Long>
+    ): ResponseEntity<*> =
+        when(val result = participantService.updateParticipantAvailability(userId, leagueId, request)) {
+            is DomainResult.Success ->
+                ResponseEntity.noContent().build<Unit>()
+
+            is DomainResult.Failure ->
+                mapError(result.error)
+        }
+
+    @GetMapping("/leagues/{leagueId}/my-status/availability")
+    fun getParticipantLeagueAvailability(
+        @PathVariable leagueId: Long,
+        @AuthenticationPrincipal userId: Long
+    ): ResponseEntity<*> =
+        when(val result = participantService.findParticipantAvailability(userId, leagueId)) {
+            is DomainResult.Success ->
+                ResponseEntity
+                    .ok(result.data.map { it.toDetailsDTO() })
+
+            is DomainResult.Failure ->
+                mapError(result.error)
+        }
+
+
 
     @PatchMapping("/participants/{participantId}")
     fun updateParticipantLeague(
         @PathVariable participantId: Long,
         @AuthenticationPrincipal userId: Long,
-        @RequestBody updateRequest: ParticipantUpdateRequest
+        @Valid @RequestBody updateRequest: ParticipantUpdateRequest
     ): ResponseEntity<*> =
         when(val result = participantService.updateParticipantById(participantId, userId, updateRequest)) {
             is DomainResult.Success ->

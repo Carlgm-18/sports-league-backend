@@ -5,8 +5,10 @@ import es.uib.tfg.sportsapi.dto.DateTimeSlotDetails
 
 fun DateTimeSlot.toDetailsDTO(): DateTimeSlotDetails =
     DateTimeSlotDetails(
+        id!!,
         dateTime,
-        duration
+        duration,
+        roundId
     )
 
 fun DateTimeSlotDetails.toEntity(roundId: Long): DateTimeSlot =
