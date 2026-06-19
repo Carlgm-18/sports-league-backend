@@ -19,8 +19,13 @@ import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toSumm
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
+import es.uib.tfg.sportsapi.dto.LeagueState
 import es.uib.tfg.sportsapi.dto.LeagueSummary
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueUpdateError
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueNotFoundForUpdate
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueInProgressDateUpdate
 import es.uib.tfg.sportsapi.dto.LeagueUpdateRequest
+import org.springframework.security.access.prepost.PreAuthorize
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -31,6 +36,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -188,6 +194,7 @@ class LeagueController(
 
 
     @PatchMapping("/{leagueId}/configuration")
+    @PreAuthorize("@leagueSecurityGuard.isAdmin(principal, #leagueId)")
     fun updateConfiguration(
         @PathVariable leagueId: Long,
         @Valid @RequestBody request: ConfigurationUpdateRequest
@@ -195,6 +202,7 @@ class LeagueController(
         leagueService.updateConfiguration(leagueId, request)
 
     @PatchMapping("/{leagueId}")
+    @PreAuthorize("@leagueSecurityGuard.isAdmin(principal, #leagueId)")
     fun updateLeague(
         @PathVariable leagueId: Long,
         @Valid @RequestBody request: LeagueUpdateRequest
