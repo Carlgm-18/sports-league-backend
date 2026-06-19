@@ -1,8 +1,8 @@
 package es.uib.tfg.sports_league_backend.match.domain
 
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
-import es.uib.tfg.sports_league_backend.round.domain.Round
 import es.uib.tfg.sports_league_backend.availability.domain.DateTimeSlot
+import es.uib.tfg.sports_league_backend.result.domain.Result
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.MatchState
 import jakarta.persistence.*
@@ -39,4 +39,7 @@ class Match(
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "datetime_slot_id")
     var dateTime: DateTimeSlot? = null,
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "match")
+    var result: Result? = null
 )
