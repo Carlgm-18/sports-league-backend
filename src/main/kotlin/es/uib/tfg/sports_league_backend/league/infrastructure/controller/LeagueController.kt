@@ -209,4 +209,59 @@ class LeagueController(
     ): ResponseEntity<*> {
         TODO("Not implemented yet")
     }
+        return when(val result = leagueService.updateLeague(leagueId, request)) {
+            is DomainResult.Success ->
+                ResponseEntity.ok(result.data.toDetailsDTO())
+
+            is DomainResult.Failure ->
+                mapError(result.error)
+        }
+    }
+
+    private fun mapError(error: LeagueUpdateError): ResponseEntity<*> =
+        when (error) {
+            LeagueNotFoundForUpdate ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "league"
+                        )
+                    )
+            LeagueInProgressDateUpdate ->
+                ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.CREATE_RESOURCE_ERROR,
+                            "message" to "Cannot update dates of a league that is in progress or ended"
+                        )
+                    )
+        }
+
+    @PostMapping("/{leagueId}/start")
+    fun startLeague(
+        @PathVariable leagueId: Long
+    ): ResponseEntity<*> =
+        when(val result = leagueService.startLeague(leagueId)) {
+            is DomainResult.Success ->
+                ResponseEntity
+                    .noContent()
+                    .build<Unit>()
+
+            is DomainResult.Failure ->
+                when(result.error) {
+                    is LeagueNotFound ->
+                        ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(
+                                mapOf(
+                                    "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                                    "resource" to "league"
+                                )
+                            )
+                }
+        }
+
 }

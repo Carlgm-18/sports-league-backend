@@ -49,7 +49,11 @@ class LeagueService(
     private val punctuationSystemRepository: PunctuationSystemRepository,
     private val sportService: SportService,
     private val userService: UserService,
-    private val participantService: ParticipantService
+    private val participantService: ParticipantService,
+    private val phaseService: PhaseService,
+    private val phaseRepository: PhaseRepository,
+    private val roundRepository: RoundRepository,
+    private val matchRepository: MatchRepository
 ) {
     fun findAll(): List<League> =
         leagueRepository.findAll()
@@ -166,18 +170,72 @@ class LeagueService(
 
     }
 
+    @Transactional
     fun updateConfiguration(
         leagueId: Long,
         request: ConfigurationUpdateRequest
     ): ConfigurationDetails {
         // TODO: Implement database logic
         TODO("Not yet implemented")
+        val league = leagueRepository.findByIdOrNull(leagueId)
+            ?: throw IllegalArgumentException("League not found")
+        val config = league.configuration
+        request.minTeamFemaleIntegrants?.let { config.minTeamFemaleIntegrants = it }
+        request.minTeamMembers?.let { config.minTeamMembers = it }
+        request.maxTeamMembers?.let { config.maxTeamMembers = it }
+        request.roundDuration?.let { config.roundDuration = it }
+        val savedLeague = leagueRepository.save(league)
+        return savedLeague.configuration.toDetailsDTO()
     }
-    
+
+    @Transactional
+    fun updateLeague(leagueId: Long, request: LeagueUpdateRequest): DomainResult<League, LeagueUpdateError> {
+        val league = leagueRepository.findByIdOrNull(leagueId)
+            ?: return DomainResult.Failure(LeagueNotFoundForUpdate)
+
+        if (league.status == LeagueState.IN_PROGRESS || league.status == LeagueState.ENDED) {
+            if (request.startDate != null || request.endDate != null || request.maxInscriptionDate != null) {
+                return DomainResult.Failure(LeagueInProgressDateUpdate)
+            }
+        }
+
+        request.name?.let { league.name = it }
+        request.description?.let { league.description = it }
+        request.iconImageUrl?.let { league.iconImageUrl = it.toString() }
+        request.bannerImageUrl?.let { league.bannerImageUrl = it.toString() }
+        request.locationUrl?.let { league.locationUrl = it.toString() }
+        request.startDate?.let { league.startDate = it }
+        request.endDate?.let { league.endDate = it }
+        request.maxInscriptionDate?.let { league.maxInscriptionDate = it }
+
+        val saved = leagueRepository.save(league)
+        return DomainResult.Success(saved)
+    }
+
+    @Transactional
+    }
+
     fun findAllParticipantsByLeagueId(leagueId: Long): DomainResult<List<Participant>, LeagueRetrieveError> {
         return leagueRepository.findByIdOrNull(leagueId)
         ?.let { DomainResult.Success(participantService.findAllLeagueParticipants(leagueId)) }
         ?: DomainResult.Failure(LeagueNotFound)
     }
-    
+
+    @Transactional
+    fun startLeague(leagueId: Long): DomainResult<Unit, LeagueStartError> {
+        val league = leagueRepository.findByIdOrNull(leagueId)
+            ?: return DomainResult.Failure(LeagueNotFound)
+
+        league.status = LeagueState.IN_PROGRESS
+
+        return when(val result = phaseService.generateIncomingPhaseMatches(leagueId)) {
+            is DomainResult.Failure ->
+                when(result.error) {
+                    else -> throw IllegalStateException("League without phases")
+                }
+
+            is DomainResult.Success ->
+                DomainResult.Success(result.data)
+        }
+    }
 }
