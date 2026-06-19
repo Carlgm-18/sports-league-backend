@@ -31,4 +31,7 @@ class Round(
 
     @OneToMany(cascade = [CascadeType.ALL])
     var availability: MutableList<DateTimeSlot> = mutableListOf(),
+
+    @Column(nullable = false)
+    var sequenceOrder: Int
 )
