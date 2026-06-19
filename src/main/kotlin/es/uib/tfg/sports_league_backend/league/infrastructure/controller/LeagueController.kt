@@ -216,6 +216,28 @@ class LeagueController(
         }
     }
 
+    @GetMapping("/{leagueId}/leaderboard")
+    fun getLeaderboard(
+        @PathVariable leagueId: Long,
+        @RequestParam(required = false) phaseId: Long?,
+        @RequestParam(required = false) roundId: Long?
+    ): ResponseEntity<*> {
+        return when (val result = leagueService.getLeaderboard(leagueId, phaseId, roundId)) {
+            is DomainResult.Success ->
+                ResponseEntity.ok(result.data)
+
+            is DomainResult.Failure ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "league"
+                        )
+                    )
+        }
+    }
+
     private fun mapError(error: LeagueUpdateError): ResponseEntity<*> =
         when (error) {
             LeagueNotFoundForUpdate ->

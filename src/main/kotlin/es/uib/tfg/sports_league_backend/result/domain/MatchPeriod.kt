@@ -1,6 +1,7 @@
 package es.uib.tfg.sports_league_backend.result.domain
 
 import es.uib.tfg.sports_league_backend.result.domain.match_event.MatchEvent
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -31,7 +32,7 @@ class MatchPeriod(
     @Column(nullable = false)
     var visitorScore: Int,
 
-    @OneToMany(mappedBy = "period")
+    @OneToMany(mappedBy = "period", cascade = [CascadeType.ALL], orphanRemoval = true)
     var matchEvents: MutableList<MatchEvent> = mutableListOf(),
 
     @ManyToOne

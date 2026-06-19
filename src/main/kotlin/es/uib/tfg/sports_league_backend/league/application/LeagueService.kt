@@ -36,6 +36,8 @@ import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueUpdateError
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueNotFoundForUpdate
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueInProgressDateUpdate
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sports_league_backend.phase.infrastructure.repository.ClassificationGroupRepository
+import es.uib.tfg.sports_league_backend.team.infrastructure.repository.LeaderboardProjection
 import es.uib.tfg.sportsapi.dto.*
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
@@ -53,7 +55,8 @@ class LeagueService(
     private val phaseService: PhaseService,
     private val phaseRepository: PhaseRepository,
     private val roundRepository: RoundRepository,
-    private val matchRepository: MatchRepository
+    private val matchRepository: MatchRepository,
+    private val classificationGroupRepository: ClassificationGroupRepository
 ) {
     fun findAll(): List<League> =
         leagueRepository.findAll()
@@ -211,6 +214,73 @@ class LeagueService(
     }
 
     @Transactional
+    fun getLeaderboard(
+        leagueId: Long,
+        phaseId: Long?,
+        roundId: Long?
+    ): DomainResult<List<LeaderboardGroup>, LeagueRetrieveError> {
+        val league = leagueRepository.findByIdOrNull(leagueId)
+            ?: return DomainResult.Failure(LeagueNotFound)
+
+        val selectedPhase = if (phaseId != null) {
+            phaseRepository.findByIdOrNull(phaseId)
+                ?: return DomainResult.Failure(LeagueNotFound)
+        } else if (roundId != null) {
+            val round = roundRepository.findByIdOrNull(roundId)
+                ?: return DomainResult.Failure(LeagueNotFound)
+            round.phase
+        } else {
+            val active = phaseRepository.findActivePhase(leagueId, LocalDate.now())
+            active as? ClassificationPhase
+                ?: phaseRepository.findAllByLeagueIdOrderBySequenceOrder(leagueId)
+                    .filterIsInstance<ClassificationPhase>()
+                    .firstOrNull()
+        }
+
+        if (selectedPhase !is ClassificationPhase) {
+            return DomainResult.Success(emptyList())
+        }
+
+        val targetRound = if (roundId != null) roundRepository.findByIdOrNull(roundId) else null
+        val roundSequenceOrder = targetRound?.sequenceOrder ?: Int.MAX_VALUE
+
+        val leaderboardGroups = selectedPhase.groups.map { group ->
+            val groupTeamsMap = group.teams.associateBy { it.id }
+            val projections = classificationGroupRepository.getGroupLeaderboard(group.id!!, selectedPhase.id!!, roundSequenceOrder)
+
+            val standings = projections.map { proj ->
+                val team = groupTeamsMap[proj.getTeamId()] ?: throw IllegalStateException("Team not found in group")
+                LeaderboardRow(
+                    position = 0,
+                    team = team.toSummaryDTO(),
+                    playedMatches = proj.getPlayedMatches(),
+                    wonMatches = proj.getWonMatches(),
+                    lostMatches = proj.getLostMatches(),
+                    drawnMatches = proj.getDrawnMatches(),
+                    points = proj.getPoints(),
+                    wonSets = proj.getWonSets(),
+                    lostSets = proj.getLostSets(),
+                    wonPoints = proj.getWonPoints(),
+                    lostPoints = proj.getLostPoints()
+                )
+            }
+
+            val sortedStandings = standings.sortedWith(
+                compareByDescending<LeaderboardRow> { it.points ?: 0 }
+                    .thenByDescending { (it.wonSets ?: 0) - (it.lostSets ?: 0) }
+                    .thenByDescending { (it.wonPoints ?: 0) - (it.lostPoints ?: 0) }
+            ).mapIndexed { index, row ->
+                row.copy(position = index + 1)
+            }
+
+            LeaderboardGroup(
+                groupId = group.id ?: 0L,
+                groupName = group.name,
+                standings = sortedStandings
+            )
+        }
+
+        return DomainResult.Success(leaderboardGroups)
     }
 
     fun findAllParticipantsByLeagueId(leagueId: Long): DomainResult<List<Participant>, LeagueRetrieveError> {

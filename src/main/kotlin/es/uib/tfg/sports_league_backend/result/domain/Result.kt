@@ -2,6 +2,7 @@ package es.uib.tfg.sports_league_backend.result.domain
 
 import es.uib.tfg.sports_league_backend.match.domain.Match
 import es.uib.tfg.sports_league_backend.result.domain.match_sign.MatchSign
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
