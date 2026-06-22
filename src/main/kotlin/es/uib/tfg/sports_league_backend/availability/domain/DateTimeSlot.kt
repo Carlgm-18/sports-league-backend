@@ -21,6 +21,6 @@ class DateTimeSlot(
     @Column(nullable = false)
     var duration: Int,
 
-    @Column(nullable = false)
+    @Column(name="round_id", nullable = false)
     var roundId: Long
 )
