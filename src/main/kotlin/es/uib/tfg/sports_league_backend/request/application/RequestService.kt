@@ -146,12 +146,10 @@ class RequestService(
     @Transactional
     fun resolveRequest(
         requestId: Long,
-        input: ResolveRequestInput,
-        userId: Long
+        input: ResolveRequestInput
     ): DomainResult<Request, ResolveRequestError> {
         val request = requestRepository.findByIdOrNull(requestId)
             ?: return DomainResult.Failure(RequestNotFound)
-
 
         if (request.status != RequestState.PENDING)
             return DomainResult.Failure(InvalidRequestState)
@@ -162,13 +160,13 @@ class RequestService(
         if (request.status == RequestState.ACCEPTED) {
             return when (request) {
                 is TeamCreateRequest ->
-                    resolveTeamCreateRequest(request, userId)
+                    resolveTeamCreateRequest(request)
 
                 is RefereeRequest ->
-                    resolveRefereeRequest(request, userId)
+                    resolveRefereeRequest(request)
 
                 is TeamJoinRequest ->
-                    resolveTeamJoinRequest(request, userId)
+                    resolveTeamJoinRequest(request)
 
                 else -> {
                     throw IllegalArgumentException("Unexpected type of request")
@@ -180,27 +178,12 @@ class RequestService(
         }
 
         return DomainResult.Success(request)
-
     }
-
 
     @Transactional
     fun resolveTeamCreateRequest(
-        request: TeamCreateRequest,
-        userId: Long
+        request: TeamCreateRequest
     ): DomainResult<TeamCreateRequest, ResolveRequestError> {
-
-        when(val resolver = participantService
-                            .findParticipant(userId, request.league.id!!)
-        ){
-            is DomainResult.Failure -> DomainResult.Failure(ParticipantNotFound)
-            is DomainResult.Success -> {
-                if(!resolver.data.isAdmin())
-                    return DomainResult.Failure(UnauthorizedAction)
-
-            }
-        }
-
         val targetParticipant = request.participant
 
         when(val result = teamService.createTeamWithRequest(request, request.league)) {
@@ -223,21 +206,8 @@ class RequestService(
 
     @Transactional
     fun resolveRefereeRequest(
-        request: RefereeRequest,
-        userId: Long
+        request: RefereeRequest
     ): DomainResult<RefereeRequest, ResolveRequestError> {
-
-        when(val resolver = participantService
-            .findParticipant(userId, request.league.id!!)
-        ){
-            is DomainResult.Failure -> DomainResult.Failure(ParticipantNotFound)
-            is DomainResult.Success -> {
-                if(!resolver.data.isAdmin())
-                    return DomainResult.Failure(UnauthorizedAction)
-
-            }
-        }
-
         val targetParticipant = request.participant
 
         val refereeRole = participationRoleService.findRoleByName("REFEREE")
@@ -250,23 +220,9 @@ class RequestService(
 
     @Transactional
     fun resolveTeamJoinRequest(
-        request: TeamJoinRequest,
-        userId: Long
+        request: TeamJoinRequest
     ): DomainResult<TeamJoinRequest, ResolveRequestError> {
-
-        val resolver = when(
-            val result = participantService
-                            .findParticipant(userId, request.league.id!!)
-        ) {
-            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
-            is DomainResult.Success -> result.data
-        }
-
         val requestTeam = request.team
-        val isTeamCaptain = resolver.team == requestTeam && resolver.isCaptain()
-        if (!isTeamCaptain)
-            return DomainResult.Failure(UnauthorizedAction)
-
         val targetParticipant = request.participant
         targetParticipant.team = requestTeam
 
@@ -276,79 +232,15 @@ class RequestService(
     }
 
     fun findRequestByRequestId(
-        requestId: Long,
-        userId: Long
+        requestId: Long
     ): DomainResult<Request, RetrieveRequestError> =
         requestRepository.findByIdOrNull(requestId)
-            ?.let {
-                return when(it) {
-                    is RefereeRequest ->
-                        findRequest(it, userId)
-                    is TeamJoinRequest ->
-                        findRequest(it, userId)
-                    is TeamCreateRequest ->
-                        findRequest(it, userId)
-
-                    else -> throw IllegalArgumentException("Unexpected type of request")
-                }
-            }
+            ?.let { DomainResult.Success(it) }
             ?: DomainResult.Failure(RequestNotFound)
 
-    private fun isRequestCreator(userId: Long, request: Request): Boolean =
-        userId == request.participant.id
-
-
-    private fun findRequest(
-        request: TeamCreateRequest,
-        userId: Long
-    ): DomainResult<TeamCreateRequest, RetrieveRequestError> {
-        return if(!isRequestCreator(userId, request) && !isAdminFromSameLeague(userId, request))
-            DomainResult.Failure(UnauthorizedAction)
-        else
-            DomainResult.Success(request)
-    }
-
-    private fun findRequest(
-        request: RefereeRequest,
-        userId: Long
-    ): DomainResult<RefereeRequest, RetrieveRequestError> {
-        return if(!isRequestCreator(userId, request) && !isAdminFromSameLeague(userId, request))
-            DomainResult.Failure(UnauthorizedAction)
-        else
-            DomainResult.Success(request)
-    }
-
-    private fun findRequest(
-        request: TeamJoinRequest,
-        userId: Long
-    ): DomainResult<TeamJoinRequest, RetrieveRequestError> {
-        return if(!isRequestCreator(userId, request) && !isTeamCaptain(userId, request))
-            DomainResult.Failure(UnauthorizedAction)
-        else
-            DomainResult.Success(request)
-    }
-
-
     fun findJoinRequestsByTeamId(
-        teamId: Long,
-        userId: Long
+        teamId: Long
     ): DomainResult<List<TeamJoinRequest>, RetrieveRequestError> {
-
-        val team = when(val result = teamService.findById(teamId)) {
-            is DomainResult.Failure -> return DomainResult.Failure(TeamNotFound)
-            is DomainResult.Success -> result.data
-        }
-
-        val viewer = when(val result = participantService
-            .findParticipant(userId, team.league.id!!)) {
-            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
-            is DomainResult.Success -> result.data
-        }
-
-        val isTeamCaptain = viewer.team?.id == teamId && viewer.isCaptain()
-        if (!isTeamCaptain)
-            return DomainResult.Failure(UnauthorizedAction)
-
         val requests = teamJoinRequestRepository.findAllByTeamId(teamId)
         return DomainResult.Success(requests)
     }
