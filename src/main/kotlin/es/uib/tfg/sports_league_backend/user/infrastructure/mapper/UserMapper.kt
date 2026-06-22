@@ -20,8 +20,8 @@ import java.time.LocalDateTime
 fun User.toDetailsDTO() =
     UserDetails(
         id!!,
-        email,
         "$firstName $lastName",
+        email,
         category,
         createdAt,
         URI(profileImageUrl ?: ""),
