@@ -31,6 +31,9 @@ import es.uib.tfg.sports_league_backend.phase.domain.ClassificationPhase
 import es.uib.tfg.sports_league_backend.phase.infrastructure.repository.PhaseRepository
 import es.uib.tfg.sports_league_backend.round.infrastructure.repository.RoundRepository
 import es.uib.tfg.sports_league_backend.match.infrastructure.repository.MatchRepository
+import es.uib.tfg.sports_league_backend.match.application.MatchService
+import es.uib.tfg.sports_league_backend.match.domain.Match
+import es.uib.tfg.sports_league_backend.match.domain.Proposal
 import es.uib.tfg.sports_league_backend.team.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueUpdateError
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueNotFoundForUpdate
@@ -56,7 +59,8 @@ class LeagueService(
     private val phaseRepository: PhaseRepository,
     private val roundRepository: RoundRepository,
     private val matchRepository: MatchRepository,
-    private val classificationGroupRepository: ClassificationGroupRepository
+    private val classificationGroupRepository: ClassificationGroupRepository,
+    private val matchService: MatchService
 ) {
     fun findAll(): List<League> =
         leagueRepository.findAll()
@@ -219,7 +223,7 @@ class LeagueService(
         phaseId: Long?,
         roundId: Long?
     ): DomainResult<List<LeaderboardGroup>, LeagueRetrieveError> {
-        val league = leagueRepository.findByIdOrNull(leagueId)
+        leagueRepository.findByIdOrNull(leagueId)
             ?: return DomainResult.Failure(LeagueNotFound)
 
         val selectedPhase = if (phaseId != null) {
@@ -304,6 +308,29 @@ class LeagueService(
 
             is DomainResult.Success ->
                 DomainResult.Success(result.data)
+        }
+    }
+
+    fun getActiveProposal(matchId: Long): Proposal? {
+        return matchService.getActiveProposal(matchId)
+    }
+
+    fun findMatches(
+        leagueId: Long,
+        phaseId: Long?,
+        teamId: Long?,
+        status: MatchState?
+    ): List<Match> {
+        val matches = if (phaseId != null) {
+            matchRepository.findAllByPhaseId(phaseId)
+        } else {
+            matchRepository.findAllByLeagueId(leagueId)
+        }
+
+        return matches.filter { match ->
+            val matchesTeam = teamId == null || match.localTeam?.id == teamId || match.visitorTeam?.id == teamId
+            val matchesStatus = status == null || match.status == status
+            matchesTeam && matchesStatus
         }
     }
 }

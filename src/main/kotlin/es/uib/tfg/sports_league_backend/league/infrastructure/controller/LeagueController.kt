@@ -19,12 +19,14 @@ import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toSumm
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
-import es.uib.tfg.sportsapi.dto.LeagueState
 import es.uib.tfg.sportsapi.dto.LeagueSummary
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueUpdateError
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueNotFoundForUpdate
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueInProgressDateUpdate
 import es.uib.tfg.sportsapi.dto.LeagueUpdateRequest
+import es.uib.tfg.sportsapi.dto.MatchDetails
+import es.uib.tfg.sportsapi.dto.MatchState
+import es.uib.tfg.sports_league_backend.match.infrastructure.mapper.toDetailsDTO
 import org.springframework.security.access.prepost.PreAuthorize
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -260,7 +262,21 @@ class LeagueController(
                     )
         }
 
+    @GetMapping("/{leagueId}/matches")
+    fun getLeagueMatches(
+        @PathVariable leagueId: Long,
+        @RequestParam(required = false) phaseId: Long?,
+        @RequestParam(required = false) teamId: Long?,
+        @RequestParam(required = false) status: MatchState?
+    ): ResponseEntity<List<MatchDetails>> {
+        val matches = leagueService.findMatches(leagueId, phaseId, teamId, status)
+        return ResponseEntity.ok(
+            matches.map { it.toDetailsDTO(leagueService.getActiveProposal(it.id!!)) }
+        )
+    }
+
     @PostMapping("/{leagueId}/start")
+    @PreAuthorize("@leagueSecurityGuard.isAdmin(principal, #leagueId)")
     fun startLeague(
         @PathVariable leagueId: Long
     ): ResponseEntity<*> =
