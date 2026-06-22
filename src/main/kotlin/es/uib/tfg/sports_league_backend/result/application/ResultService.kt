@@ -44,14 +44,14 @@ class ResultService(
             result = Result(
                 id = matchId,
                 match = match,
-                localTotalScore = dto.localTotalScore.toLong(),
-                visitorTotalScore = dto.visitorTotalScore.toLong(),
+                localTotalScore = dto.localTotalScore,
+                visitorTotalScore = dto.visitorTotalScore,
                 recordUrl = dto.recordUrl
             )
             result = resultRepository.saveAndFlush(result)
         } else {
-            result.localTotalScore = dto.localTotalScore.toLong()
-            result.visitorTotalScore = dto.visitorTotalScore.toLong()
+            result.localTotalScore = dto.localTotalScore
+            result.visitorTotalScore = dto.visitorTotalScore
             result.recordUrl = dto.recordUrl
             result.observations.clear()
             result.matchPeriod.clear()

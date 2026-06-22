@@ -25,10 +25,10 @@ class Result(
     var id: Long? = null,
 
     @Column(nullable = false)
-    var localTotalScore: Long = 0,
+    var localTotalScore: Int = 0,
 
     @Column(nullable = false)
-    var visitorTotalScore: Long = 0,
+    var visitorTotalScore: Int = 0,
 
     @Column(nullable = true, columnDefinition = "varchar")
     var recordUrl: URI? = null,

@@ -14,9 +14,9 @@ import java.net.URI
 import java.time.LocalDateTime
 
 fun Result.toSummaryDTO() = ResultSummary(
-    localTotalScore = localTotalScore.toInt(),
-    visitorTotalScore = visitorTotalScore.toInt(),
-    recordUrl = recordUrl ?: java.net.URI.create("")
+    localTotalScore = localTotalScore,
+    visitorTotalScore = visitorTotalScore,
+    recordUrl = recordUrl ?: URI.create("")
 )
 
 fun Result.toDetailsDTO(): ResultDetails {
@@ -63,8 +63,8 @@ fun Result.toDetailsDTO(): ResultDetails {
     )
     
     return ResultDetails(
-        localTotalScore = localTotalScore.toInt(),
-        visitorTotalScore = visitorTotalScore.toInt(),
+        localTotalScore = localTotalScore,
+        visitorTotalScore = visitorTotalScore,
         recordUrl = recordUrl ?: URI.create(""),
         signatures = signaturesDTO,
         observations = obsList,
