@@ -16,7 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig(private val jwtAuthFilter: JwtAuthenticationFilter) {
 
@@ -36,6 +36,7 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthenticationFilter) {
 
                 auth.requestMatchers("/api/v1/users/register").permitAll()
                 auth.requestMatchers("/api/v1/users/login").permitAll()
+                auth.requestMatchers("/api/v1/auth/token/refresh").permitAll()
                 auth.requestMatchers(
                     HttpMethod.GET,
                     "/api/v1/leagues/**",
