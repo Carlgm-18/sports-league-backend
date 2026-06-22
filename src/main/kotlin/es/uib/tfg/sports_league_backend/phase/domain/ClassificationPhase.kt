@@ -11,7 +11,7 @@ import java.time.LocalDate
 @Entity
 @DiscriminatorValue("CLASSIFICATION")
 class ClassificationPhase(
-    league: League? = null,
+    league: League,
     name: String,
     startDate: LocalDate,
     endDate: LocalDate,

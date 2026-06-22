@@ -62,11 +62,10 @@ fun LeagueCreateRequest.toEntity(
         startDate = startDate,
         endDate = endDate,
         maxInscriptionDate = maxInscriptionDate,
-        phases = phases.map { it.toEntity() }.toMutableList(),
         owner = userEntity
     )
 
-    league.phases.forEach { it.league = league }
+    league.phases = phases.map { it.toEntity(league) }.toMutableList()
 
     return league
 }

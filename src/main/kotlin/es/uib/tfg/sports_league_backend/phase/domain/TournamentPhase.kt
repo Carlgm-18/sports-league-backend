@@ -10,7 +10,7 @@ import java.time.LocalDate
 @Entity
 @DiscriminatorValue("TOURNAMENT")
 class TournamentPhase(
-    league: League? = null,
+    league: League,
     name: String,
     startDate: LocalDate,
     endDate: LocalDate,

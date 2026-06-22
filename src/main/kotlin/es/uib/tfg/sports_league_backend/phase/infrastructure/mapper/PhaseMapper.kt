@@ -1,5 +1,6 @@
 package es.uib.tfg.sports_league_backend.phase.infrastructure.mapper
 
+import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.match.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sports_league_backend.phase.domain.ClassificationGroup
 import es.uib.tfg.sports_league_backend.phase.domain.ClassificationPhase
@@ -61,30 +62,31 @@ fun TournamentSlot.toDetailsDTO(): TournamentSlotDetails =
         match.toSummaryDTO()
     )
 
-fun PhaseCreateRequest.toEntity(): Phase =
+fun PhaseCreateRequest.toEntity(league: League): Phase =
     when (type) {
         PhaseType.CLASSIFICATION ->
-            (this as ClassificationPhaseCreateRequest).toEntity()
+            (this as ClassificationPhaseCreateRequest).toEntity(league)
 
         PhaseType.TOURNAMENT ->
-            (this as TournamentPhaseCreateRequest).toEntity()
+            (this as TournamentPhaseCreateRequest).toEntity(league)
     }
 
-fun ClassificationPhaseCreateRequest.toEntity(): Phase =
+fun ClassificationPhaseCreateRequest.toEntity(league: League): Phase =
     ClassificationPhase(
         name = name,
         startDate = startDate,
         endDate = endDate,
         sequenceOrder = sequenceOrder,
-        groups = groups!!.map { it.toEntity() }
-
+        groups = groups!!.map { it.toEntity() },
+        league = league
     )
 
-fun TournamentPhaseCreateRequest.toEntity(): Phase =
+fun TournamentPhaseCreateRequest.toEntity(league: League): Phase =
     TournamentPhase(
         name = name,
         startDate = startDate,
         endDate = endDate,
         sequenceOrder = sequenceOrder,
-        stagesNumber = stagesNumber
+        stagesNumber = stagesNumber,
+        league = league
     )
