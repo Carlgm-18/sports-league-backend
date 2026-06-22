@@ -29,7 +29,8 @@ class Round(
     @Column(nullable = false)
     var firstDay: LocalDate,
 
-    @OneToMany(cascade = [CascadeType.ALL])
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JoinColumn(name = "round_id", insertable = false, updatable = false)
     var availability: MutableList<DateTimeSlot> = mutableListOf(),
 
     @Column(nullable = false)

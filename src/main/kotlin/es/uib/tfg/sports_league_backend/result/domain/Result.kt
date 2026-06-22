@@ -30,7 +30,7 @@ class Result(
     @Column(nullable = false)
     var visitorTotalScore: Long = 0,
 
-    @Column(nullable = true)
+    @Column(nullable = true, columnDefinition = "varchar")
     var recordUrl: URI? = null,
 
     @OneToOne(fetch = FetchType.LAZY)

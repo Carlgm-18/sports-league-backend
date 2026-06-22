@@ -1,6 +1,5 @@
 package es.uib.tfg.sports_league_backend.user.domain
 
-import es.uib.tfg.sportsapi.dto.LicenseElement
 import es.uib.tfg.sportsapi.dto.SignImageUrl
 import es.uib.tfg.sportsapi.dto.UserCategory
 import jakarta.persistence.*
@@ -29,14 +28,13 @@ class User(
     @Column(nullable = false, length = 20)
     var category: UserCategory,
 
-    // var pushToken: String? = null,
-
     var createdAt: LocalDateTime,
 
     @Column
     var profileImageUrl: String? = null,
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "app_user_id")
     var licenses: MutableSet<RefereeLicense> = mutableSetOf(),
 
     @Transient

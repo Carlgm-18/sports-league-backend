@@ -23,6 +23,7 @@ class ClassificationGroup(
     @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
     var groupTeams: MutableSet<ClassificationGroupTeam> = mutableSetOf()
 ) {
+    @Transient
     var teams: List<Team> = listOf()
         get() = groupTeams.map { it.team }
 }

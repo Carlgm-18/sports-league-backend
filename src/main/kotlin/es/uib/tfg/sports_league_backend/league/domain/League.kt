@@ -26,7 +26,6 @@ class League(
     @JoinColumn(name = "owner_id", nullable = false)
     var owner: User,
 
-
     @Column(nullable = false, length = 100)
     var name: String,
 

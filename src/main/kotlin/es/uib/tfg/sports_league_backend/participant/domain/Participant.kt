@@ -37,7 +37,9 @@ class Participant(
     @OneToMany(mappedBy = "participant", orphanRemoval = true, cascade = [CascadeType.ALL])
     var availability: MutableList<ParticipantAvailability> = mutableListOf(),
 ) {
-    var availabilitySlots = listOf<DateTimeSlot>()
+
+    @Transient
+    var availabilitySlots: List<DateTimeSlot> = listOf()
         get() = availability.map { it.dateTimeSlot }
 
     fun getRoundAvailability(roundId: Long) =
