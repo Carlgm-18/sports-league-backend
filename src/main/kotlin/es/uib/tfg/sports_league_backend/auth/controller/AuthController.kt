@@ -6,16 +6,13 @@ import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.user.application.UserService
 import es.uib.tfg.sports_league_backend.user.application.login.LoginSessionInfo
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toLoginResponse
+import es.uib.tfg.sportsapi.dto.RefreshTokenRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-
-data class RefreshTokenRequest(
-    val refreshToken: String
-)
 
 @RestController
 class AuthController(
