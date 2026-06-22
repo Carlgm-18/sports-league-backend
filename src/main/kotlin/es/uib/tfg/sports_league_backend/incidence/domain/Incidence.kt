@@ -15,7 +15,7 @@ import jakarta.persistence.Table
 @Table(name = "incidence")
 class Incidence(
     @Id
-    @GeneratedValue(GenerationType.SEQUENCE)
+    @GeneratedValue(GenerationType.IDENTITY)
     var id : Long? = null,
 
     @Column(nullable = false)
