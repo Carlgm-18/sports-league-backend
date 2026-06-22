@@ -8,7 +8,7 @@ import es.uib.tfg.sports_league_backend.request.domain.TeamCreateRequest
 import es.uib.tfg.sports_league_backend.request.domain.TeamJoinRequest
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.BaseRequest
-import es.uib.tfg.sportsapi.dto.BaseRequest.RequestType
+import es.uib.tfg.sportsapi.dto.RequestType
 import es.uib.tfg.sportsapi.dto.RefereeRequest as RefereeRequestDTO
 import es.uib.tfg.sportsapi.dto.TeamCreateRequest as TeamCreateRequestDTO
 import es.uib.tfg.sportsapi.dto.TeamJoinRequest as TeamJoinRequestDTO

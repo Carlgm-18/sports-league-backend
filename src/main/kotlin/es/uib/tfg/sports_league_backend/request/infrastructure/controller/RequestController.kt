@@ -13,7 +13,7 @@ import es.uib.tfg.sportsapi.dto.TeamCreateRequest as TeamCreateRequestDTO
 import es.uib.tfg.sportsapi.dto.TeamJoinRequest as TeamJoinRequestDTO
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 
@@ -24,6 +24,7 @@ class RequestController(
 ) {
 
     @PostMapping("/leagues/{leagueId}/requests")
+    @PreAuthorize("@requestSecurityGuard.canCreateRequest(principal, #leagueId, #request)")
     fun createRequest(
         @PathVariable leagueId: Long,
         @Valid @RequestBody request: BaseRequest
@@ -45,13 +46,13 @@ class RequestController(
     }
 
     @PatchMapping("/requests/{requestId}")
+    @PreAuthorize("@requestSecurityGuard.canResolveRequest(principal, #requestId)")
     fun resolveRequest(
         @PathVariable requestId: Long,
-        @AuthenticationPrincipal userId: Long,
         @Valid @RequestBody input: ResolveRequestInput
     ): ResponseEntity<*> {
 
-        return when (val result = requestService.resolveRequest(requestId, input, userId)) {
+        return when (val result = requestService.resolveRequest(requestId, input)) {
             is DomainResult.Success ->
                 ResponseEntity.status(HttpStatus.CREATED).body(result.data.toDTO())
             is DomainResult.Failure ->
@@ -61,11 +62,11 @@ class RequestController(
     }
 
     @GetMapping("/teams/{teamId}/join-requests")
+    @PreAuthorize("@requestSecurityGuard.canViewJoinRequests(principal, #teamId)")
     fun getJoinRequestsByTeamId(
-        @PathVariable teamId: Long,
-        @AuthenticationPrincipal userId: Long
+        @PathVariable teamId: Long
     ): ResponseEntity<*> =
-        when (val result = requestService.findJoinRequestsByTeamId(teamId, userId)) {
+        when (val result = requestService.findJoinRequestsByTeamId(teamId)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.map { it.toDTO() })
             is DomainResult.Failure ->
@@ -73,11 +74,11 @@ class RequestController(
         }
 
     @GetMapping("/requests/{requestId}")
+    @PreAuthorize("@requestSecurityGuard.canViewRequest(principal, #requestId)")
     fun getRequest(
-        @PathVariable requestId: Long,
-        @AuthenticationPrincipal userId: Long
+        @PathVariable requestId: Long
     ): ResponseEntity<*> {
-        return when (val result = requestService.findRequestByRequestId(requestId, userId)) {
+        return when (val result = requestService.findRequestByRequestId(requestId)) {
             is DomainResult.Failure ->
                 mapError(result.error)
 

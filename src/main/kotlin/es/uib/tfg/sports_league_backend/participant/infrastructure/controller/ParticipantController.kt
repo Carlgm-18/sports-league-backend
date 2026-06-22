@@ -17,6 +17,7 @@ import es.uib.tfg.sportsapi.dto.ParticipantUpdateRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -87,12 +88,12 @@ class ParticipantController(
 
 
     @PatchMapping("/participants/{participantId}")
+    @PreAuthorize("@participantSecurityGuard.canUpdateParticipant(principal, #participantId)")
     fun updateParticipantLeague(
         @PathVariable participantId: Long,
-        @AuthenticationPrincipal userId: Long,
         @Valid @RequestBody updateRequest: ParticipantUpdateRequest
     ): ResponseEntity<*> =
-        when(val result = participantService.updateParticipantById(participantId, userId, updateRequest)) {
+        when(val result = participantService.updateParticipantById(participantId, updateRequest)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.toDetailsDTO())
             is DomainResult.Failure ->
