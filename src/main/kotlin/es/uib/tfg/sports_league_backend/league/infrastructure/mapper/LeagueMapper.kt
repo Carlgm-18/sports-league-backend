@@ -40,6 +40,7 @@ fun League.toSummaryDTO(): LeagueSummary {
         startDate,
         endDate,
         status,
+        configuration.category,
         iconImageUrl?.let { URI(it) },
         bannerImageUrl?.let { URI(it) },
         maxInscriptionDate,
