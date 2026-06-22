@@ -3,8 +3,8 @@ package es.uib.tfg.sports_league_backend.participant.application
 import es.uib.tfg.sports_league_backend.availability.application.AvailabilityService
 import es.uib.tfg.sports_league_backend.availability.domain.DateTimeSlot
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.league.application.LeagueService
 import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueRepository
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import es.uib.tfg.sports_league_backend.participant.domain.ParticipantAvailability
 import es.uib.tfg.sports_league_backend.participant.domain.ParticipantRole
@@ -16,7 +16,6 @@ import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantJoi
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantNotFound
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantRetrieveError
 import es.uib.tfg.sports_league_backend.participant.domain.errors.ParticipantUpdateError
-import es.uib.tfg.sports_league_backend.participant.domain.errors.UnauthorizedAction
 import es.uib.tfg.sports_league_backend.participant.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantJPARepository
 import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipationRoleRepository
@@ -24,14 +23,13 @@ import es.uib.tfg.sports_league_backend.user.application.UserService
 import es.uib.tfg.sports_league_backend.user.domain.User
 import es.uib.tfg.sportsapi.dto.ParticipantUpdateRequest
 import jakarta.transaction.Transactional
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
 class ParticipantService(
     private val participantJPARepository: ParticipantJPARepository,
     private val participationRoleRepository: ParticipationRoleRepository,
-    private val leagueService: LeagueService,
+    private val leagueRepository: LeagueRepository,
     private val userService: UserService,
     private val availabilityService: AvailabilityService
 ) {
@@ -71,7 +69,7 @@ class ParticipantService(
         userId: Long,
         leagueId: Long
     ): DomainResult<Participant, ParticipantRetrieveError> {
-        if(leagueService.findLeagueById(leagueId) is DomainResult.Failure)
+        if(!leagueRepository.existsById(leagueId))
             return DomainResult.Failure(LeagueNotFound)
 
         if(userService.findUserById(userId) is DomainResult.Failure)
@@ -91,14 +89,10 @@ class ParticipantService(
     @Transactional
     fun updateParticipantById(
         participantId: Long,
-        userId: Long,
         updateRequest: ParticipantUpdateRequest
     ): DomainResult<Participant, ParticipantUpdateError> {
         val participant = participantJPARepository.findParticipantById(participantId)
             ?: return DomainResult.Failure(ParticipantNotFound)
-
-        if(participant.user.id != userId)
-            return DomainResult.Failure(UnauthorizedAction)
 
         if(participant.team == null)
             return DomainResult.Failure(NotInATeam)
@@ -119,7 +113,7 @@ class ParticipantService(
         userId: Long,
         leagueId: Long
     ): DomainResult<List<DateTimeSlot>, ParticipantRetrieveError> {
-        if(leagueService.findLeagueById(leagueId) is DomainResult.Failure)
+        if(!leagueRepository.existsById(leagueId))
             return DomainResult.Failure(LeagueNotFound)
 
         val participant = participantJPARepository.findParticipant(userId, leagueId)
@@ -134,7 +128,7 @@ class ParticipantService(
         request: List<Long>
     ): DomainResult<Unit, ParticipantUpdateError> {
 
-        if(leagueService.findLeagueById(leagueId) is DomainResult.Failure)
+        if(!leagueRepository.existsById(leagueId))
             return DomainResult.Failure(LeagueNotFound)
 
         val participant = participantJPARepository.findParticipant(userId, leagueId)
