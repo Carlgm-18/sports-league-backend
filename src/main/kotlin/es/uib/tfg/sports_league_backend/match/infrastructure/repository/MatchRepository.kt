@@ -11,4 +11,7 @@ interface MatchRepository : JpaRepository<Match, Long> {
 
     @Query("SELECT m FROM Match m, Round r WHERE m.roundId = r.id AND r.phase.league.id = :leagueId")
     fun findAllByLeagueId(@Param("leagueId") leagueId: Long): List<Match>
+
+    @Query("SELECT m FROM Match m, Round r WHERE m.roundId = r.id AND r.phase.id = :phaseId")
+    fun findAllByPhaseId(@Param("phaseId") phaseId: Long): List<Match>
 }
