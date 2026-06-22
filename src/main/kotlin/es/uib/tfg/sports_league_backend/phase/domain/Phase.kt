@@ -30,6 +30,6 @@ abstract class Phase(
     @Column(nullable = false)
     var sequenceOrder: Int,
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    var rounds: MutableList<Round>
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], mappedBy = "phase")
+    var rounds: MutableList<Round> = mutableListOf()
 )
