@@ -259,12 +259,12 @@ class MatchService(
             return DomainResult.Failure(ProposalAlreadyResolved)
         }
 
-        val participantTeam = when(val result = getParticipant(userId, proposal.team.league.id!!)) {
+        val participant = when(val result = getParticipant(userId, proposal.team.league.id!!)) {
             is DomainResult.Success -> result.data
             is DomainResult.Failure -> return result
         }
 
-        if (proposal.team.id == participantTeam.id) {
+        if (proposal.team.id == participant.team?.id) {
             return DomainResult.Failure(ResolveOwnProposalError)
         }
 
