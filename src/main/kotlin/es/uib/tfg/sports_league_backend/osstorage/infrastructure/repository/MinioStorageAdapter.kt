@@ -1,5 +1,6 @@
-package es.uib.tfg.sports_league_backend.core.osstorage
+package es.uib.tfg.sports_league_backend.osstorage.infrastructure.repository
 
+import es.uib.tfg.sports_league_backend.osstorage.infrastructure.controller.StorageUrlResponse
 import io.minio.GetPresignedObjectUrlArgs
 import io.minio.MinioClient
 import io.minio.http.Method
@@ -17,7 +18,7 @@ class MinioStorageAdapter(
 
     override fun generateUploadUrl(folder: String, extension: String): StorageUrlResponse {
         val fileName = "${UUID.randomUUID()}.$extension"
-        val objectPath = "$folder/$fileName" // Ej: avatars/123-456.jpg
+        val objectPath = "$folder/$fileName"
 
         val uploadUrl = minioClient.getPresignedObjectUrl(
             GetPresignedObjectUrlArgs.builder()

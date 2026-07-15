@@ -1,4 +1,4 @@
-package es.uib.tfg.sports_league_backend.core.osstorage
+package es.uib.tfg.sports_league_backend.osstorage.infrastructure.repository
 
 import io.minio.BucketExistsArgs
 import io.minio.MakeBucketArgs
