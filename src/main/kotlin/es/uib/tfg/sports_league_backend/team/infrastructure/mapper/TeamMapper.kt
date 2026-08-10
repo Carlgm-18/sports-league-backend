@@ -1,6 +1,7 @@
 package es.uib.tfg.sports_league_backend.team.infrastructure.mapper
 
 import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.toDomain
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.TeamDetails
 import es.uib.tfg.sportsapi.dto.TeamSummary
@@ -26,7 +27,7 @@ fun Team.toDetailsDTO(): TeamDetails =
         motto ?: "",
         primaryColor,
         secondaryColor,
-        members.map { it.toDetailsDTO() },
+        members.map { it.toDomain().toDetailsDTO() },
         iconImageUrl?.let { URI(it) },
         deletedAt,
     )

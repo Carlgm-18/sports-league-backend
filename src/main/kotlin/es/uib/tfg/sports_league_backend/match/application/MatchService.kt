@@ -7,7 +7,8 @@ import es.uib.tfg.sports_league_backend.match.infrastructure.repository.MatchRep
 import es.uib.tfg.sports_league_backend.match.infrastructure.repository.ProposalRepository
 import es.uib.tfg.sports_league_backend.phase.application.TournamentSlotService
 import es.uib.tfg.sports_league_backend.round.application.RoundService
-import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.ManageParticipantUseCase
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.toJPAEntity
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.MatchState
 import es.uib.tfg.sportsapi.dto.ProposalState
@@ -54,7 +55,7 @@ class MatchService(
     private val tournamentSlotService: TournamentSlotService,
     private val proposalRepository: ProposalRepository,
     private val roundService: RoundService,
-    private val participantService: ParticipantService,
+    private val manageParticipantUseCase: ManageParticipantUseCase,
     private val teamService: TeamService
 ) {
     @Transactional
@@ -191,7 +192,7 @@ class MatchService(
     }
 
     private fun getParticipant(userId: Long, leagueId: Long): DomainResult<Participant, ProposalResolveError> =
-        when(val result = participantService.findParticipant(userId, leagueId)) {
+        when(val result = manageParticipantUseCase.findParticipant(userId, leagueId)) {
             is DomainResult.Success -> result
 
             is DomainResult.Failure ->
@@ -302,7 +303,7 @@ class MatchService(
         val round = (roundService.findRoundById(match.roundId) as DomainResult.Success).data
 
         val leagueId = round.phase.league.id!!
-        val referees = participantService.findAllLeagueParticipants(leagueId).filter { participant ->
+        val referees = manageParticipantUseCase.findAllLeagueParticipants(leagueId).filter { participant ->
             participant.roles.any { it.participationRole.roleName == "REFEREE" }
         }
 
@@ -324,14 +325,15 @@ class MatchService(
         }
 
         val refereeCounts = availableReferees.associateWith { referee ->
-            leagueMatches.count { m ->
+            val count = leagueMatches.count { m ->
                 m.firstReferee?.id == referee.id || m.secondReferee?.id == referee.id
             }
+            count
         }
 
         val chosenReferee = refereeCounts.minByOrNull { it.value }!!.key
 
-        match.firstReferee = chosenReferee
+        match.firstReferee = chosenReferee.toJPAEntity()
         val savedMatch = matchRepository.save(match)
         return DomainResult.Success(savedMatch)
     }
@@ -349,7 +351,7 @@ class MatchService(
 
         val leagueId = round.phase.league.id!!
 
-        val referee = when(val result = participantService.findParticipantById(refereeParticipantId)) {
+        val referee = when(val result = manageParticipantUseCase.findParticipantById(refereeParticipantId)) {
             is DomainResult.Success -> result.data
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
         }
@@ -364,11 +366,10 @@ class MatchService(
         }
 
         when(refereeType) {
-            RefereeType.FIRST -> match.firstReferee = referee
-            RefereeType.SECOND -> match.secondReferee = referee
+            RefereeType.FIRST -> match.firstReferee = referee.toJPAEntity()
+            RefereeType.SECOND -> match.secondReferee = referee.toJPAEntity()
         }
 
-        val savedMatch = matchRepository.save(match)
-        return DomainResult.Success(savedMatch)
+        return DomainResult.Success(matchRepository.save(match))
     }
 }

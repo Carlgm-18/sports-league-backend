@@ -18,76 +18,75 @@ import es.uib.tfg.sports_league_backend.league.domain.errors.PunctuationSystemNo
 import es.uib.tfg.sports_league_backend.league.domain.errors.SportNotFound
 import es.uib.tfg.sports_league_backend.league.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toEntity
-import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueConfigurationRepository
-import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueRepository
-import es.uib.tfg.sports_league_backend.league.infrastructure.repository.PunctuationSystemRepository
-import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.ManageLeagueUseCase
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.ManageLeagueConfigurationUseCase
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.LeagueQueryUseCase
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.JoinLeagueUseCase
+import es.uib.tfg.sports_league_backend.league.application.ports.out.LeagueRepositoryPort
+import es.uib.tfg.sports_league_backend.league.application.ports.out.LeagueConfigurationRepositoryPort
+import es.uib.tfg.sports_league_backend.league.application.ports.out.PunctuationSystemRepositoryPort
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.RegisterParticipantUseCase
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.ManageParticipantUseCase
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import es.uib.tfg.sports_league_backend.participant.domain.errors.AlreadyParticipant
 import es.uib.tfg.sports_league_backend.phase.application.PhaseService
 import es.uib.tfg.sports_league_backend.sport.application.SportService
-import es.uib.tfg.sports_league_backend.user.application.UserService
+import es.uib.tfg.sports_league_backend.user.application.ports.`in`.FindUserUseCase
 import es.uib.tfg.sports_league_backend.phase.domain.ClassificationPhase
 import es.uib.tfg.sports_league_backend.phase.infrastructure.repository.PhaseRepository
 import es.uib.tfg.sports_league_backend.round.infrastructure.repository.RoundRepository
 import es.uib.tfg.sports_league_backend.match.infrastructure.repository.MatchRepository
-import es.uib.tfg.sports_league_backend.match.application.MatchService
-import es.uib.tfg.sports_league_backend.match.domain.Match
-import es.uib.tfg.sports_league_backend.match.domain.Proposal
 import es.uib.tfg.sports_league_backend.team.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueUpdateError
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueNotFoundForUpdate
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueInProgressDateUpdate
 import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.phase.infrastructure.repository.ClassificationGroupRepository
-import es.uib.tfg.sports_league_backend.team.infrastructure.repository.LeaderboardProjection
+import es.uib.tfg.sports_league_backend.match.application.MatchService
+import es.uib.tfg.sports_league_backend.match.domain.Match
+import es.uib.tfg.sports_league_backend.match.domain.Proposal
 import es.uib.tfg.sportsapi.dto.*
 import jakarta.transaction.Transactional
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class LeagueService(
-    private val leagueRepository: LeagueRepository,
-    private val leagueConfigurationRepository: LeagueConfigurationRepository,
-    private val punctuationSystemRepository: PunctuationSystemRepository,
+    private val leagueRepository: LeagueRepositoryPort,
+    private val leagueConfigurationRepository: LeagueConfigurationRepositoryPort,
+    private val punctuationSystemRepository: PunctuationSystemRepositoryPort,
     private val sportService: SportService,
-    private val userService: UserService,
-    private val participantService: ParticipantService,
+    private val findUserUseCase: FindUserUseCase,
+    private val registerParticipantUseCase: RegisterParticipantUseCase,
+    private val manageParticipantUseCase: ManageParticipantUseCase,
     private val phaseService: PhaseService,
     private val phaseRepository: PhaseRepository,
     private val roundRepository: RoundRepository,
     private val matchRepository: MatchRepository,
     private val classificationGroupRepository: ClassificationGroupRepository,
     private val matchService: MatchService
-) {
-    fun findAll(): List<League> =
+) : ManageLeagueUseCase, ManageLeagueConfigurationUseCase, LeagueQueryUseCase, JoinLeagueUseCase {
+    override fun findAll(): List<League> =
         leagueRepository.findAll()
 
     @Transactional
-    fun createLeague(request: LeagueCreateRequest, ownerId: Long): DomainResult<League, LeagueCreateError> {
-        // Check for user existence
-        val userResult = userService.findUserById(ownerId)
+    override fun createLeague(request: LeagueCreateRequest, ownerId: Long): DomainResult<League, LeagueCreateError> {
+        val userResult = findUserUseCase.findUserById(ownerId)
         val user = (userResult as? DomainResult.Success)?.data
             ?: return DomainResult.Failure(UserNotFound)
 
-        // Validate configuration state
         val configResult = getOrCreateConfiguration(request)
         val configuration = (configResult as? DomainResult.Success)?.data
             ?: return DomainResult.Failure((configResult as DomainResult.Failure).error)
 
-        // Validate punctuation system state
         val punctuationSystemResult = getOrCreatePunctuationSystem(request)
         val punctuationSystem = (punctuationSystemResult as? DomainResult.Success)?.data
             ?: return DomainResult.Failure((punctuationSystemResult as DomainResult.Failure).error)
 
-        // Save league
         val league = request.toEntity(configuration, punctuationSystem, user)
         val savedLeague = leagueRepository.save(league)
 
-        // Register creator as owner
-        participantService.registerOwner(user, savedLeague)
+        registerParticipantUseCase.registerOwner(user, savedLeague)
 
         return DomainResult.Success(savedLeague)
     }
@@ -95,7 +94,7 @@ class LeagueService(
     private fun getOrCreateConfiguration(request: LeagueCreateRequest): DomainResult<LeagueConfiguration, LeagueCreateError> {
         return when {
             request.configurationId != null -> {
-                leagueConfigurationRepository.findByIdOrNull(request.configurationId)
+                leagueConfigurationRepository.findById(request.configurationId)
                     ?.let { DomainResult.Success(it) }
                     ?: DomainResult.Failure(ConfigurationNotFound)
             }
@@ -113,7 +112,7 @@ class LeagueService(
     private fun getOrCreatePunctuationSystem(request: LeagueCreateRequest): DomainResult<PunctuationSystem, LeagueCreateError> {
         return when {
             request.punctuationSystemId != null -> {
-                punctuationSystemRepository.findByIdOrNull(request.punctuationSystemId)
+                punctuationSystemRepository.findById(request.punctuationSystemId)
                     ?.let { DomainResult.Success(it) }
                     ?: DomainResult.Failure(PunctuationSystemNotFound)
             }
@@ -128,41 +127,34 @@ class LeagueService(
         }
     }
 
-    fun findLeagueById(leagueId: Long): DomainResult<League, LeagueRetrieveError> =
-        leagueRepository.findByIdOrNull(leagueId)
+    override fun findLeagueById(leagueId: Long): DomainResult<League, LeagueRetrieveError> =
+        leagueRepository.findById(leagueId)
             ?.let { DomainResult.Success(it) }
             ?: DomainResult.Failure(LeagueNotFound)
 
     @Transactional
-    fun joinLeague(leagueId: Long, userId: Long): DomainResult<Participant, LeagueJoinError> {
-        // Validate user existence
-        val userResult = userService.findUserById(userId)
+    override fun joinLeague(leagueId: Long, userId: Long): DomainResult<Participant, LeagueJoinError> {
+        val userResult = findUserUseCase.findUserById(userId)
         val user = (userResult as? DomainResult.Success)?.data
             ?: return DomainResult.Failure(UserNotFound)
 
-        // Validate league existence
-        val league = leagueRepository.findByIdOrNull(leagueId)
+        val league = leagueRepository.findById(leagueId)
             ?: return DomainResult.Failure(LeagueNotFound)
 
-        // Validate league restrictions
-        // 1.Category
         if(
             league.configuration.category != LeagueCategory.MIXT
             && league.configuration.category.value != user.category.value
         ) return DomainResult.Failure(CategoryMismatch)
 
-        // 2. Max inscription date
         league.maxInscriptionDate?.let {
             if(LocalDate.now().isAfter(league.maxInscriptionDate))
                 return DomainResult.Failure(InscriptionClosed)
         }
 
-        // 3. League already ended
         if(league.status == LeagueState.ENDED)
             return DomainResult.Failure(LeagueAlreadyEnded)
 
-        // Try to register player
-        return when(val savedParticipant = participantService.registerPlayer(user, league)) {
+        return when(val savedParticipant = registerParticipantUseCase.registerPlayer(user, league)) {
             is DomainResult.Success -> {
                 DomainResult.Success(savedParticipant.data)
             }
@@ -174,15 +166,14 @@ class LeagueService(
                 }
             }
         }
-
     }
 
     @Transactional
-    fun updateConfiguration(
+    override fun updateConfiguration(
         leagueId: Long,
         request: ConfigurationUpdateRequest
     ): ConfigurationDetails {
-        val league = leagueRepository.findByIdOrNull(leagueId)
+        val league = leagueRepository.findById(leagueId)
             ?: throw IllegalArgumentException("League not found")
         val config = league.configuration
         request.minTeamFemaleIntegrants?.let { config.minTeamFemaleIntegrants = it }
@@ -194,8 +185,8 @@ class LeagueService(
     }
 
     @Transactional
-    fun updateLeague(leagueId: Long, request: LeagueUpdateRequest): DomainResult<League, LeagueUpdateError> {
-        val league = leagueRepository.findByIdOrNull(leagueId)
+    override fun updateLeague(leagueId: Long, request: LeagueUpdateRequest): DomainResult<League, LeagueUpdateError> {
+        val league = leagueRepository.findById(leagueId)
             ?: return DomainResult.Failure(LeagueNotFoundForUpdate)
 
         if (league.status == LeagueState.IN_PROGRESS || league.status == LeagueState.ENDED) {
@@ -218,19 +209,19 @@ class LeagueService(
     }
 
     @Transactional
-    fun getLeaderboard(
+    override fun getLeaderboard(
         leagueId: Long,
         phaseId: Long?,
         roundId: Long?
     ): DomainResult<List<LeaderboardGroup>, LeagueRetrieveError> {
-        leagueRepository.findByIdOrNull(leagueId)
+        val league = leagueRepository.findById(leagueId)
             ?: return DomainResult.Failure(LeagueNotFound)
 
         val selectedPhase = if (phaseId != null) {
-            phaseRepository.findByIdOrNull(phaseId)
+            phaseRepository.findById(phaseId).orElse(null)
                 ?: return DomainResult.Failure(LeagueNotFound)
         } else if (roundId != null) {
-            val round = roundRepository.findByIdOrNull(roundId)
+            val round = roundRepository.findById(roundId).orElse(null)
                 ?: return DomainResult.Failure(LeagueNotFound)
             round.phase
         } else {
@@ -245,7 +236,7 @@ class LeagueService(
             return DomainResult.Success(emptyList())
         }
 
-        val targetRound = if (roundId != null) roundRepository.findByIdOrNull(roundId) else null
+        val targetRound = if (roundId != null) roundRepository.findById(roundId).orElse(null) else null
         val roundSequenceOrder = targetRound?.sequenceOrder ?: Int.MAX_VALUE
 
         val leaderboardGroups = selectedPhase.groups.map { group ->
@@ -287,15 +278,15 @@ class LeagueService(
         return DomainResult.Success(leaderboardGroups)
     }
 
-    fun findAllParticipantsByLeagueId(leagueId: Long): DomainResult<List<Participant>, LeagueRetrieveError> {
-        return leagueRepository.findByIdOrNull(leagueId)
-        ?.let { DomainResult.Success(participantService.findAllLeagueParticipants(leagueId)) }
+    override fun findAllParticipantsByLeagueId(leagueId: Long): DomainResult<List<Participant>, LeagueRetrieveError> {
+        return leagueRepository.findById(leagueId)
+        ?.let { DomainResult.Success(manageParticipantUseCase.findAllLeagueParticipants(leagueId)) }
         ?: DomainResult.Failure(LeagueNotFound)
     }
 
     @Transactional
-    fun startLeague(leagueId: Long): DomainResult<Unit, LeagueStartError> {
-        val league = leagueRepository.findByIdOrNull(leagueId)
+    override fun startLeague(leagueId: Long): DomainResult<Unit, LeagueStartError> {
+        val league = leagueRepository.findById(leagueId)
             ?: return DomainResult.Failure(LeagueNotFound)
 
         league.status = LeagueState.IN_PROGRESS
@@ -311,11 +302,11 @@ class LeagueService(
         }
     }
 
-    fun getActiveProposal(matchId: Long): Proposal? {
+    override fun getActiveProposal(matchId: Long): Proposal? {
         return matchService.getActiveProposal(matchId)
     }
 
-    fun findMatches(
+    override fun findMatches(
         leagueId: Long,
         phaseId: Long?,
         teamId: Long?,

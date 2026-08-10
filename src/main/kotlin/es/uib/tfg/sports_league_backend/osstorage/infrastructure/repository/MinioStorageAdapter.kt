@@ -1,6 +1,7 @@
 package es.uib.tfg.sports_league_backend.osstorage.infrastructure.repository
 
-import es.uib.tfg.sports_league_backend.osstorage.infrastructure.controller.StorageUrlResponse
+import es.uib.tfg.sports_league_backend.osstorage.application.ports.out.StoragePort
+import es.uib.tfg.sports_league_backend.osstorage.domain.StorageUrl
 import io.minio.GetPresignedObjectUrlArgs
 import io.minio.MinioClient
 import io.minio.http.Method
@@ -16,7 +17,7 @@ class MinioStorageAdapter(
     @Value($$"${minio.endpoint}") private val endpoint: String
 ) : StoragePort {
 
-    override fun generateUploadUrl(folder: String, extension: String): StorageUrlResponse {
+    override fun generateUploadUrl(folder: String, extension: String): StorageUrl {
         val fileName = "${UUID.randomUUID()}.$extension"
         val objectPath = "$folder/$fileName"
 
@@ -29,7 +30,7 @@ class MinioStorageAdapter(
                 .build()
         )
 
-        return StorageUrlResponse(
+        return StorageUrl(
             uploadUrl = uploadUrl,
             publicUrl = "$endpoint/$bucket/$objectPath"
         )

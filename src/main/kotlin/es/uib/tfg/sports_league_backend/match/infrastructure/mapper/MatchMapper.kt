@@ -4,6 +4,7 @@ import es.uib.tfg.sports_league_backend.match.domain.Match
 import es.uib.tfg.sports_league_backend.match.domain.Proposal
 import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.toDomain
 import es.uib.tfg.sports_league_backend.availability.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.team.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sports_league_backend.result.infrastructure.mapper.toSummaryDTO
@@ -22,8 +23,8 @@ fun Match.toSummaryDTO(): MatchSummary =
         dateTime = dateTime?.toDetailsDTO(),
         proposalState = if (dateTime == null) MatchSummary.ProposalState.PENDING
         else MatchSummary.ProposalState.PROPOSED,
-        firstReferee = firstReferee?.toSummaryDTO(),
-        secondReferee = secondReferee?.toSummaryDTO(),
+        firstReferee = firstReferee?.toDomain()?.toSummaryDTO(),
+        secondReferee = secondReferee?.toDomain()?.toSummaryDTO(),
         resultSummary = result?.toSummaryDTO(),
     )
 
@@ -36,8 +37,8 @@ fun Match.toDetailsDTO(activeProposal: Proposal?): MatchDetails =
         localTeam = localTeam?.toSummaryDTO(),
         visitorTeam = visitorTeam?.toSummaryDTO(),
         dateTime = dateTime?.toDetailsDTO(),
-        firstReferee = firstReferee?.toDetailsDTO(),
-        secondReferee = secondReferee?.toDetailsDTO(),
+        firstReferee = firstReferee?.toDomain()?.toDetailsDTO(),
+        secondReferee = secondReferee?.toDomain()?.toDetailsDTO(),
         resultSummary = result?.toSummaryDTO(),
         resultDetails = result?.toDetailsDTO()
     )

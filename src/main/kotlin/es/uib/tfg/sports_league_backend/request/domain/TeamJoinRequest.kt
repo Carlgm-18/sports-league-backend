@@ -1,7 +1,7 @@
 package es.uib.tfg.sports_league_backend.request.domain
 
-import es.uib.tfg.sports_league_backend.league.domain.League
-import es.uib.tfg.sports_league_backend.participant.domain.Participant
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueJPAEntity
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantJPAEntity
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sportsapi.dto.RequestState
 import es.uib.tfg.sportsapi.dto.TeamJoinRequest
@@ -12,8 +12,8 @@ import java.time.LocalDateTime
 @Table(name = "team_join_request")
 @PrimaryKeyJoinColumn(name = "request_id")
 class TeamJoinRequest(
-    league: League,
-    participant: Participant,
+    league: LeagueJPAEntity,
+    participant: ParticipantJPAEntity,
     createdAt: LocalDateTime = LocalDateTime.now(),
     resolvedAt: LocalDateTime? = null,
     rejectionReason: String? = null,

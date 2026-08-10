@@ -3,7 +3,7 @@ package es.uib.tfg.sports_league_backend.auth.controller
 import es.uib.tfg.sports_league_backend.common.security.JwtService
 import es.uib.tfg.sports_league_backend.common.security.TokenType
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.user.application.UserService
+import es.uib.tfg.sports_league_backend.user.application.ports.`in`.FindUserUseCase
 import es.uib.tfg.sports_league_backend.user.application.login.LoginSessionInfo
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toLoginResponse
 import es.uib.tfg.sportsapi.dto.RefreshTokenRequest
@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class AuthController(
     private val jwtService: JwtService,
-    private val userService: UserService,
-    @Value($$"${JWT_EXPIRATION}") private val jwtExpirationMs: Long
+    private val findUserUseCase: FindUserUseCase,
+    @Value("\${JWT_EXPIRATION}") private val jwtExpirationMs: Long
 ) {
 
     @PostMapping("/api/v1/auth/token/refresh")
@@ -31,7 +31,7 @@ class AuthController(
         }
 
         val userId = jwtService.extractUserId(refreshToken)
-        return when (val userResult = userService.findUserById(userId)) {
+        return when (val userResult = findUserUseCase.findUserById(userId)) {
             is DomainResult.Success -> {
                 val user = userResult.data
                 val newAccessToken = jwtService.generateToken(user.id!!, TokenType.ACCESS)

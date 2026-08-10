@@ -1,6 +1,6 @@
 package es.uib.tfg.sports_league_backend.phase.infrastructure.mapper
 
-import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueJPAEntity
 import es.uib.tfg.sports_league_backend.match.infrastructure.mapper.toSummaryDTO
 import es.uib.tfg.sports_league_backend.phase.domain.ClassificationGroup
 import es.uib.tfg.sports_league_backend.phase.domain.ClassificationPhase
@@ -62,7 +62,7 @@ fun TournamentSlot.toDetailsDTO(): TournamentSlotDetails =
         match.toSummaryDTO()
     )
 
-fun PhaseCreateRequest.toEntity(league: League): Phase =
+fun PhaseCreateRequest.toEntity(league: LeagueJPAEntity): Phase =
     when (type) {
         PhaseType.CLASSIFICATION ->
             (this as ClassificationPhaseCreateRequest).toEntity(league)
@@ -71,7 +71,7 @@ fun PhaseCreateRequest.toEntity(league: League): Phase =
             (this as TournamentPhaseCreateRequest).toEntity(league)
     }
 
-fun ClassificationPhaseCreateRequest.toEntity(league: League): Phase =
+fun ClassificationPhaseCreateRequest.toEntity(league: LeagueJPAEntity): Phase =
     ClassificationPhase(
         name = name,
         startDate = startDate,
@@ -81,7 +81,7 @@ fun ClassificationPhaseCreateRequest.toEntity(league: League): Phase =
         league = league
     )
 
-fun TournamentPhaseCreateRequest.toEntity(league: League): Phase =
+fun TournamentPhaseCreateRequest.toEntity(league: LeagueJPAEntity): Phase =
     TournamentPhase(
         name = name,
         startDate = startDate,

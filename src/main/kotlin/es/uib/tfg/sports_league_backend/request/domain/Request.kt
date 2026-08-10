@@ -1,7 +1,7 @@
 package es.uib.tfg.sports_league_backend.request.domain
 
-import es.uib.tfg.sports_league_backend.league.domain.League
-import es.uib.tfg.sports_league_backend.participant.domain.Participant
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueJPAEntity
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantJPAEntity
 import es.uib.tfg.sportsapi.dto.RequestState
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -16,11 +16,11 @@ abstract class Request(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id", nullable = false)
-    var league: League,
+    var league: LeagueJPAEntity,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", nullable = false)
-    var participant: Participant,
+    var participant: ParticipantJPAEntity,
 
     @Column(nullable = false, updatable = false)
     var createdAt: LocalDateTime = LocalDateTime.now(),

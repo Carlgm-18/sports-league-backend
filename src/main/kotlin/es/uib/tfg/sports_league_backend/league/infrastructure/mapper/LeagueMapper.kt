@@ -7,6 +7,7 @@ import es.uib.tfg.sports_league_backend.league.domain.PunctuationSystem
 import es.uib.tfg.sports_league_backend.sport.domain.Sport
 import es.uib.tfg.sports_league_backend.sport.infrastructure.mapper.toDetails
 import es.uib.tfg.sports_league_backend.user.domain.User
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.toJPAEntity
 import es.uib.tfg.sportsapi.dto.ConfigurationCreateRequest
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
@@ -66,7 +67,7 @@ fun LeagueCreateRequest.toEntity(
         owner = userEntity
     )
 
-    league.phases = phases.map { it.toEntity(league) }.toMutableList()
+    league.phases = phases.map { it.toEntity(league.toJPAEntity()) }.toMutableList()
 
     return league
 }

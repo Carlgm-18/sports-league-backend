@@ -1,7 +1,7 @@
 package es.uib.tfg.sports_league_backend.result.domain
 
 import es.uib.tfg.sports_league_backend.team.domain.Team
-import es.uib.tfg.sports_league_backend.participant.domain.Participant
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantJPAEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -24,7 +24,7 @@ class Lineup(
 
     @ManyToOne
     @JoinColumn(name = "participant_id", nullable = false)
-    var participant: Participant,
+    var participant: ParticipantJPAEntity,
 
     @Column(nullable = true)
     var matchDorsal: Int? = null,
@@ -34,4 +34,3 @@ class Lineup(
     var result: Result
 
 )
-

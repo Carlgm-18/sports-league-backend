@@ -1,6 +1,6 @@
 package es.uib.tfg.sports_league_backend.phase.domain
 
-import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueJPAEntity
 import es.uib.tfg.sports_league_backend.round.domain.Round
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -16,7 +16,7 @@ abstract class Phase(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id", nullable = false)
-    var league: League,
+    var league: LeagueJPAEntity,
 
     @Column(nullable = false)
     var name: String,

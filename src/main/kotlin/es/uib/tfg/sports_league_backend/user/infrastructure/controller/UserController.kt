@@ -2,7 +2,10 @@ package es.uib.tfg.sports_league_backend.user.infrastructure.controller
 
 import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.user.application.UserService
+import es.uib.tfg.sports_league_backend.user.application.ports.`in`.FindUserUseCase
+import es.uib.tfg.sports_league_backend.user.application.ports.`in`.LoginUserUseCase
+import es.uib.tfg.sports_league_backend.user.application.ports.`in`.RegisterUserUseCase
+import es.uib.tfg.sports_league_backend.user.application.ports.`in`.UpdateUserUseCase
 import es.uib.tfg.sports_league_backend.user.domain.errors.EmailAlreadyExists
 import es.uib.tfg.sports_league_backend.user.domain.errors.PasswordEncodingFailed
 import es.uib.tfg.sports_league_backend.user.domain.errors.PasswordsDontMatch
@@ -28,13 +31,16 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/users")
 class UserController(
-    private val userService: UserService
+    private val registerUserUseCase: RegisterUserUseCase,
+    private val loginUserUseCase: LoginUserUseCase,
+    private val findUserUseCase: FindUserUseCase,
+    private val updateUserUseCase: UpdateUserUseCase
 ) {
 
     @PostMapping("/register")
     fun register(@RequestBody @Valid request: UserCreateRequest): ResponseEntity<*> =
         when (
-            val result = userService.registerUser(request.toCommand())
+            val result = registerUserUseCase.registerUser(request.toCommand())
         ) {
 
             is DomainResult.Success ->
@@ -63,7 +69,7 @@ class UserController(
 
     @PostMapping("/login")
     fun login(@Valid @RequestBody request: UserLoginRequest): ResponseEntity<*> =
-        when (val result = userService.login(request.toCommand())) {
+        when (val result = loginUserUseCase.login(request.toCommand())) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.toLoginResponse())
 
@@ -74,7 +80,7 @@ class UserController(
 
     @GetMapping("/me")
     fun getCurrentUser(@AuthenticationPrincipal principal: Long): ResponseEntity<*> =
-        when (val user = userService.findUserById(principal)) {
+        when (val user = findUserUseCase.findUserById(principal)) {
             is DomainResult.Success -> {
                 ResponseEntity.ok(user.data.toDetailsDTO())
             }
@@ -101,7 +107,7 @@ class UserController(
         @AuthenticationPrincipal principal: Long,
         @Valid @RequestBody request: UserUpdateRequest
     ): ResponseEntity<*> =
-        when (val result = userService.updateUserById(principal, request.toCommand())) {
+        when (val result = updateUserUseCase.updateUserById(principal, request.toCommand())) {
             is DomainResult.Failure ->
                 when(result.error) {
                     is UserNotFound ->

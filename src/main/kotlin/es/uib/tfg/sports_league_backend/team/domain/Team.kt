@@ -1,7 +1,7 @@
 package es.uib.tfg.sports_league_backend.team.domain
 
-import es.uib.tfg.sports_league_backend.league.domain.League
-import es.uib.tfg.sports_league_backend.participant.domain.Participant
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueJPAEntity
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantJPAEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -14,7 +14,7 @@ class Team(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id")
-    var league: League,
+    var league: LeagueJPAEntity,
 
     @Column(nullable = false, length = 100)
     var name: String,
@@ -36,6 +36,6 @@ class Team(
     var deletedAt: LocalDateTime? = null,
 
     @OneToMany(mappedBy = "team", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var members: MutableList<Participant> = mutableListOf()
+    var members: MutableList<ParticipantJPAEntity> = mutableListOf()
 
 )

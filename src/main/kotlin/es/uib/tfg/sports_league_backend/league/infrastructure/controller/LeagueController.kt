@@ -2,7 +2,10 @@ package es.uib.tfg.sports_league_backend.league.infrastructure.controller
 
 import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.league.application.LeagueService
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.ManageLeagueUseCase
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.ManageLeagueConfigurationUseCase
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.LeagueQueryUseCase
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.JoinLeagueUseCase
 import es.uib.tfg.sports_league_backend.league.domain.errors.AlreadyJoin
 import es.uib.tfg.sports_league_backend.league.domain.errors.CategoryMismatch
 import es.uib.tfg.sports_league_backend.league.domain.errors.ConfigurationNotFound
@@ -19,6 +22,7 @@ import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toSumm
 import es.uib.tfg.sportsapi.dto.ConfigurationDetails
 import es.uib.tfg.sportsapi.dto.ConfigurationUpdateRequest
 import es.uib.tfg.sportsapi.dto.LeagueCreateRequest
+import es.uib.tfg.sportsapi.dto.LeagueState
 import es.uib.tfg.sportsapi.dto.LeagueSummary
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueUpdateError
 import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueNotFoundForUpdate
@@ -44,12 +48,15 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/leagues")
 class LeagueController(
-    private val leagueService: LeagueService
+    private val manageLeagueUseCase: ManageLeagueUseCase,
+    private val manageLeagueConfigurationUseCase: ManageLeagueConfigurationUseCase,
+    private val leagueQueryUseCase: LeagueQueryUseCase,
+    private val joinLeagueUseCase: JoinLeagueUseCase
 ) {
 
     @GetMapping
     fun getAllLeagues(): List<LeagueSummary> =
-        leagueService.findAll().map { it.toSummaryDTO() }
+        manageLeagueUseCase.findAll().map { it.toSummaryDTO() }
 
     @PostMapping
     fun createLeague(
@@ -68,7 +75,7 @@ class LeagueController(
                         )
                     )
 
-        return when(val result = leagueService.createLeague(request, userId)) {
+        return when(val result = manageLeagueUseCase.createLeague(request, userId)) {
             is DomainResult.Success ->
                 ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -83,7 +90,7 @@ class LeagueController(
                             "resource" to when(result.error) {
                                 SportNotFound -> "sport"
                                 ConfigurationNotFound -> "configuration"
-                                PunctuationSystemNotFound -> "punctuationSystem"
+                                PunctuationSystemNotFound -> "punctuation system"
                                 UserNotFound -> "user"
                             }
                         )
@@ -93,7 +100,7 @@ class LeagueController(
 
     @GetMapping("/{leagueId}")
     fun getLeague(@PathVariable leagueId: Long): ResponseEntity<*> =
-        when(val result = leagueService.findLeagueById(leagueId)) {
+        when(val result = manageLeagueUseCase.findLeagueById(leagueId)) {
 
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.toDetailsDTO())
@@ -114,7 +121,7 @@ class LeagueController(
         @PathVariable leagueId: Long,
         @AuthenticationPrincipal userId: Long,
     ): ResponseEntity<*> =
-        when(val result = leagueService.joinLeague(leagueId, userId)) {
+        when(val result = joinLeagueUseCase.joinLeague(leagueId, userId)) {
             is DomainResult.Success ->
                 ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -177,7 +184,7 @@ class LeagueController(
 
     @GetMapping("/{leagueId}/participants")
     fun getLeagueParticipants(@PathVariable leagueId: Long): ResponseEntity<*> =
-        when(val result = leagueService.findAllParticipantsByLeagueId(leagueId)) {
+        when(val result = leagueQueryUseCase.findAllParticipantsByLeagueId(leagueId)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.map { it.toSummaryDTO() })
             is DomainResult.Failure ->
@@ -201,7 +208,7 @@ class LeagueController(
         @PathVariable leagueId: Long,
         @Valid @RequestBody request: ConfigurationUpdateRequest
     ): ConfigurationDetails =
-        leagueService.updateConfiguration(leagueId, request)
+        manageLeagueConfigurationUseCase.updateConfiguration(leagueId, request)
 
     @PatchMapping("/{leagueId}")
     @PreAuthorize("@leagueSecurityGuard.isAdmin(principal, #leagueId)")
@@ -209,7 +216,7 @@ class LeagueController(
         @PathVariable leagueId: Long,
         @Valid @RequestBody request: LeagueUpdateRequest
     ): ResponseEntity<*> {
-        return when(val result = leagueService.updateLeague(leagueId, request)) {
+        return when(val result = manageLeagueUseCase.updateLeague(leagueId, request)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.toDetailsDTO())
 
@@ -224,7 +231,7 @@ class LeagueController(
         @RequestParam(required = false) phaseId: Long?,
         @RequestParam(required = false) roundId: Long?
     ): ResponseEntity<*> {
-        return when (val result = leagueService.getLeaderboard(leagueId, phaseId, roundId)) {
+        return when (val result = leagueQueryUseCase.getLeaderboard(leagueId, phaseId, roundId)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data)
 
@@ -269,9 +276,9 @@ class LeagueController(
         @RequestParam(required = false) teamId: Long?,
         @RequestParam(required = false) status: MatchState?
     ): ResponseEntity<List<MatchDetails>> {
-        val matches = leagueService.findMatches(leagueId, phaseId, teamId, status)
+        val matches = leagueQueryUseCase.findMatches(leagueId, phaseId, teamId, status)
         return ResponseEntity.ok(
-            matches.map { it.toDetailsDTO(leagueService.getActiveProposal(it.id!!)) }
+            matches.map { it.toDetailsDTO(leagueQueryUseCase.getActiveProposal(it.id!!)) }
         )
     }
 
@@ -280,7 +287,7 @@ class LeagueController(
     fun startLeague(
         @PathVariable leagueId: Long
     ): ResponseEntity<*> =
-        when(val result = leagueService.startLeague(leagueId)) {
+        when(val result = manageLeagueUseCase.startLeague(leagueId)) {
             is DomainResult.Success ->
                 ResponseEntity
                     .noContent()

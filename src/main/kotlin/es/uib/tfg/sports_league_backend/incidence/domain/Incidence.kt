@@ -1,6 +1,6 @@
 package es.uib.tfg.sports_league_backend.incidence.domain
 
-import es.uib.tfg.sports_league_backend.participant.domain.Participant
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantJPAEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -25,7 +25,7 @@ class Incidence(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id")
-    var creator: Participant,
+    var creator: ParticipantJPAEntity,
 
     @Column(nullable = false)
     var leagueId: Long

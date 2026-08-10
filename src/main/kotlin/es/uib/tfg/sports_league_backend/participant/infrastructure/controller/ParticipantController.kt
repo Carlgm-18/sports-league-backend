@@ -3,7 +3,8 @@ package es.uib.tfg.sports_league_backend.participant.infrastructure.controller
 import es.uib.tfg.sports_league_backend.availability.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.common.ErrorCode
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.ManageParticipantUseCase
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.ManageParticipantAvailabilityUseCase
 import es.uib.tfg.sports_league_backend.participant.domain.errors.DorsalAlreadyTaken
 import es.uib.tfg.sports_league_backend.participant.domain.errors.LeagueNotFound
 import es.uib.tfg.sports_league_backend.participant.domain.errors.NotInATeam
@@ -30,14 +31,15 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class ParticipantController(
-    private val participantService: ParticipantService
+    private val manageParticipantUseCase: ManageParticipantUseCase,
+    private val manageParticipantAvailabilityUseCase: ManageParticipantAvailabilityUseCase
 ) {
     @GetMapping("/leagues/{leagueId}/my-status")
     fun getParticipantLeagueStatus(
         @PathVariable leagueId: Long,
         @AuthenticationPrincipal userId: Long,
     ): ResponseEntity<*> =
-        when(val result = participantService.findParticipant(userId, leagueId)) {
+        when(val result = manageParticipantUseCase.findParticipant(userId, leagueId)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.toDetailsDTO())
             is DomainResult.Failure ->
@@ -63,7 +65,7 @@ class ParticipantController(
         @AuthenticationPrincipal userId: Long,
         @Valid @RequestBody request: List<Long>
     ): ResponseEntity<*> =
-        when(val result = participantService.updateParticipantAvailability(userId, leagueId, request)) {
+        when(val result = manageParticipantAvailabilityUseCase.updateParticipantAvailability(userId, leagueId, request)) {
             is DomainResult.Success ->
                 ResponseEntity.noContent().build<Unit>()
 
@@ -76,7 +78,7 @@ class ParticipantController(
         @PathVariable leagueId: Long,
         @AuthenticationPrincipal userId: Long
     ): ResponseEntity<*> =
-        when(val result = participantService.findParticipantAvailability(userId, leagueId)) {
+        when(val result = manageParticipantAvailabilityUseCase.findParticipantAvailability(userId, leagueId)) {
             is DomainResult.Success ->
                 ResponseEntity
                     .ok(result.data.map { it.toDetailsDTO() })
@@ -93,7 +95,7 @@ class ParticipantController(
         @PathVariable participantId: Long,
         @Valid @RequestBody updateRequest: ParticipantUpdateRequest
     ): ResponseEntity<*> =
-        when(val result = participantService.updateParticipantById(participantId, updateRequest)) {
+        when(val result = manageParticipantUseCase.updateParticipantById(participantId, updateRequest)) {
             is DomainResult.Success ->
                 ResponseEntity.ok(result.data.toDetailsDTO())
             is DomainResult.Failure ->

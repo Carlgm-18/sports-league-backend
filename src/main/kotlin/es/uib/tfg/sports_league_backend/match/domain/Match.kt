@@ -1,6 +1,6 @@
 package es.uib.tfg.sports_league_backend.match.domain
 
-import es.uib.tfg.sports_league_backend.participant.domain.Participant
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.ParticipantJPAEntity
 import es.uib.tfg.sports_league_backend.availability.domain.DateTimeSlot
 import es.uib.tfg.sports_league_backend.result.domain.Result
 import es.uib.tfg.sports_league_backend.team.domain.Team
@@ -26,11 +26,11 @@ class Match(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "first_referee_id")
-    var firstReferee: Participant? = null,
+    var firstReferee: ParticipantJPAEntity? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "second_referee_id")
-    var secondReferee: Participant? = null,
+    var secondReferee: ParticipantJPAEntity? = null,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

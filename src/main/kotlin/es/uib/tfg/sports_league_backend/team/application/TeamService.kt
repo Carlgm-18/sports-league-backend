@@ -2,6 +2,7 @@ package es.uib.tfg.sports_league_backend.team.application
 
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.toJPAEntity
 import es.uib.tfg.sports_league_backend.request.domain.TeamCreateRequest
 import es.uib.tfg.sports_league_backend.team.domain.Team
 import es.uib.tfg.sports_league_backend.team.domain.error.TeamCreateError
@@ -23,7 +24,7 @@ class TeamService(val teamRepository: TeamRepository) {
 
     fun createTeamWithRequest(request: TeamCreateRequest, league: League): DomainResult<Team, TeamCreateError> {
         val team = Team(
-            league = league,
+            league = league.toJPAEntity(),
             name = request.name,
             initials = request.initials,
             description = request.description,

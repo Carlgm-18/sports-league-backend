@@ -1,8 +1,9 @@
 package es.uib.tfg.sports_league_backend.request.application
 
 import es.uib.tfg.sports_league_backend.core.DomainResult
-import es.uib.tfg.sports_league_backend.league.application.LeagueService
-import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
+import es.uib.tfg.sports_league_backend.league.application.ports.`in`.ManageLeagueUseCase
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.ManageParticipantUseCase
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.RegisterParticipantUseCase
 import es.uib.tfg.sports_league_backend.participant.application.ParticipationRoleService
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import es.uib.tfg.sports_league_backend.participant.domain.ParticipantRole
@@ -18,6 +19,10 @@ import es.uib.tfg.sportsapi.dto.TeamJoinRequest as TeamJoinRequestDTO
 import es.uib.tfg.sports_league_backend.request.domain.RefereeRequest
 import es.uib.tfg.sports_league_backend.request.domain.TeamCreateRequest
 import es.uib.tfg.sports_league_backend.request.domain.TeamJoinRequest
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.toJPAEntity
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.toDomain
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.toJPAEntity
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.toDomain
 import es.uib.tfg.sportsapi.dto.ResolveRequestInput
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
@@ -28,8 +33,8 @@ import java.time.LocalDateTime
 class RequestService(
     private val requestRepository: RequestRepository,
     private val teamJoinRequestRepository: TeamJoinRequestRepository,
-    private val leagueService: LeagueService,
-    private val participantService: ParticipantService,
+    private val manageLeagueUseCase: ManageLeagueUseCase,
+    private val manageParticipantUseCase: ManageParticipantUseCase,
     private val participationRoleService: ParticipationRoleService,
     private val teamService: TeamService
 ) {
@@ -39,7 +44,7 @@ class RequestService(
 
     private fun isTeamCaptain(userId: Long, request: TeamJoinRequest): Boolean =
         when(
-            val result = participantService
+            val result = manageParticipantUseCase
                 .findParticipant(userId, request.league.id!!)
         ) {
             is DomainResult.Failure -> false
@@ -52,7 +57,7 @@ class RequestService(
 
     private fun isAdminFromSameLeague(userId: Long, request: Request): Boolean =
         when(
-            val result = participantService
+            val result = manageParticipantUseCase
                             .findParticipant(userId, request.league.id!!)
         ) {
             is DomainResult.Failure -> false
@@ -65,19 +70,19 @@ class RequestService(
     fun createRefereeRequest(
         request: RefereeRequestDTO
     ): DomainResult<RefereeRequest, CreateRequestError> {
-        val league = when(val result = leagueService.findLeagueById(request.leagueId)) {
+        val league = when(val result = manageLeagueUseCase.findLeagueById(request.leagueId)) {
             is DomainResult.Failure -> return DomainResult.Failure(LeagueNotFound)
             is DomainResult.Success -> result.data
         }
 
-        val participant = when(val result = participantService.findParticipantById(request.participantId)) {
+        val participant = when(val result = manageParticipantUseCase.findParticipantById(request.participantId)) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> result.data
         }
 
         val refereeRequest = RefereeRequest(
-            league = league,
-            participant = participant,
+            league = league.toJPAEntity(),
+            participant = participant.toJPAEntity(),
             status = RequestState.PENDING
         )
         return DomainResult.Success(requestRepository.save(refereeRequest))
@@ -94,17 +99,17 @@ class RequestService(
             }
         }
 
-        val participant = when(val result = participantService.findParticipantById(request.participantId)) {
+        val participant = when(val result = manageParticipantUseCase.findParticipantById(request.participantId)) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> result.data
         }
 
-        if(team.league != participant.league)
+        if(team.league.id != participant.league.id)
             return DomainResult.Failure(ParticipantAndTeamLeagueMissmatch)
 
         val teamJoinRequest = TeamJoinRequest(
             league = team.league,
-            participant = participant,
+            participant = participant.toJPAEntity(),
             status = RequestState.PENDING,
             team = team,
             way = request.way,
@@ -117,19 +122,19 @@ class RequestService(
         request: TeamCreateRequestDTO
     ): DomainResult<TeamCreateRequest, CreateRequestError> {
 
-        val league = when(val result = leagueService.findLeagueById(request.leagueId)) {
+        val league = when(val result = manageLeagueUseCase.findLeagueById(request.leagueId)) {
             is DomainResult.Failure -> return DomainResult.Failure(LeagueNotFound)
             is DomainResult.Success -> result.data
         }
 
-        val participant = when(val result = participantService.findParticipantById(request.participantId)) {
+        val participant = when(val result = manageParticipantUseCase.findParticipantById(request.participantId)) {
             is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
             is DomainResult.Success -> result.data
         }
 
         val teamCreateRequest = TeamCreateRequest(
-            league = league,
-            participant = participant,
+            league = league.toJPAEntity(),
+            participant = participant.toJPAEntity(),
             status = RequestState.PENDING,
             name = request.name,
             initials = request.initials,
@@ -184,9 +189,10 @@ class RequestService(
     fun resolveTeamCreateRequest(
         request: TeamCreateRequest
     ): DomainResult<TeamCreateRequest, ResolveRequestError> {
-        val targetParticipant = request.participant
+        val targetParticipant = request.participant.toDomain()
+        val leagueDomain = request.league.toDomain()
 
-        when(val result = teamService.createTeamWithRequest(request, request.league)) {
+        when(val result = teamService.createTeamWithRequest(request, leagueDomain)) {
             is DomainResult.Failure -> {
                 return DomainResult.Failure(CouldNotCreateTeam)
             }
@@ -199,7 +205,7 @@ class RequestService(
         val newRole = ParticipantRole(participant = targetParticipant, participationRole = captainRole)
         targetParticipant.roles.add(newRole)
 
-        participantService.save(targetParticipant)
+        manageParticipantUseCase.save(targetParticipant)
 
         return DomainResult.Success(requestRepository.save(request))
     }
@@ -208,13 +214,13 @@ class RequestService(
     fun resolveRefereeRequest(
         request: RefereeRequest
     ): DomainResult<RefereeRequest, ResolveRequestError> {
-        val targetParticipant = request.participant
+        val targetParticipant = request.participant.toDomain()
 
         val refereeRole = participationRoleService.findRoleByName("REFEREE")
         val newRole = ParticipantRole(participant = targetParticipant, participationRole = refereeRole)
         targetParticipant.roles.add(newRole)
 
-        participantService.save(targetParticipant)
+        manageParticipantUseCase.save(targetParticipant)
         return DomainResult.Success(requestRepository.save(request))
     }
 
@@ -223,10 +229,10 @@ class RequestService(
         request: TeamJoinRequest
     ): DomainResult<TeamJoinRequest, ResolveRequestError> {
         val requestTeam = request.team
-        val targetParticipant = request.participant
+        val targetParticipant = request.participant.toDomain()
         targetParticipant.team = requestTeam
 
-        participantService.save(targetParticipant)
+        manageParticipantUseCase.save(targetParticipant)
 
         return DomainResult.Success(requestRepository.save(request))
     }

@@ -9,6 +9,7 @@ import es.uib.tfg.sports_league_backend.result.domain.match_event.Timeout
 import es.uib.tfg.sports_league_backend.result.domain.match_event.Substitution
 import es.uib.tfg.sports_league_backend.result.domain.match_event.Sanction
 import es.uib.tfg.sports_league_backend.participant.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sports_league_backend.participant.infrastructure.repository.toDomain
 import es.uib.tfg.sportsapi.dto.*
 import java.net.URI
 import java.time.LocalDateTime
@@ -107,8 +108,8 @@ fun MatchEvent.toDTO(): MatchPeriodEventsInner {
                 atLocalScore = atLocalScore,
                 atVisitorScore = atVisitorScore,
                 responsibleTeamId = respTeamId,
-                incomingPlayer = incomingPlayer.participant.toDetailsDTO(),
-                outgoingPlayer = outgoingPlayer.participant.toDetailsDTO(),
+                incomingPlayer = incomingPlayer.participant.toDomain().toDetailsDTO(),
+                outgoingPlayer = outgoingPlayer.participant.toDomain().toDetailsDTO(),
                 sactionType = "",
                 reason = "",
                 appliedTo = dummyParticipant,
@@ -125,7 +126,7 @@ fun MatchEvent.toDTO(): MatchPeriodEventsInner {
                 outgoingPlayer = dummyParticipant,
                 sactionType = sanctionType.sanctionTypeName,
                 reason = reason,
-                appliedTo = appliedTo.participant.toDetailsDTO(),
+                appliedTo = appliedTo.participant.toDomain().toDetailsDTO(),
                 durationTime = "00:00"
             )
         }

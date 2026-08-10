@@ -1,6 +1,8 @@
 package es.uib.tfg.sports_league_backend.osstorage.infrastructure.controller
 
-import es.uib.tfg.sports_league_backend.osstorage.infrastructure.repository.StoragePort
+import es.uib.tfg.sports_league_backend.core.DomainResult
+import es.uib.tfg.sports_league_backend.osstorage.application.ports.`in`.GetUploadUrlUseCase
+import es.uib.tfg.sports_league_backend.osstorage.infrastructure.mapper.toResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/storage")
 class StorageController(
-    private val storagePort: StoragePort
+    private val getUploadUrlUseCase: GetUploadUrlUseCase
 ) {
 
     @GetMapping("/upload-url")
@@ -24,7 +26,9 @@ class StorageController(
             return ResponseEntity.badRequest().build()
         }
 
-        val urlInfo = storagePort.generateUploadUrl(folder, extension)
-        return ResponseEntity.ok(urlInfo)
+        return when (val result = getUploadUrlUseCase.getUploadUrl(folder, extension)) {
+            is DomainResult.Success -> ResponseEntity.ok(result.data.toResponse())
+            is DomainResult.Failure -> ResponseEntity.badRequest().build()
+        }
     }
 }

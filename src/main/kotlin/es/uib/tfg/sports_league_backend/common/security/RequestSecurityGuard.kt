@@ -1,6 +1,6 @@
 package es.uib.tfg.sports_league_backend.common.security
 
-import es.uib.tfg.sports_league_backend.participant.application.ParticipantService
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.ManageParticipantUseCase
 import es.uib.tfg.sports_league_backend.request.domain.RefereeRequest
 import es.uib.tfg.sports_league_backend.request.domain.TeamCreateRequest
 import es.uib.tfg.sports_league_backend.request.domain.TeamJoinRequest
@@ -17,18 +17,18 @@ import org.springframework.stereotype.Component
 class RequestSecurityGuard(
     private val requestRepository: RequestRepository,
     private val teamRepository: TeamRepository,
-    private val participantService: ParticipantService,
+    private val manageParticipantUseCase: ManageParticipantUseCase,
     private val leagueSecurityGuard: LeagueSecurityGuard
 ) {
     fun canCreateRequest(userId: Long, leagueId: Long, request: BaseRequest): Boolean {
         return when (request) {
             is RefereeRequestDTO -> {
-                val participant = participantService.findParticipantById(request.participantId)
+                val participant = manageParticipantUseCase.findParticipantById(request.participantId)
                     .let { (it as? es.uib.tfg.sports_league_backend.core.DomainResult.Success)?.data } ?: return false
                 participant.user.id == userId && participant.league.id == leagueId
             }
             is TeamCreateRequestDTO -> {
-                val participant = participantService.findParticipantById(request.participantId)
+                val participant = manageParticipantUseCase.findParticipantById(request.participantId)
                     .let { (it as? es.uib.tfg.sports_league_backend.core.DomainResult.Success)?.data } ?: return false
                 participant.user.id == userId && participant.league.id == leagueId
             }
@@ -38,12 +38,12 @@ class RequestSecurityGuard(
 
                 if (request.way == TeamJoinRequestDTO.Way.INVITATION) {
                     // Current user must be the team captain of the target team in the league
-                    val senderParticipant = participantService.findParticipant(userId, leagueId)
+                    val senderParticipant = manageParticipantUseCase.findParticipant(userId, leagueId)
                         .let { (it as? es.uib.tfg.sports_league_backend.core.DomainResult.Success)?.data } ?: return false
                     senderParticipant.team?.id == team.id && senderParticipant.roles.any { it.participationRole.roleName == "CAPTAIN" }
                 } else { // APPLIANCE
                     // Current user must be the participant applying to the team
-                    val participant = participantService.findParticipantById(request.participantId)
+                    val participant = manageParticipantUseCase.findParticipantById(request.participantId)
                         .let { (it as? es.uib.tfg.sports_league_backend.core.DomainResult.Success)?.data } ?: return false
                     participant.user.id == userId && participant.league.id == leagueId
                 }
@@ -71,7 +71,7 @@ class RequestSecurityGuard(
                     request.participant.user.id == userId
                 } else { // APPLIANCE
                     // Team captain must resolve the request
-                    val resolverParticipant = participantService.findParticipant(userId, leagueId)
+                    val resolverParticipant = manageParticipantUseCase.findParticipant(userId, leagueId)
                         .let { (it as? es.uib.tfg.sports_league_backend.core.DomainResult.Success)?.data } ?: return false
                     resolverParticipant.team?.id == request.team.id && resolverParticipant.roles.any { it.participationRole.roleName == "CAPTAIN" }
                 }
@@ -82,7 +82,7 @@ class RequestSecurityGuard(
 
     fun canViewJoinRequests(userId: Long, teamId: Long): Boolean {
         val team = teamRepository.findByIdOrNull(teamId) ?: return false
-        val viewer = participantService.findParticipant(userId, team.league.id!!)
+        val viewer = manageParticipantUseCase.findParticipant(userId, team.league.id!!)
             .let { (it as? es.uib.tfg.sports_league_backend.core.DomainResult.Success)?.data } ?: return false
         return viewer.team?.id == teamId && viewer.roles.any { it.participationRole.roleName == "CAPTAIN" }
     }
@@ -97,7 +97,7 @@ class RequestSecurityGuard(
             is RefereeRequest -> leagueSecurityGuard.isAdmin(userId, leagueId)
             is TeamCreateRequest -> leagueSecurityGuard.isAdmin(userId, leagueId)
             is TeamJoinRequest -> {
-                val viewer = participantService.findParticipant(userId, leagueId)
+                val viewer = manageParticipantUseCase.findParticipant(userId, leagueId)
                     .let { (it as? es.uib.tfg.sports_league_backend.core.DomainResult.Success)?.data } ?: return false
                 viewer.team?.id == request.team.id && viewer.roles.any { it.participationRole.roleName == "CAPTAIN" }
             }

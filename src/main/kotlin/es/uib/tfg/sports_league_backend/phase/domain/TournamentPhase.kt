@@ -1,6 +1,6 @@
 package es.uib.tfg.sports_league_backend.phase.domain
 
-import es.uib.tfg.sports_league_backend.league.domain.League
+import es.uib.tfg.sports_league_backend.league.infrastructure.repository.LeagueJPAEntity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
@@ -10,7 +10,7 @@ import java.time.LocalDate
 @Entity
 @DiscriminatorValue("TOURNAMENT")
 class TournamentPhase(
-    league: League,
+    league: LeagueJPAEntity,
     name: String,
     startDate: LocalDate,
     endDate: LocalDate,
