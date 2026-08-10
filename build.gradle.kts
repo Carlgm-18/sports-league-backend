@@ -20,6 +20,8 @@ repositories {
     mavenCentral()
 }
 
+val byteBuddyAgentConf by configurations.creating
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
@@ -41,6 +43,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    byteBuddyAgentConf("net.bytebuddy:byte-buddy-agent:1.17.8")
+    testImplementation("io.mockk:mockk:1.13.12")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     constraints {
@@ -64,6 +68,11 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+
+    val agentPath = byteBuddyAgentConf.asPath
+    if (agentPath.isNotEmpty()) {
+        jvmArgs("-javaagent:$agentPath")
+    }
 }
 
 openApiGenerate {
