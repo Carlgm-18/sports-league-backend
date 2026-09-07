@@ -14,7 +14,7 @@ class TeamIntegrationTests : BaseIntegrationTest() {
 
     @Test
     fun testTeamLifecycle() {
-        val uniqueEmail = "user.${UUID.randomUUID()}@example.com"
+        val uniqueEmail = randomEmail()
         val token = obtainToken(uniqueEmail)
 
         // 1. Create league

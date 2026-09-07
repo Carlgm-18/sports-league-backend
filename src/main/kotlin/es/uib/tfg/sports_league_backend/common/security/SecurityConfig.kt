@@ -37,6 +37,7 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthenticationFilter) {
                 auth.requestMatchers("/api/v1/users/register").permitAll()
                 auth.requestMatchers("/api/v1/users/login").permitAll()
                 auth.requestMatchers("/api/v1/auth/token/refresh").permitAll()
+                auth.requestMatchers("/api/v1/auth/external-authentication").permitAll()
                 auth.requestMatchers(
                     HttpMethod.GET,
                     "/api/v1/leagues/**",

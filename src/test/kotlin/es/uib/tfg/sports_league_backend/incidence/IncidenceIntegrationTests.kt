@@ -16,7 +16,7 @@ class IncidenceIntegrationTests : BaseIntegrationTest() {
 
     @Test
     fun testIncidenceLifecycle() {
-        val uniqueEmail = "user.${UUID.randomUUID()}@example.com"
+        val uniqueEmail = randomEmail()
         val token = obtainToken(uniqueEmail)
 
         // 1. Create league

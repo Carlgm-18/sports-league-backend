@@ -14,7 +14,7 @@ class UserIntegrationTests : BaseIntegrationTest() {
 
     @Test
     fun testUserLifecycle() {
-        val uniqueEmail = "user.${UUID.randomUUID()}@example.com"
+        val uniqueEmail = randomEmail()
         val token = obtainToken(uniqueEmail)
         
         assert(token.isNotEmpty())

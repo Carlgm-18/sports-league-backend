@@ -20,6 +20,8 @@ abstract class BaseIntegrationTest {
     @Autowired
     protected lateinit var objectMapper: ObjectMapper
 
+    protected fun randomEmail(): String = "u_${java.util.UUID.randomUUID().toString().take(8)}@example.com"
+
     protected fun obtainToken(email: String): String {
         val registerJson = """
             {
@@ -59,16 +61,22 @@ abstract class BaseIntegrationTest {
     }
 
     protected fun createLeague(token: String, name: String): Long {
+        val configName = "Config_${java.util.UUID.randomUUID().toString().take(8)}"
+        val punctuationName = "Punct_${java.util.UUID.randomUUID().toString().take(8)}"
+        val startDate = java.time.LocalDate.now().plusDays(10).toString()
+        val endDate = java.time.LocalDate.now().plusMonths(3).toString()
+        val maxInscriptionDate = java.time.LocalDate.now().plusDays(5).toString()
+        val phaseEndDate = java.time.LocalDate.now().plusMonths(2).toString()
         val leagueJson = """
             {
               "name": "$name",
               "description": "Una gran liga de voleibol de verano",
               "locationUrl": "http://example.com/polideportivo",
-              "startDate": "2026-07-01",
-              "endDate": "2026-08-31",
-              "maxInscriptionDate": "2026-06-30",
+              "startDate": "$startDate",
+              "endDate": "$endDate",
+              "maxInscriptionDate": "$maxInscriptionDate",
               "customConfiguration": {
-                "name": "Configuracion Voleibol Test",
+                "name": "$configName",
                 "category": "MIXT",
                 "minTeamMembers": 6,
                 "maxTeamMembers": 25,
@@ -76,7 +84,7 @@ abstract class BaseIntegrationTest {
                 "sportId": 1
               },
               "customPunctuationSystem": {
-                "name": "Sistema Voleibol Test",
+                "name": "$punctuationName",
                 "rules": [
                   {
                     "localScore": 3,
@@ -90,8 +98,8 @@ abstract class BaseIntegrationTest {
               "phases": [
                 {
                   "name": "Fase Regular Test",
-                  "startDate": "2026-07-01",
-                  "endDate": "2026-07-31",
+                  "startDate": "$startDate",
+                  "endDate": "$phaseEndDate",
                   "sequenceOrder": 1,
                   "type": "CLASSIFICATION",
                   "groups": [

@@ -1,0 +1,218 @@
+[
+  {
+    "groupId": 1,
+    "groupName": "Grupo A Clasificación",
+    "standings": [
+      {
+        "position": 1,
+        "team": {
+          "teamId": 3,
+          "name": "Club Voleibol Palma 3",
+          "initials": "CVP3",
+          "motto": "Pasión y esfuerzo 3",
+          "primaryColor": "#05A6C0",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 10,
+        "lostMatches": 0,
+        "drawnMatches": 0,
+        "points": 30,
+        "wonSets": 30,
+        "lostSets": 5,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 2,
+        "team": {
+          "teamId": 9,
+          "name": "Club Voleibol Palma 9",
+          "initials": "CVP9",
+          "motto": "Pasión y esfuerzo 9",
+          "primaryColor": "#10F440",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 10,
+        "lostMatches": 0,
+        "drawnMatches": 0,
+        "points": 30,
+        "wonSets": 30,
+        "lostSets": 8,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 3,
+        "team": {
+          "teamId": 5,
+          "name": "Club Voleibol Palma 5",
+          "initials": "CVP5",
+          "motto": "Pasión y esfuerzo 5",
+          "primaryColor": "#096B40",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 10,
+        "lostMatches": 0,
+        "drawnMatches": 0,
+        "points": 30,
+        "wonSets": 30,
+        "lostSets": 11,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 4,
+        "team": {
+          "teamId": 7,
+          "name": "Club Voleibol Palma 7",
+          "initials": "CVP7",
+          "motto": "Pasión y esfuerzo 7",
+          "primaryColor": "#0D2FC0",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 10,
+        "lostMatches": 0,
+        "drawnMatches": 0,
+        "points": 30,
+        "wonSets": 30,
+        "lostSets": 11,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 5,
+        "team": {
+          "teamId": 1,
+          "name": "Club Voleibol Palma 1",
+          "initials": "CVP1",
+          "motto": "Pasión y esfuerzo 1",
+          "primaryColor": "#01E240",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 10,
+        "lostMatches": 0,
+        "drawnMatches": 0,
+        "points": 30,
+        "wonSets": 30,
+        "lostSets": 14,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 6,
+        "team": {
+          "teamId": 4,
+          "name": "Club Voleibol Palma 4",
+          "initials": "CVP4",
+          "motto": "Pasión y esfuerzo 4",
+          "primaryColor": "#078900",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 0,
+        "lostMatches": 10,
+        "drawnMatches": 0,
+        "points": 0,
+        "wonSets": 14,
+        "lostSets": 30,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 7,
+        "team": {
+          "teamId": 8,
+          "name": "Club Voleibol Palma 8",
+          "initials": "CVP8",
+          "motto": "Pasión y esfuerzo 8",
+          "primaryColor": "#0F1200",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 0,
+        "lostMatches": 10,
+        "drawnMatches": 0,
+        "points": 0,
+        "wonSets": 14,
+        "lostSets": 30,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 8,
+        "team": {
+          "teamId": 2,
+          "name": "Club Voleibol Palma 2",
+          "initials": "CVP2",
+          "motto": "Pasión y esfuerzo 2",
+          "primaryColor": "#03C480",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 0,
+        "lostMatches": 10,
+        "drawnMatches": 0,
+        "points": 0,
+        "wonSets": 11,
+        "lostSets": 30,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 9,
+        "team": {
+          "teamId": 6,
+          "name": "Club Voleibol Palma 6",
+          "initials": "CVP6",
+          "motto": "Pasión y esfuerzo 6",
+          "primaryColor": "#0B4D80",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 0,
+        "lostMatches": 10,
+        "drawnMatches": 0,
+        "points": 0,
+        "wonSets": 5,
+        "lostSets": 30,
+        "wonPoints": 0,
+        "lostPoints": 0
+      },
+      {
+        "position": 10,
+        "team": {
+          "teamId": 10,
+          "name": "Club Voleibol Palma 10",
+          "initials": "CVP10",
+          "motto": "Pasión y esfuerzo 10",
+          "primaryColor": "#12D680",
+          "secondaryColor": "#FFFFFF",
+          "iconImageUrl": null
+        },
+        "playedMatches": 10,
+        "wonMatches": 0,
+        "lostMatches": 10,
+        "drawnMatches": 0,
+        "points": 0,
+        "wonSets": 5,
+        "lostSets": 30,
+        "wonPoints": 0,
+        "lostPoints": 0
+      }
+    ]
+  }
+]

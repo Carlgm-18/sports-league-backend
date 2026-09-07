@@ -12,7 +12,7 @@ class AuthIntegrationTests : BaseIntegrationTest() {
 
     @Test
     fun testTokenRefresh() {
-        val uniqueEmail = "user.${UUID.randomUUID()}@example.com"
+        val uniqueEmail = randomEmail()
         
         // 1. Register the user
         val registerJson = """

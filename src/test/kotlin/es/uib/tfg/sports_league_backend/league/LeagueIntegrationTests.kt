@@ -17,7 +17,7 @@ class LeagueIntegrationTests : BaseIntegrationTest() {
 
     @Test
     fun testLeagueLifecycle() {
-        val uniqueEmail = "user.${UUID.randomUUID()}@example.com"
+        val uniqueEmail = randomEmail()
         val token = obtainToken(uniqueEmail)
 
         // 1. Create league
@@ -42,7 +42,7 @@ class LeagueIntegrationTests : BaseIntegrationTest() {
 
     @Test
     fun testGetLeagueMatchesEndpoint() {
-        val uniqueEmail = "user.${UUID.randomUUID()}@example.com"
+        val uniqueEmail = randomEmail()
         val token = obtainToken(uniqueEmail)
 
         // 1. Create a league

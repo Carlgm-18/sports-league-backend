@@ -2,7 +2,7 @@ package es.uib.tfg.sports_league_backend.osstorage
 
 import es.uib.tfg.sports_league_backend.BaseIntegrationTest
 import org.junit.jupiter.api.Test
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
@@ -11,11 +11,11 @@ class StorageIntegrationTests : BaseIntegrationTest() {
 
     @Test
     fun testStorageUploadUrl() {
-        val uniqueEmail = "user.${UUID.randomUUID()}@example.com"
+        val uniqueEmail = randomEmail()
         val token = obtainToken(uniqueEmail)
 
         mockMvc.perform(
-            get("/api/v1/storage/upload-url")
+            post("/api/v1/storage/upload-url")
                 .header("Authorization", "Bearer $token")
                 .param("folder", "avatars")
                 .param("extension", "png")
