@@ -14,6 +14,10 @@ import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toCommand
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toCreateResponse
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toDetailsDTO
 import es.uib.tfg.sports_league_backend.user.infrastructure.mapper.toLoginResponse
+import es.uib.tfg.sports_league_backend.participant.application.ports.`in`.ManageParticipantUseCase
+import es.uib.tfg.sports_league_backend.request.application.RequestService
+import es.uib.tfg.sports_league_backend.league.infrastructure.mapper.toSummaryDTO
+import es.uib.tfg.sports_league_backend.request.infrastructure.mapper.toDTO
 import es.uib.tfg.sportsapi.dto.UserCreateRequest
 import es.uib.tfg.sportsapi.dto.UserLoginRequest
 import es.uib.tfg.sportsapi.dto.UserUpdateRequest
@@ -34,7 +38,9 @@ class UserController(
     private val registerUserUseCase: RegisterUserUseCase,
     private val loginUserUseCase: LoginUserUseCase,
     private val findUserUseCase: FindUserUseCase,
-    private val updateUserUseCase: UpdateUserUseCase
+    private val updateUserUseCase: UpdateUserUseCase,
+    private val manageParticipantUseCase: ManageParticipantUseCase,
+    private val requestService: RequestService
 ) {
 
     @PostMapping("/register")
@@ -123,4 +129,16 @@ class UserController(
             is DomainResult.Success ->
                 ResponseEntity.status(HttpStatus.CREATED).body(result.data.toDetailsDTO())
         }
+
+    @GetMapping("/me/leagues")
+    fun getMyLeagues(@AuthenticationPrincipal principal: Long): ResponseEntity<*> {
+        val leagues = manageParticipantUseCase.findLeaguesByUserId(principal)
+        return ResponseEntity.ok(leagues.map { it.toSummaryDTO() })
+    }
+
+    @GetMapping("/me/invitations")
+    fun getMyInvitations(@AuthenticationPrincipal principal: Long): ResponseEntity<*> {
+        val invitations = requestService.findInvitationsByUserId(principal)
+        return ResponseEntity.ok(invitations.map { it.toDTO() })
+    }
 }

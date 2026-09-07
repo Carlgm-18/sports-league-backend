@@ -89,7 +89,7 @@ class RequestController(
 
     private fun mapError(error: CreateRequestError): ResponseEntity<*> =
         when (error) {
-            is ParticipantAndTeamLeagueMissmatch ->
+            ParticipantAndTeamLeagueMissmatch ->
                 ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(
@@ -99,26 +99,37 @@ class RequestController(
                         "resources" to listOf("team", "participant")
                     )
                 )
-            is ParticipantNotFound ->
+            ParticipantNotFound ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     mapOf(
                         "error" to ErrorCode.RESOURCE_NOT_FOUND,
                         "resource" to "participant"
                     )
                 )
-            is TeamNotFound ->
+            TeamNotFound ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     mapOf(
                         "error" to ErrorCode.RESOURCE_NOT_FOUND,
                         "resource" to "team"
                     )
                 )
-
             LeagueNotFound ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     mapOf(
                         "error" to ErrorCode.RESOURCE_NOT_FOUND,
                         "resource" to "league"
+                    )
+                )
+            ParticipantAlreadyInATeam ->
+                ResponseEntity.status(HttpStatus.CONFLICT).body(
+                    mapOf(
+                        "error" to ErrorCode.ALREADY_IN_A_TEAM
+                    )
+                )
+            UnauthorizedAction ->
+                ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                    mapOf(
+                        "error" to ErrorCode.UNAUTHORIZED_ERROR
                     )
                 )
         }

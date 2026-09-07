@@ -324,4 +324,28 @@ class LeagueService(
             matchesTeam && matchesStatus
         }
     }
+
+    @Transactional
+    override fun deleteLeague(leagueId: Long): DomainResult<Unit, LeagueRetrieveError> {
+        val league = leagueRepository.findById(leagueId)
+            ?: return DomainResult.Failure(LeagueNotFound)
+        league.deletedAt = java.time.LocalDateTime.now()
+        leagueRepository.save(league)
+        return DomainResult.Success(Unit)
+    }
+
+    @Transactional
+    override fun updatePunctuationSystem(
+        leagueId: Long,
+        rules: List<PunctuationSystemRuleDetails>
+    ): DomainResult<List<PunctuationSystemRuleDetails>, LeagueRetrieveError> {
+        val league = leagueRepository.findById(leagueId)
+            ?: return DomainResult.Failure(LeagueNotFound)
+        
+        league.punctuationSystem.punctuationRules.clear()
+        league.punctuationSystem.punctuationRules.addAll(rules.map { it.toEntity() })
+        val savedLeague = leagueRepository.save(league)
+        
+        return DomainResult.Success(savedLeague.punctuationSystem.punctuationRules.map { it.toDetailsDTO() })
+    }
 }

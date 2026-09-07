@@ -8,7 +8,8 @@ object RequestNotFound : ResolveRequestError, RetrieveRequestError
 object LeagueNotFound : CreateRequestError, ResolveRequestError
 object ParticipantNotFound : ResolveRequestError, CreateRequestError, RetrieveRequestError
 object TeamNotFound : ResolveRequestError, CreateRequestError, RetrieveRequestError
-object UnauthorizedAction : ResolveRequestError, RetrieveRequestError
+object UnauthorizedAction : ResolveRequestError, CreateRequestError, RetrieveRequestError
 object InvalidRequestState : ResolveRequestError
 object CouldNotCreateTeam : ResolveRequestError
 object ParticipantAndTeamLeagueMissmatch: CreateRequestError
+object ParticipantAlreadyInATeam : CreateRequestError

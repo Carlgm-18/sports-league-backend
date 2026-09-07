@@ -99,7 +99,7 @@ class ResultService(
                     else null
                 } else null
 
-                if (dtoEvent.durationTime != null && dtoEvent.durationTime.isNotEmpty() && dtoEvent.durationTime != "null" && dtoEvent.durationTime != "00:00") {
+                if (dtoEvent.durationTime.isNotBlank() && dtoEvent.durationTime != "null" && dtoEvent.durationTime != "00:00") {
                     val parts = dtoEvent.durationTime.split(":")
                     val min = parts[0].toInt()
                     val sec = parts[1].toInt()
@@ -113,7 +113,7 @@ class ResultService(
                         triggerTeam = triggerTeam,
                         durationTime = duration
                     ))
-                } else if (dtoEvent.sactionType != null && dtoEvent.sactionType.isNotEmpty() && dtoEvent.sactionType != "null") {
+                } else if (dtoEvent.sactionType.isNotBlank() && dtoEvent.sactionType != "null") {
                     val appliedToLineup = result.lineups.firstOrNull { it.participant.id == dtoEvent.appliedTo.participantId }
                         ?: throw IllegalArgumentException("Participant ${dtoEvent.appliedTo.participantId} not in lineup")
 

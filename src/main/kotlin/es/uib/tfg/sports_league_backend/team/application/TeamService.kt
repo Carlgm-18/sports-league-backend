@@ -12,15 +12,29 @@ import es.uib.tfg.sports_league_backend.team.infrastructure.repository.TeamRepos
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+
 @Service
 class TeamService(val teamRepository: TeamRepository) {
     fun findAllByLeagueId(leagueId: Long) =
-        teamRepository.findAllByLeagueId(leagueId)
+        teamRepository.findAllByLeagueIdAndDeletedAtIsNull(leagueId)
 
     fun findById(teamId: Long): DomainResult<Team, TeamRetrieveError> =
         teamRepository.findByIdOrNull(teamId)
+            ?.takeIf { it.deletedAt == null }
             ?.let { return DomainResult.Success(it) }
             ?: DomainResult.Failure(TeamNotFound)
+
+    @Transactional
+    fun deleteTeam(teamId: Long): DomainResult<Unit, TeamRetrieveError> {
+        val team = teamRepository.findByIdOrNull(teamId)
+            ?.takeIf { it.deletedAt == null }
+            ?: return DomainResult.Failure(TeamNotFound)
+        team.deletedAt = LocalDateTime.now()
+        teamRepository.save(team)
+        return DomainResult.Success(Unit)
+    }
 
     fun createTeamWithRequest(request: TeamCreateRequest, league: League): DomainResult<Team, TeamCreateError> {
         val team = Team(

@@ -15,4 +15,6 @@ interface ManageLeagueUseCase {
     fun findLeagueById(leagueId: Long): DomainResult<League, LeagueRetrieveError>
     fun updateLeague(leagueId: Long, request: LeagueUpdateRequest): DomainResult<League, LeagueUpdateError>
     fun startLeague(leagueId: Long): DomainResult<Unit, LeagueStartError>
+    fun deleteLeague(leagueId: Long): DomainResult<Unit, LeagueRetrieveError>
+    fun updatePunctuationSystem(leagueId: Long, rules: List<es.uib.tfg.sportsapi.dto.PunctuationSystemRuleDetails>): DomainResult<List<es.uib.tfg.sportsapi.dto.PunctuationSystemRuleDetails>, LeagueRetrieveError>
 }

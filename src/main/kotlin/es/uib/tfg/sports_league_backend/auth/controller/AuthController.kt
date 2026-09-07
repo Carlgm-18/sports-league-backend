@@ -20,6 +20,10 @@ class AuthController(
     private val findUserUseCase: FindUserUseCase,
     @Value("\${JWT_EXPIRATION}") private val jwtExpirationMs: Long
 ) {
+    @PostMapping("/api/v1/auth/external-authentication")
+    fun externalAuthentication(): ResponseEntity<*> {
+        TODO("Not implemented yet")
+    }
 
     @PostMapping("/api/v1/auth/token/refresh")
     fun refreshToken(@RequestBody request: RefreshTokenRequest): ResponseEntity<*> {

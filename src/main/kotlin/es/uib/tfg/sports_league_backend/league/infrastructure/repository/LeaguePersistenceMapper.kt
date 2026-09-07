@@ -4,11 +4,12 @@ import es.uib.tfg.sports_league_backend.league.domain.League
 import es.uib.tfg.sports_league_backend.league.domain.LeagueConfiguration
 import es.uib.tfg.sports_league_backend.league.domain.PunctuationSystem
 import es.uib.tfg.sports_league_backend.league.domain.PunctuationRule
+import es.uib.tfg.sports_league_backend.phase.domain.ClassificationPhase
 import es.uib.tfg.sports_league_backend.user.infrastructure.repository.toJPAEntity
 import es.uib.tfg.sports_league_backend.user.infrastructure.repository.toDomain
 
 fun League.toJPAEntity(): LeagueJPAEntity {
-    return LeagueJPAEntity(
+    val entity = LeagueJPAEntity(
         id = id,
         configuration = configuration.toJPAEntity(),
         punctuationSystem = punctuationSystem.toJPAEntity(),
@@ -26,6 +27,13 @@ fun League.toJPAEntity(): LeagueJPAEntity {
         deletedAt = deletedAt,
         phases = phases
     )
+    entity.phases.forEach { phase ->
+        phase.league = entity
+        if (phase is ClassificationPhase) {
+            phase.groups.forEach { it.phase = phase }
+        }
+    }
+    return entity
 }
 
 fun LeagueJPAEntity.toDomain(): League {

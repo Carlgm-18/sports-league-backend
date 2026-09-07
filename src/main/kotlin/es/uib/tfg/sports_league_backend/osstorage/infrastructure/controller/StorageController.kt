@@ -2,9 +2,10 @@ package es.uib.tfg.sports_league_backend.osstorage.infrastructure.controller
 
 import es.uib.tfg.sports_league_backend.core.DomainResult
 import es.uib.tfg.sports_league_backend.osstorage.application.ports.`in`.GetUploadUrlUseCase
+import es.uib.tfg.sports_league_backend.osstorage.domain.StorageFolder
 import es.uib.tfg.sports_league_backend.osstorage.infrastructure.mapper.toResponse
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -15,20 +16,21 @@ class StorageController(
     private val getUploadUrlUseCase: GetUploadUrlUseCase
 ) {
 
-    @GetMapping("/upload-url")
+    @PostMapping("/upload-url")
     fun getUploadUrl(
         @RequestParam folder: String,
         @RequestParam extension: String
     ): ResponseEntity<StorageUrlResponse> {
 
-        val allowedFolders = listOf("avatars", "league-banners", "team-shields")
-        if (folder !in allowedFolders) {
+        if (!StorageFolder.isValid(folder)) {
             return ResponseEntity.badRequest().build()
         }
 
         return when (val result = getUploadUrlUseCase.getUploadUrl(folder, extension)) {
-            is DomainResult.Success -> ResponseEntity.ok(result.data.toResponse())
-            is DomainResult.Failure -> ResponseEntity.badRequest().build()
+            is DomainResult.Success ->
+                ResponseEntity.ok(result.data.toResponse())
+            is DomainResult.Failure ->
+                ResponseEntity.badRequest().build()
         }
     }
 }

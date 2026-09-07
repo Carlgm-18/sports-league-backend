@@ -14,4 +14,5 @@ interface ManageParticipantUseCase {
     fun findAllLeagueParticipants(leagueId: Long): List<Participant>
     fun updateParticipantById(participantId: Long, updateRequest: ParticipantUpdateRequest): DomainResult<Participant, ParticipantUpdateError>
     fun isLeagueParticipantAndHasRole(userId: Long, leagueId: Long, role: String): Boolean
+    fun findLeaguesByUserId(userId: Long): List<es.uib.tfg.sports_league_backend.league.domain.League>
 }

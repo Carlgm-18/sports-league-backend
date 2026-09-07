@@ -21,4 +21,8 @@ class ClassificationPhase(
 
     @OneToMany(mappedBy = "phase", cascade = [CascadeType.ALL], orphanRemoval = true)
     var groups: MutableList<ClassificationGroup> = groups.toMutableList()
+
+    init {
+        this.groups.forEach { it.phase = this }
+    }
 }

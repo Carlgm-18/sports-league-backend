@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface TeamRepository : JpaRepository<Team, Long> {
     fun findAllByLeagueId(leagueId: Long): List<Team>
+    fun findAllByLeagueIdAndDeletedAtIsNull(leagueId: Long): List<Team>
 }

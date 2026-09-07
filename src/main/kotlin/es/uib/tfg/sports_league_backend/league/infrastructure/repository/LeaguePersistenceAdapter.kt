@@ -11,11 +11,11 @@ class LeaguePersistenceAdapter(
 ) : LeagueRepositoryPort {
 
     override fun findAll(): List<League> {
-        return leagueRepository.findAll().map { it.toDomain() }
+        return leagueRepository.findAllByDeletedAtIsNull().map { it.toDomain() }
     }
 
     override fun findById(id: Long): League? {
-        return leagueRepository.findByIdOrNull(id)?.toDomain()
+        return leagueRepository.findByIdAndDeletedAtIsNull(id)?.toDomain()
     }
 
     override fun save(league: League): League {
@@ -25,6 +25,6 @@ class LeaguePersistenceAdapter(
     }
 
     override fun existsById(id: Long): Boolean {
-        return leagueRepository.existsById(id)
+        return leagueRepository.existsByIdAndDeletedAtIsNull(id)
     }
 }

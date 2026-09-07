@@ -36,14 +36,18 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import es.uib.tfg.sports_league_backend.league.domain.errors.LeagueRetrieveError
+import es.uib.tfg.sportsapi.dto.PunctuationSystemRuleDetails
 
 @RestController
 @RequestMapping("/api/v1/leagues")
@@ -306,5 +310,48 @@ class LeagueController(
                             )
                 }
         }
+
+    @DeleteMapping("/{leagueId}")
+    @PreAuthorize("@leagueSecurityGuard.isAdmin(principal, #leagueId)")
+    fun deleteLeague(
+        @PathVariable leagueId: Long
+    ): ResponseEntity<*> {
+        return when (val result = manageLeagueUseCase.deleteLeague(leagueId)) {
+            is DomainResult.Success ->
+                ResponseEntity.noContent().build<Any>()
+
+            is DomainResult.Failure ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "league"
+                        )
+                    )
+        }
+    }
+
+    @PutMapping("/{leagueId}/punctuation-system")
+    @PreAuthorize("@leagueSecurityGuard.isAdmin(principal, #leagueId)")
+    fun updatePunctuationSystem(
+        @PathVariable leagueId: Long,
+        @Valid @RequestBody rules: List<PunctuationSystemRuleDetails>
+    ): ResponseEntity<*> {
+        return when (val result = manageLeagueUseCase.updatePunctuationSystem(leagueId, rules)) {
+            is DomainResult.Success ->
+                ResponseEntity.ok(result.data)
+
+            is DomainResult.Failure ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.RESOURCE_NOT_FOUND,
+                            "resource" to "league"
+                        )
+                    )
+        }
+    }
 
 }

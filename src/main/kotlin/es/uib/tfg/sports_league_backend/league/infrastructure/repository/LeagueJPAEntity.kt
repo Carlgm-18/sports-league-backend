@@ -14,11 +14,11 @@ class LeagueJPAEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "configuration_id", nullable = false)
     var configuration: LeagueConfigurationJPAEntity,
 
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "punctuation_system_id", nullable = false)
     var punctuationSystem: PunctuationSystemJPAEntity,
 

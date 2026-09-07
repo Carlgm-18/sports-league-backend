@@ -6,5 +6,6 @@ interface ParticipantRepository {
     fun findParticipantById(participantId: Long): Participant?
     fun findParticipant(userId: Long, leagueId: Long): Participant?
     fun findAllByLeagueId(leagueId: Long): List<Participant>
+    fun findAllByUserId(userId: Long): List<Participant>
     fun save(participant: Participant): Participant
 }

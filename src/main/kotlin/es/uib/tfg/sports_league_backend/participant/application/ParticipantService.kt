@@ -140,4 +140,37 @@ class ParticipantService(
         participantJPARepository.save(participant)
         return DomainResult.Success(Unit)
     }
+
+    override fun findLeaguesByUserId(userId: Long): List<League> {
+        val participants = participantJPARepository.findAllByUserId(userId)
+        return participants.map { it.league }
+    }
+
+    @Transactional
+    fun removeMemberFromTeam(captainUserId: Long, teamId: Long, participantId: Long): DomainResult<Unit, ParticipantUpdateError> {
+        val participantToKick = participantJPARepository.findParticipantById(participantId)
+            ?: return DomainResult.Failure(ParticipantNotFound)
+        
+        if (participantToKick.team?.id != teamId) {
+            return DomainResult.Failure(NotInATeam)
+        }
+        
+        val leagueId = participantToKick.league.id!!
+        val captain = participantJPARepository.findParticipant(captainUserId, leagueId)
+            ?: return DomainResult.Failure(UnauthorizedAction)
+            
+        val isCaptain = captain.team?.id == teamId && captain.roles.any { it.participationRole.roleName == "CAPTAIN" }
+        val isAdmin = captain.roles.any { it.participationRole.roleName == "ADMIN" }
+        
+        if (!isCaptain && !isAdmin) {
+            return DomainResult.Failure(UnauthorizedAction)
+        }
+        
+        participantToKick.team = null
+        participantToKick.dorsal = null
+        participantToKick.roles.removeIf { it.participationRole.roleName == "CAPTAIN" }
+        
+        participantJPARepository.save(participantToKick)
+        return DomainResult.Success(Unit)
+    }
 }

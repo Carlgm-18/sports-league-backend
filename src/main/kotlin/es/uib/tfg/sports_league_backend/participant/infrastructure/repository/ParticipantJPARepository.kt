@@ -26,6 +26,9 @@ class ParticipantJPARepository (
 
     override fun save(participant: Participant): Participant =
         participantRepository.save(participant.toJPAEntity()).toDomain()
+
+    override fun findAllByUserId(userId: Long): List<Participant> =
+        participantRepository.findAllByUserId(userId).map { it.toDomain() }
 }
 
 interface JpaParticipantRepository : JpaRepository<ParticipantJPAEntity, Long> {
@@ -34,4 +37,5 @@ interface JpaParticipantRepository : JpaRepository<ParticipantJPAEntity, Long> {
     fun findParticipantByUserIdAndLeagueId(userId: Long, leagueId: Long): ParticipantJPAEntity?
     fun findAllByLeagueId(leagueId: Long): List<ParticipantJPAEntity>
     fun findParticipantById(participantId: Long): ParticipantJPAEntity?
+    fun findAllByUserId(userId: Long): List<ParticipantJPAEntity>
 }

@@ -1,5 +1,5 @@
 -- V3__create_leaderboard_view.sql
-CREATE OR REPLACE VIEW v_match_team_performance AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS v_match_team_performance AS
 -- Local team perspective
 SELECT
     m.id AS match_id,
@@ -79,3 +79,16 @@ LEFT JOIN (
     GROUP BY match_id
 ) mp ON mp.match_id = m.id
 WHERE m.status = 'ENDED';
+
+CREATE OR REPLACE FUNCTION refresh_leaderboard()
+    RETURNS TRIGGER AS $$
+BEGIN
+    REFRESH MATERIALIZED VIEW v_match_team_performance;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_refresh_leaderboard
+    AFTER INSERT OR UPDATE OR DELETE ON result
+    FOR EACH STATEMENT
+EXECUTE FUNCTION refresh_leaderboard();

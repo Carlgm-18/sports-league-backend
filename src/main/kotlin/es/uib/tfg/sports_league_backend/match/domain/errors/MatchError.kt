@@ -25,4 +25,7 @@ object MatchAlreadyEnded : MatchUpdateError
 object TeamNotInMatch : MatchUpdateError
 object TeamNotFound : MatchUpdateError
 object InvalidState : MatchUpdateError
+object SignatureAlreadyExists : MatchUpdateError
+object SignatureNotFound : MatchUpdateError
+object UnauthorizedAction : MatchUpdateError
 

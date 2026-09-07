@@ -250,4 +250,57 @@ class RequestService(
         val requests = teamJoinRequestRepository.findAllByTeamId(teamId)
         return DomainResult.Success(requests)
     }
+
+    @Transactional
+    fun inviteParticipantToTeam(
+        captainUserId: Long,
+        teamId: Long,
+        participantId: Long
+    ): DomainResult<TeamJoinRequest, CreateRequestError> {
+        val team = when (val result = teamService.findById(teamId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(TeamNotFound)
+            is DomainResult.Success -> result.data
+        }
+
+        val leagueId = team.league.id!!
+        val captain = manageParticipantUseCase.findParticipant(captainUserId, leagueId)
+            .let { (it as? DomainResult.Success)?.data }
+            ?: return DomainResult.Failure(UnauthorizedAction)
+
+        val isCaptain = captain.team?.id == teamId && captain.roles.any { it.participationRole.roleName == "CAPTAIN" }
+        val isAdmin = captain.roles.any { it.participationRole.roleName == "ADMIN" }
+        if (!isCaptain && !isAdmin) {
+            return DomainResult.Failure(UnauthorizedAction)
+        }
+
+        val participant = when (val result = manageParticipantUseCase.findParticipantById(participantId)) {
+            is DomainResult.Failure -> return DomainResult.Failure(ParticipantNotFound)
+            is DomainResult.Success -> result.data
+        }
+
+        if (participant.league.id != team.league.id) {
+            return DomainResult.Failure(ParticipantAndTeamLeagueMissmatch)
+        }
+
+        if (participant.team != null) {
+            return DomainResult.Failure(ParticipantAlreadyInATeam)
+        }
+
+        val teamJoinRequest = TeamJoinRequest(
+            league = team.league,
+            participant = participant.toJPAEntity(),
+            status = RequestState.PENDING,
+            team = team,
+            way = TeamJoinRequestDTO.Way.INVITATION
+        )
+        return DomainResult.Success(requestRepository.save(teamJoinRequest))
+    }
+
+    fun findInvitationsByUserId(userId: Long): List<TeamJoinRequest> {
+        return teamJoinRequestRepository.findAllByParticipantUserIdAndWayAndStatus(
+            userId,
+            TeamJoinRequestDTO.Way.INVITATION,
+            RequestState.PENDING
+        )
+    }
 }

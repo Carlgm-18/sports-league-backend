@@ -94,7 +94,7 @@ class ClassificationMatchGenerationStrategy(
             firstLegMatches.add(roundMatches)
 
             // Berger rotation: left one team fix and rotate the others
-            list.addFirst(list.removeLast())
+            list.add(1, list.removeLast())
         }
 
         // Clone first leg matches and invert the locality to generate the second leg matches

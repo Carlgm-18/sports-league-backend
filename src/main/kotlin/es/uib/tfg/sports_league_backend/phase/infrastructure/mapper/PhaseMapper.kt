@@ -90,3 +90,10 @@ fun TournamentPhaseCreateRequest.toEntity(league: LeagueJPAEntity): Phase =
         stagesNumber = stagesNumber,
         league = league
     )
+
+fun Phase.toDetailsDTO(): Any =
+    when (this) {
+        is ClassificationPhase -> this.toDetailsDTO()
+        is TournamentPhase -> this.toDetailsDTO()
+        else -> throw IllegalArgumentException("Unknown phase type: ${this::class.simpleName}")
+    }

@@ -79,6 +79,7 @@ class UserService(
             ?.let { DomainResult.Success(it) }
             ?: DomainResult.Failure(UserNotFound)
 
+    @Transactional
     override fun updateUserById(id: Long, newUser: UserUpdateCommand): DomainResult<User, UserRetrieveError> {
 
         val user = userRepository.findById(id)

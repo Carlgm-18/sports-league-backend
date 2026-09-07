@@ -24,14 +24,19 @@ import es.uib.tfg.sports_league_backend.match.domain.errors.ResolveOwnProposalEr
 import es.uib.tfg.sports_league_backend.match.domain.errors.ScheduleAlreadyTaken
 import es.uib.tfg.sports_league_backend.match.domain.errors.TeamNotFound
 import es.uib.tfg.sports_league_backend.match.domain.errors.TeamNotInMatch
+import es.uib.tfg.sports_league_backend.match.domain.errors.SignatureAlreadyExists
+import es.uib.tfg.sports_league_backend.match.domain.errors.SignatureNotFound
+import es.uib.tfg.sports_league_backend.match.domain.errors.UnauthorizedAction
 import es.uib.tfg.sports_league_backend.match.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.match.infrastructure.mapper.toDetailsDTO
+import es.uib.tfg.sportsapi.dto.DateTimeSlotDetails
 import es.uib.tfg.sportsapi.dto.MatchDateProposalCreateRequest
 import es.uib.tfg.sportsapi.dto.MatchDateProposalResolveRequest
 import es.uib.tfg.sportsapi.dto.MatchUpdateRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import jakarta.validation.Valid
 
@@ -131,6 +136,30 @@ class MatchController(
                             "error" to ErrorCode.WINNER_NOT_IN_MATCH
                         )
                     )
+            SignatureAlreadyExists ->
+                ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.SIGNATURE_ALREADY_EXISTS
+                        )
+                    )
+            SignatureNotFound ->
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.SIGNATURE_NOT_FOUND
+                        )
+                    )
+            UnauthorizedAction ->
+                ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                        mapOf(
+                            "error" to ErrorCode.UNAUTHORIZED_ERROR
+                        )
+                    )
         }
 
 
@@ -209,6 +238,37 @@ class MatchController(
             is DomainResult.Failure -> {
                 mapError(result.error)
             }
+        }
+    }
+
+    @PatchMapping("/schedule/force")
+    @PreAuthorize("@matchSecurityGuard.isAdminOfMatch(principal, #matchId)")
+    fun forceSchedule(
+        @PathVariable matchId: Long,
+        @Valid @RequestBody request: DateTimeSlotDetails
+    ): ResponseEntity<*> {
+        return when (val result = matchService.forceSchedule(matchId, request)) {
+            is DomainResult.Success -> ResponseEntity.ok(result.data.toDetailsDTO(matchService.getActiveProposal(matchId)))
+            is DomainResult.Failure -> mapError(result.error)
+        }
+    }
+
+    @PatchMapping("/signatures")
+    fun registerSignature(
+        @PathVariable matchId: Long,
+        @RequestBody request: Map<String, String>,
+        @AuthenticationPrincipal principal: Long
+    ): ResponseEntity<*> {
+        val momentStr = request["moment"] ?: return ResponseEntity.badRequest().body(mapOf("error" to "moment is required"))
+        val moment = try {
+            es.uib.tfg.sports_league_backend.result.domain.match_sign.Moment.valueOf(momentStr)
+        } catch (e: Exception) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "Invalid moment value. Use PRE_MATCH or POST_MATCH"))
+        }
+
+        return when (val result = matchService.registerSignature(matchId, principal, moment)) {
+            is DomainResult.Success -> ResponseEntity.ok(mapOf("message" to "Signature registered successfully"))
+            is DomainResult.Failure -> mapError(result.error)
         }
     }
 

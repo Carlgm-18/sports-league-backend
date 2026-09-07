@@ -39,6 +39,17 @@ import es.uib.tfg.sports_league_backend.match.domain.errors.UserNotFound
 import es.uib.tfg.sports_league_backend.match.infrastructure.controller.RefereeType
 import es.uib.tfg.sports_league_backend.participant.domain.Participant
 import es.uib.tfg.sports_league_backend.team.application.TeamService
+import es.uib.tfg.sports_league_backend.sign.application.SignService
+import es.uib.tfg.sports_league_backend.result.infrastructure.repository.ResultRepository
+import es.uib.tfg.sports_league_backend.availability.infrastructure.repository.AvailabilityRepository
+import es.uib.tfg.sports_league_backend.match.domain.errors.SignatureAlreadyExists
+import es.uib.tfg.sports_league_backend.match.domain.errors.SignatureNotFound
+import es.uib.tfg.sports_league_backend.match.domain.errors.UnauthorizedAction
+import es.uib.tfg.sports_league_backend.result.domain.Result
+import es.uib.tfg.sports_league_backend.result.domain.match_sign.MatchSign
+import es.uib.tfg.sports_league_backend.result.domain.match_sign.Moment
+import es.uib.tfg.sports_league_backend.result.domain.match_sign.InMatchRole
+import es.uib.tfg.sportsapi.dto.DateTimeSlotDetails
 import es.uib.tfg.sportsapi.dto.MatchDateProposalResolveRequest
 import es.uib.tfg.sportsapi.dto.MatchUpdateRequest
 import es.uib.tfg.sports_league_backend.participant.domain.errors.LeagueNotFound as ParticipantLeagueNotFound
@@ -56,7 +67,10 @@ class MatchService(
     private val proposalRepository: ProposalRepository,
     private val roundService: RoundService,
     private val manageParticipantUseCase: ManageParticipantUseCase,
-    private val teamService: TeamService
+    private val teamService: TeamService,
+    private val signService: SignService,
+    private val resultRepository: ResultRepository,
+    private val availabilityRepository: AvailabilityRepository
 ) {
     @Transactional
     fun save(match: Match): Match =
@@ -371,5 +385,92 @@ class MatchService(
         }
 
         return DomainResult.Success(matchRepository.save(match))
+    }
+
+    @Transactional
+    fun forceSchedule(
+        matchId: Long,
+        dateTimeSlotDto: DateTimeSlotDetails
+    ): DomainResult<Match, MatchUpdateError> {
+        val match = matchRepository.findByIdOrNull(matchId)
+            ?: return DomainResult.Failure(MatchNotFound)
+
+        val slot = if (dateTimeSlotDto.dateTimeSlotId > 0L) {
+            availabilityRepository.findByIdOrNull(dateTimeSlotDto.dateTimeSlotId)
+                ?: return DomainResult.Failure(MatchNotFound)
+        } else {
+            val newSlot = DateTimeSlot(
+                dateTime = dateTimeSlotDto.dateTime,
+                duration = dateTimeSlotDto.duration,
+                roundId = match.roundId
+            )
+            availabilityRepository.save(newSlot)
+        }
+
+        match.dateTime = slot
+        match.status = MatchState.SCHEDULED
+        val savedMatch = matchRepository.save(match)
+        return DomainResult.Success(savedMatch)
+    }
+
+    @Transactional
+    fun registerSignature(
+        matchId: Long,
+        userId: Long,
+        moment: Moment
+    ): DomainResult<MatchSign, MatchUpdateError> {
+        val match = matchRepository.findByIdOrNull(matchId)
+            ?: return DomainResult.Failure(MatchNotFound)
+
+        val signResult = signService.getSignByUserId(userId)
+        if (signResult is DomainResult.Failure) {
+            return DomainResult.Failure(SignatureNotFound)
+        }
+        val sign = (signResult as DomainResult.Success).data
+
+        val localTeam = match.localTeam
+        val visitorTeam = match.visitorTeam
+        val leagueId = localTeam?.league?.id ?: visitorTeam?.league?.id ?: return DomainResult.Failure(MatchNotFound)
+
+        val participant = manageParticipantUseCase.findParticipant(userId, leagueId)
+            .let { (it as? DomainResult.Success)?.data }
+
+        val isCaptain = participant?.roles?.any { it.participationRole.roleName == "CAPTAIN" } == true
+
+        val inMatchRole = when {
+            match.firstReferee?.user?.id == userId -> InMatchRole.FIRST_REFEREE
+            match.secondReferee?.user?.id == userId -> InMatchRole.SECOND_REFEREE
+            isCaptain && participant?.team?.id == localTeam?.id -> InMatchRole.LOCAL_CAPTAIN
+            isCaptain && participant?.team?.id == visitorTeam?.id -> InMatchRole.VISITOR_CAPTAIN
+            else -> return DomainResult.Failure(UnauthorizedAction)
+        }
+
+        var result = resultRepository.findByIdOrNull(matchId)
+        if (result == null) {
+            result = Result(
+                id = matchId,
+                match = match,
+                localTotalScore = 0,
+                visitorTotalScore = 0,
+                recordUrl = null
+            )
+            result = resultRepository.saveAndFlush(result)
+        }
+
+        if (result.matchSigns.any { it.moment == moment && it.inMatchRole == inMatchRole }) {
+            return DomainResult.Failure(SignatureAlreadyExists)
+        }
+
+        val matchSign = MatchSign(
+            moment = moment,
+            inMatchRole = inMatchRole,
+            sign = sign,
+            signedAt = LocalDateTime.now(),
+            result = result
+        )
+        result.matchSigns.add(matchSign)
+        resultRepository.save(result)
+
+        return DomainResult.Success(matchSign)
     }
 }

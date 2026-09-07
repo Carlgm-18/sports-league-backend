@@ -7,8 +7,6 @@ BEGIN
         UPDATE team
         SET deleted_at = NEW.deleted_at
         WHERE league_id = NEW.id AND deleted_at IS NULL;
-
-        -- Puedes añadir más tablas aquí abajo si es necesario (participaciones, etc.)
     END IF;
     RETURN NEW;
 END;

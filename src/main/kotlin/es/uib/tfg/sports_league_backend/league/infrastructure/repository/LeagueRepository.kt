@@ -4,4 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface LeagueRepository : JpaRepository<LeagueJPAEntity, Long>
+interface LeagueRepository : JpaRepository<LeagueJPAEntity, Long> {
+    fun findAllByDeletedAtIsNull(): List<LeagueJPAEntity>
+    fun findByIdAndDeletedAtIsNull(id: Long): LeagueJPAEntity?
+    fun existsByIdAndDeletedAtIsNull(id: Long): Boolean
+}
